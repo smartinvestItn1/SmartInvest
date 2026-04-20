@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Support</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container contact-box">
+
+  <h2>Customer Support</h2>
+
+  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+       width="80">
+
+  <p>We're available 24/7 to assist you</p>
+
+  <h3>+234 916 916 5200</h3>
+
+  <button class="whatsapp-btn" onclick="openWhatsApp()">
+    💬 Chat on WhatsApp
+  </button>
+
+  <div class="nav">
+    <button class="nav-btn" onclick="goHome()">🏠 Home</button>
+    <button class="nav-btn" onclick="goBack()">⬅ Dashboard</button>
+  </div>
+
+</div>
+
+<script>
+
+function openWhatsApp() {
+  let number = "2349169165200";
+
+  let message = encodeURIComponent(
+    "Hello SmartInvest Support, I need help with my account."
+  );
+
+  let url = `https://wa.me/${number}?text=${message}`;
+
+  window.open(url, "_blank");
+}
+
+function goHome() {
+  window.location.href = "index.html";
+}
+
+function goBack() {
+  window.location.href = "dashboard.html";
+}
+
+</script>
+</body>
+</html>

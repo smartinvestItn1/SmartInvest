@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+  <h2>My Profile</h2>
+
+  <!-- Profile Picture -->
+  <img id="iavatar" class="iavatar" src="" alt="Profile" onclick="triggerUpload()">
+
+<input type="file" id="fileInput" style="display:none" onchange="uploadImage(event)">
+
+  <input type="file" onchange="uploadImage(event)"><br><br>
+
+  <!-- USER INFO -->
+  <p><strong>Username:</strong></p>
+  <input id="usernameInput"><br><br>
+
+  <p><strong>Email:</strong></p>
+  <input id="emailInput"><br><br>
+
+  <p><strong>Balance:</strong> ₦<span id="balance"></span></p>
+
+  <button onclick="updateProfile()">Save Changes</button>
+
+  <hr>
+
+  <!-- PASSWORD CHANGE -->
+  <h3>Change Password</h3>
+  <input id="oldPassword" type="password" placeholder="Old Password"><br><br>
+  <input id="newPassword" type="password" placeholder="New Password"><br><br>
+
+  <button onclick="changePassword()">Update Password</button>
+
+  <br><br>
+  <button onclick="goDashboard()">Back</button>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<script>
+// 🔐 check login
+let currentUser = localStorage.getItem("loggedInUser");
+
+if (!currentUser) {
+  window.location.href = "login.html";
+}
+
+// 📦 users
+let users = JSON.parse(localStorage.getItem("users")) || [];
+let userIndex = users.findIndex(u => u.username === currentUser);
+
+if (userIndex === -1) {
+  window.location.href = "login.html";
+}
+
+let userData = users[userIndex];
+
+// 🧾 display data
+document.getElementById("usernameInput").value = userData.username;
+document.getElementById("emailInput").value = userData.email || "";
+document.getElementById("balance").innerText = userData.balance;
+
+// 🖼️ profile image
+let avatar = document.getElementById("iavatar");
+
+if (userData.image) {
+  avatar.src = userData.image;
+} else {
+  avatar.src = "https://via.placeholder.com/90";
+}
+
+// 🔁 update profile
+function updateProfile() {
+  let newUsername = document.getElementById("usernameInput").value;
+  let newEmail = document.getElementById("emailInput").value;
+
+  if (newUsername === "" || newEmail === "") {
+    alert("Fill all fields");
+    return;
+  }
+
+  users[userIndex].username = newUsername;
+  users[userIndex].email = newEmail;
+
+  localStorage.setItem("users", JSON.stringify(users));
+  localStorage.setItem("loggedInUser", newUsername);
+
+  userData = users[userIndex]; // refresh data
+
+  alert("Profile updated");
+}
+
+// 🔐 change password
+function changePassword() {
+  let oldPass = document.getElementById("oldPassword").value;
+  let newPass = document.getElementById("newPassword").value;
+
+  if (oldPass === "" || newPass === "") {
+    alert("Fill all fields");
+    return;
+  }
+
+  if (oldPass !== userData.password) {
+    alert("Old password is incorrect");
+    return;
+  }
+
+  users[userIndex].password = newPass;
+  localStorage.setItem("users", JSON.stringify(users));
+
+  alert("Password changed successfully");
+
+  document.getElementById("oldPassword").value = "";
+  document.getElementById("newPassword").value = "";
+}
+
+// 🖼️ upload image
+function uploadImage(event) {
+  let file = event.target.files[0];
+  if (!file) return;
+
+  let reader = new FileReader();
+
+  reader.onload = function(e) {
+    let imageData = e.target.result;
+
+    users[userIndex].image = imageData;
+    localStorage.setItem("users", JSON.stringify(users));
+
+    avatar.src = imageData;
+  };
+
+  reader.readAsDataURL(file);
+}
+
+// 🔁 navigation
+function goDashboard() {
+  window.location.href = "dashboard.html";
+}
+
+function logout() {
+  localStorage.removeItem("loggedInUser");
+  window.location.href = "login.html";
+}
+function triggerUpload() {
+  document.getElementById("fileInput").click();
+}
+</script>
+
+</body>
+</html>

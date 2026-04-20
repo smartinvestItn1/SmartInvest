@@ -1,0 +1,915 @@
+body {
+  font-family: Arial;
+  background: #f5f5f5;
+  text-align: center;
+}
+
+.container {
+  margin-top: 100px;
+}
+
+input {
+  padding: 10px;
+  margin: 8px;
+  width: 220px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+button {
+  padding: 10px 20px;
+  background: #00c853;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #009624;
+}
+
+.link {
+  margin-top: 10px;
+  display: block;
+  color: blue;
+  cursor: pointer;
+}
+body {
+      margin: 0;
+    }
+
+    .hero {
+      background: linear-gradient(to right, #00c853, #009624);
+      color: white;
+      padding: 80px 20px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 32px;
+    }
+
+    .hero p {
+      margin: 15px 0;
+      font-size: 16px;
+    }
+
+    .btn {
+      padding: 12px 20px;
+      margin: 5px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: white;
+      color: #00c853;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid white;
+      color: white;
+    }
+
+    .section {
+      padding: 30px 15px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .plans {
+      display: grid;
+      gap: 10px;
+    }
+
+    .plan {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .footer {
+      background: #111;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    .logo {
+  width: 80px;
+  margin-bottom: 10px;
+}
+/* FADE IN ANIMATION */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* SLIDE UP ANIMATION */
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* SLOW & SMOOTH ANIMATION */
+.animate {
+  animation: slideUp 2.5s ease-in-out infinite alternate;
+}
+.hero {
+  animation: fadeIn 1s ease-in;
+}
+.card {
+  animation: slideUp 0.6s ease-in;
+}
+.plan {
+  animation: slideUp 0.7s ease-in;
+  background-image: url('/u.jpg');
+  color: white;
+}
+.in{
+  color: green;
+}
+button {
+  transition: 0.3s;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+.animate {
+  animation: slideUp 2.8s ease-in-out infinite alternate;
+}
+/* MENU BUTTON */
+.menuBtn {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  font-size: 28px;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+/* SIDEBAR (HIDDEN BY DEFAULT) */
+.sideBar {
+  position: fixed;
+  right: -220px; /* hidden */
+  top: 0;
+  width: 100px;
+  height: 100%;
+  background: white;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+  padding: 20px;
+  transition: 0.3s;
+}
+
+/* WHEN ACTIVE (VISIBLE) */
+.sideBar.active {
+  right: 0;
+}
+
+.sideBar h3 {
+  margin-bottom: 15px;
+}
+
+.sideBar button {
+  width: 100%;
+  margin: 5px 0;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background: #00c853;
+  color: white;
+  cursor: pointer;
+}
+.box {
+      background: white;
+      padding: 20px;
+      margin: 20px auto;
+      width: 300px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+input {
+      padding: 10px;
+      margin: 5px;
+      width: 80%;
+ }
+
+button {
+      padding: 10px;
+      margin: 5px;
+      width: 85%;
+      cursor: pointer;
+      background: #00c853;
+      color: white;
+      border: none;
+      border-radius: 5px;
+ }
+
+    .balance {
+      font-size: 28px;
+      font-weight: bold;
+      color: #00c853;
+ }
+ .inputBox {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  margin: auto;
+}
+
+.inputBox input {
+  width: 100%;
+  padding: 12px 40px 12px 12px; /* space for eye icon */
+  box-sizing: border-box;
+}
+.iavatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #ddd;
+  display: block;
+  margin: 10px auto;
+}
+
+.container {
+  text-align: center;
+}
+.iavatar {
+  cursor: pointer;
+  transition: 0.5s;
+}
+
+.iavatar:hover {
+  transform: scale(1.05);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.card {
+  background: #fff;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+.card h4 {
+  margin: 0;
+  font-size: 14px;
+  color: gray;
+}
+
+.card h2 {
+  margin: 10px 0 0;
+}
+
+.iavatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin: 10px auto;
+  cursor: pointer;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.card {
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.card button {
+  padding: 8px 12px;
+  border: none;
+  background: #2d6cdf;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.card {
+  background: white;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 10px;
+}
+.back-btn {
+  background: #333;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+ .contact-box {
+      text-align: center;
+      padding: 20px;
+}
+
+.whatsapp-btn {
+      background: #25D366;
+      color: white;
+      border: none;
+      padding: 15px;
+      width: 100%;
+      font-size: 16px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .whatsapp-btn:hover {
+      background: #1ebe5d;
+    }
+
+    .nav-btn {
+      margin-top: 10px;
+      padding: 10px;
+      width: 48%;
+    }
+
+.nav {
+     display: flex;
+     gap: 10px;
+     justify-content: center;
+}
+    .live-feed {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: #111;
+  color: #fff;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  opacity: 0;
+  transition: 0.5s;
+}
+/* ================= PROFILE AVATAR ================= */
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%; /* makes it circle */
+  object-fit: cover;
+  border: 3px solid #00c896;
+  display: block;
+  margin: 10px auto;
+
+  /* animation */
+  animation: rotateAvatar 6s linear infinite;
+}
+
+/* ROTATION ANIMATION */
+@keyframes rotateAvatar {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #00c896;
+  transition: 0.5s;
+}
+
+/* rotate only on hover */
+.avatar:hover {
+  transform: rotate(360deg);
+}body {
+  font-family: Arial;
+  background: #f5f5f5;
+  text-align: center;
+}
+
+.container {
+  margin-top: 100px;
+}
+
+input {
+  padding: 10px;
+  margin: 8px;
+  width: 220px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+button {
+  padding: 10px 20px;
+  background: #00c853;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #009624;
+}
+
+.link {
+  margin-top: 10px;
+  display: block;
+  color: blue;
+  cursor: pointer;
+}
+body {
+      margin: 0;
+    }
+
+    .hero {
+      background: linear-gradient(to right, #00c853, #009624);
+      color: white;
+      padding: 80px 20px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 32px;
+    }
+
+    .hero p {
+      margin: 15px 0;
+      font-size: 16px;
+    }
+
+    .btn {
+      padding: 12px 20px;
+      margin: 5px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: white;
+      color: #00c853;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid white;
+      color: white;
+    }
+
+    .section {
+      padding: 30px 15px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .plans {
+      display: grid;
+      gap: 10px;
+    }
+
+    .plan {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .footer {
+      background: #111;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    .logo {
+  width: 80px;
+  margin-bottom: 10px;
+}
+/* FADE IN ANIMATION */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* SLIDE UP ANIMATION */
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* SLOW & SMOOTH ANIMATION */
+.animate {
+  animation: slideUp 2.5s ease-in-out infinite alternate;
+}
+.hero {
+  animation: fadeIn 1s ease-in;
+}
+.card {
+  animation: slideUp 0.6s ease-in;
+}
+.plan {
+  animation: slideUp 0.7s ease-in;
+  background-image: url('/u.jpg');
+  color: white;
+}
+.in{
+  color: green;
+}
+button {
+  transition: 0.3s;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+.animate {
+  animation: slideUp 2.8s ease-in-out infinite alternate;
+}
+/* MENU BUTTON */
+.menuBtn {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  font-size: 28px;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+/* SIDEBAR (HIDDEN BY DEFAULT) */
+.sideBar {
+  position: fixed;
+  right: -220px; /* hidden */
+  top: 0;
+  width: 100px;
+  height: 100%;
+  background: white;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+  padding: 20px;
+  transition: 0.3s;
+}
+
+/* WHEN ACTIVE (VISIBLE) */
+.sideBar.active {
+  right: 0;
+}
+
+.sideBar h3 {
+  margin-bottom: 15px;
+}
+
+.sideBar button {
+  width: 100%;
+  margin: 5px 0;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background: #00c853;
+  color: white;
+  cursor: pointer;
+}
+.box {
+      background: white;
+      padding: 20px;
+      margin: 20px auto;
+      width: 300px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+input {
+      padding: 10px;
+      margin: 5px;
+      width: 80%;
+ }
+
+button {
+      padding: 10px;
+      margin: 5px;
+      width: 85%;
+      cursor: pointer;
+      background: #00c853;
+      color: white;
+      border: none;
+      border-radius: 5px;
+ }
+
+    .balance {
+      font-size: 28px;
+      font-weight: bold;
+      color: #00c853;
+ }
+ .inputBox {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  margin: auto;
+}
+
+.inputBox input {
+  width: 100%;
+  padding: 12px 40px 12px 12px; /* space for eye icon */
+  box-sizing: border-box;
+}
+
+.eye {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  user-select: none;
+}
+.iavatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #ddd;
+  display: block;
+  margin: 10px auto;
+}
+
+.container {
+  text-align: center;
+}
+.iavatar {
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.iavatar:hover {
+  transform: scale(1.05);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.card {
+  background: #fff;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+.card h4 {
+  margin: 0;
+  font-size: 14px;
+  color: gray;
+}
+
+.card h2 {
+  margin: 10px 0 0;
+}
+
+.iavatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin: 10px auto;
+  cursor: pointer;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.card {
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.card button {
+  padding: 8px 12px;
+  border: none;
+  background: #2d6cdf;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.card {
+  background: white;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 10px;
+}
+.back-btn {
+  background: #333;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+ .contact-box {
+      text-align: center;
+      padding: 20px;
+}
+
+.whatsapp-btn {
+      background: #25D366;
+      color: white;
+      border: none;
+      padding: 15px;
+      width: 100%;
+      font-size: 16px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .whatsapp-btn:hover {
+      background: #1ebe5d;
+    }
+
+    .nav-btn {
+      margin-top: 10px;
+      padding: 10px;
+      width: 48%;
+    }
+
+.nav {
+     display: flex;
+     gap: 10px;
+     justify-content: center;
+}
+    .live-feed {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: #111;
+  color: #fff;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  opacity: 0;
+  transition: 0.5s;
+}
+/* ================= PROFILE AVATAR ================= */
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%; /* makes it circle */
+  object-fit: cover;
+  border: 3px solid #00c896;
+  display: block;
+  margin: 10px auto;
+
+  /* animation */
+  animation: rotateAvatar 6s linear infinite;
+}
+
+/* ROTATION ANIMATION */
+@keyframes rotateAvatar {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #00c896;
+  transition: 0.5s;
+}
+
+/* rotate only on hover */
+.avatar:hover {
+  transform: rotate(360deg);
+}
+/* =========================
+   HISTORY PAGE ONLY STYLE
+========================= */
+
+.container {
+  max-width: 420px;
+  margin: 30px auto;
+  padding: 15px;
+  text-align: center;
+}
+
+/* page title */
+h2 {
+  margin-bottom: 20px;
+  font-size: 22px;
+  color: #green;
+}
+
+/* history card */
+.card {
+  background: #fff;
+  padding: 15px;
+  margin: 12px 0;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+/* transaction type */
+.card h4 {
+  margin: 0;
+  font-size: 14px;
+  color: green;
+}
+
+/* amount */
+.card h2 {
+  margin: 10px 0;
+  font-size: 20px;
+  color: #00c853;
+}
+
+/* status text */
+.card p {
+  margin: 0;
+  font-size: 13px;
+  color: #white;
+}
+
+/* back button */
+.back-btn {
+  margin-top: 20px;
+  padding: 10px 15px;
+  background: green;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* empty state */
+#historyList p {
+  color: green;
+  margin-top: 20px;
+}

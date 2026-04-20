@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h2>Admin Dashboard</h2>
+
+<input id="searchUser" placeholder="Search users..." onkeyup="loadUsers()">
+
+<button onclick="setFilter('all')">All</button>
+<button onclick="setFilter('pending')">Pending</button>
+<button onclick="setFilter('approved')">Approved</button>
+<button onclick="setFilter('rejected')">Rejected</button>
+
+<h3>Notifications</h3>
+<div id="notifications"></div>
+
+<button onclick="logout()">Logout</button>
+
+<hr>
+
+<h3>Users</h3>
+<div id="usersList"></div>
+
+<hr>
+
+<h3>Deposits</h3>
+<div id="depositList"></div>
+
+<hr>
+
+<h3>Investments</h3>
+<div id="investList"></div>
+
+<hr>
+
+<h3>Withdrawals</h3>
+<div id="withdrawList"></div>
+
+<script>
+
+/////////////////////////////////////////////////////
+// 🔐 ADMIN CHECK
+/////////////////////////////////////////////////////
+
+let role = localStorage.getItem("role");
+
+if (role !== "admin") {
+  alert("Access denied");
+  window.location.href = "login.html";
+}
+
+/////////////////////////////////////////////////////
+// 📦 DATA
+/////////////////////////////////////////////////////
+
+let users = JSON.parse(localStorage.getItem("users")) || [];
+let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
+let investments = JSON.parse(localStorage.getItem("pendingInvestments")) || [];
+let withdrawals = JSON.parse(localStorage.getItem("withdrawals")) || [];
+
+/////////////////////////////////////////////////////
+// 🔔 NOTIFICATIONS
+/////////////////////////////////////////////////////
+
+let notifications = JSON.parse(localStorage.getItem("adminNotifications")) || [];
+
+function addNotification(text) {
+  notifications.unshift({
+    text,
+    time: new Date().toLocaleTimeString()
+  });
+
+  if (notifications.length > 10) notifications.pop();
+
+  localStorage.setItem("adminNotifications", JSON.stringify(notifications));
+  renderNotifications();
+}
+
+function renderNotifications() {
+  document.getElementById("notifications").innerHTML =
+    notifications.map(n => `
+      <div class="card">
+        🔔 ${n.text}<br>
+        <small>${n.time}</small>
+      </div>
+    `).join("");
+}
+
+/////////////////////////////////////////////////////
+// 👤 USERS
+/////////////////////////////////////////////////////
+
+function loadUsers() {
+
+  let search = document.getElementById("searchUser").value.toLowerCase();
+
+  let filtered = users.filter(u =>
+    u.username.toLowerCase().includes(search)
+  );
+
+  document.getElementById("usersList").innerHTML =
+    filtered.map(u => `
+      <div class="card">
+        <b>${u.username}</b><br>
+        ${u.email || ""}<br>
+        Balance: $${u.balance || 0}
+      </div>
+    `).join("");
+}
+
+/////////////////////////////////////////////////////
+// 💰 DEPOSITS (NEW IMPORTANT PART)
+/////////////////////////////////////////////////////
+
+function loadDeposits() {
+
+  document.getElementById("depositList").innerHTML =
+    deposits.map((d, i) => `
+
+      <div class="card">
+        <p>User: ${d.user}</p>
+        <p>Coin: ${d.coin}</p>
+        <p>Amount: ${d.amount}</p>
+        <p>Status: ${d.status}</p>
+
+        ${d.status === "pending" ? `
+          <button onclick="approveDeposit(${i})">Approve</button>
+          <button onclick="rejectDeposit(${i})">Reject</button>
+        ` : ""}
+      </div>
+
+    `).join("");
+}
+
+function approveDeposit(i) {
+
+  let d = deposits[i];
+  let userIndex = users.findIndex(u => u.username === d.user);
+
+  if (userIndex !== -1) {
+    users[userIndex].balance += d.amount;
+  }
+
+  deposits[i].status = "approved";
+
+  addNotification(`${d.user} deposit approved ($${d.amount})`);
+
+  saveAll();
+}
+
+function rejectDeposit(i) {
+  deposits[i].status = "rejected";
+  addNotification(`Deposit rejected`);
+  saveAll();
+}
+
+/////////////////////////////////////////////////////
+// 📈 INVESTMENTS
+/////////////////////////////////////////////////////
+
+function loadInvestments() {
+
+  document.getElementById("investList").innerHTML =
+    investments.map((i, index) => `
+
+      <div class="card">
+        <p>User: ${i.user}</p>
+        <p>Plan: ${i.plan}</p>
+        <p>Amount: ${i.amount}</p>
+        <p>Status: ${i.status}</p>
+
+        ${i.status === "pending" ? `
+          <button onclick="approveInvest(${index})">Approve</button>
+          <button onclick="rejectInvest(${index})">Reject</button>
+        ` : ""}
+      </div>
+
+    `).join("");
+}
+
+function approveInvest(i) {
+
+  let item = investments[i];
+  let userIndex = users.findIndex(u => u.username === item.user);
+
+  if (userIndex !== -1) {
+    let profit = item.amount * item.profit;
+    users[userIndex].balance += item.amount + profit;
+  }
+
+  investments[i].status = "approved";
+
+  addNotification(`${item.user} investment approved`);
+
+  saveAll();
+}
+
+function rejectInvest(i) {
+  investments[i].status = "rejected";
+  addNotification(`Investment rejected`);
+  saveAll();
+}
+
+/////////////////////////////////////////////////////
+// 💸 WITHDRAWALS
+/////////////////////////////////////////////////////
+
+function loadWithdrawals() {
+
+  document.getElementById("withdrawList").innerHTML =
+    withdrawals.map((w, i) => `
+
+      <div class="card">
+        <p>User: ${w.user}</p>
+        <p>Amount: ${w.amount}</p>
+        <p>Status: ${w.status}</p>
+
+        ${w.status === "pending" ? `
+          <button onclick="approveWithdraw(${i})">Approve</button>
+          <button onclick="rejectWithdraw(${i})">Reject</button>
+        ` : ""}
+      </div>
+
+    `).join("");
+}
+
+function approveWithdraw(i) {
+
+  let w = withdrawals[i];
+  let userIndex = users.findIndex(u => u.username === w.user);
+
+  if (userIndex !== -1) {
+    users[userIndex].balance -= w.amount;
+  }
+
+  withdrawals[i].status = "approved";
+
+  addNotification(`${w.user} withdrawal approved`);
+
+  saveAll();
+}
+
+function rejectWithdraw(i) {
+  withdrawals[i].status = "rejected";
+  addNotification(`Withdrawal rejected`);
+  saveAll();
+}
+
+/////////////////////////////////////////////////////
+// 💾 SAVE ALL
+/////////////////////////////////////////////////////
+
+function saveAll() {
+  localStorage.setItem("users", JSON.stringify(users));
+  localStorage.setItem("deposits", JSON.stringify(deposits));
+  localStorage.setItem("pendingInvestments", JSON.stringify(investments));
+  localStorage.setItem("withdrawals", JSON.stringify(withdrawals));
+
+  loadUsers();
+  loadDeposits();
+  loadInvestments();
+  loadWithdrawals();
+}
+
+/////////////////////////////////////////////////////
+// 🚪 LOGOUT
+/////////////////////////////////////////////////////
+
+function logout() {
+  localStorage.removeItem("loggedInUser");
+  localStorage.removeItem("role");
+  window.location.href = "login.html";
+}
+
+/////////////////////////////////////////////////////
+// INIT
+/////////////////////////////////////////////////////
+
+loadUsers();
+loadDeposits();
+loadInvestments();
+loadWithdrawals();
+renderNotifications();
+
+setInterval(renderNotifications, 3000);
+
+</script>
+
+</body>
+</html>

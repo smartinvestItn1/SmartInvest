@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+  <button onclick="goHome()">🏠 Home</button>
+
+  <form onsubmit="login(event)">
+
+    <h2>Login</h2>
+
+    <input id="username" placeholder="Username" required><br>
+
+    <div style="position:relative;">
+      <input id="password" type="password" placeholder="Password" autocomplete="Password" required>
+    </div>
+
+    <button type="submit">Login</button>
+
+  </form>
+
+  <p onclick="goSignup()" class="link">
+    Don't have an account? Sign up
+  </p>
+
+</div>
+
+<script>
+
+/////////////////////////////////////////////////////
+// 🔐 LOGIN FUNCTION (FORM SAFE)
+/////////////////////////////////////////////////////
+
+function login(event) {
+  event.preventDefault();
+
+  let username = document.getElementById("username").value.trim();
+  let password = document.getElementById("password").value.trim();
+
+  if (!username || !password) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  // ADMIN LOGIN
+  if (username === "admin" && password === "123123") {
+    localStorage.setItem("loggedInUser", "admin");
+    localStorage.setItem("role", "admin");
+
+    window.location.href = "dashboard.html";
+    return;
+  }
+
+  // USER LOGIN
+  let users = JSON.parse(localStorage.getItem("users")) || [];
+
+  let found = users.find(u =>
+    u.username === username && u.password === password
+  );
+
+  if (!found) {
+    alert("Invalid login details");
+    return;
+  }
+
+  localStorage.setItem("loggedInUser", username);
+  localStorage.setItem("role", "user");
+
+  window.location.href = "dashboard.html";
+}
+
+/////////////////////////////////////////////////////
+// 🏠 NAVIGATION
+/////////////////////////////////////////////////////
+
+function goHome() {
+  window.location.href = "index.html";
+}
+
+function goSignup() {
+  window.location.href = "signup.html";
+}
+
+/////////////////////////////////////////////////////
+// 👁 PASSWORD TOGGLE
+/////////////////////////////////////////////////////
+
+function togglePassword() {
+  let input = document.getElementById("password");
+  input.type = input.type === "password" ? "text" : "password";
+}
+
+</script>
+
+</body>
+</html>

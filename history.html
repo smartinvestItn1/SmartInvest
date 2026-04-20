@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>History</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Your Transaction History</h2>
+
+  <div id="historyList"></div>
+
+  <button onclick="goBack()" class="back-btn">Back</button>
+</div>
+
+<script>
+function loadHistory() {
+  let user = localStorage.getItem("currentUser");
+
+  let allData = JSON.parse(localStorage.getItem("allHistory")) || {};
+
+  let userHistory = allData[user] || [];
+
+  let list = document.getElementById("historyList");
+
+  list.innerHTML = "";
+
+  if (userHistory.length === 0) {
+    list.innerHTML = "<p>No history yet</p>";
+    return;
+  }
+
+  userHistory.forEach(item => {
+    let div = document.createElement("div");
+    div.classList.add("card");
+
+    div.innerHTML = `
+      <h4>${item.type}</h4>
+      <h2>₦${item.amount}</h2>
+      <p>${item.status}</p>
+    `;
+
+    list.appendChild(div);
+  });
+}
+
+function goBack() {
+  window.location.href = "dashboard.html";
+}
+
+loadHistory();
+</script>
+
+</body>
+</html>

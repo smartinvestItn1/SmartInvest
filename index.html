@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartInvest</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- MENU BUTTON -->
+<div class="menuBtn" onclick="toggleSidebar()">☰</div>
+
+<!-- SIDEBAR -->
+<div id="sidebar" class="sideBar">
+
+  <h3>Quick Access</h3>
+
+  <button onclick="goLogin()">Login</button>
+  <button onclick="goSignup()">Sign Up</button>
+  <button onclick="goContact()">Contact Us</button>
+
+</div>
+<!-- HERO -->
+<div class="hero">
+  <img id="dashAvatar" class="avatar" src="logo.png">
+  <h1>SmartInvest</h1>
+  <p>Grow your money smarter and safer</p>
+
+  <button class="btn btn-primary" onclick="goLogin()">Sign in to start your investment</button>
+  <button class="btn btn-secondary" onclick="goSignup()">Create Account</button>
+</div>
+
+<!-- FEATURES -->
+<div class="section">
+  <h2>Why Choose Us</h2>
+
+  <div class="cards">
+    <div class="card">
+      <h3>📈 Smart Growth</h3>
+      <p>We help you grow your funds with intelligent strategies.</p>
+    </div>
+
+    <div class="card">
+      <h3>🔒 Secure System</h3>
+      <p>Your investments are protected with modern security.</p>
+    </div>
+
+    <div class="card">
+      <h3>⚡ Fast Access</h3>
+      <p>Quick deposits and withdrawals anytime.</p>
+    </div>
+
+    <div class="card">
+      <h3>🤝 Trusted Platform</h3>
+      <p>Join thousands building financial freedom.</p>
+    </div>
+  </div>
+</div>
+<div id="liveFeed" class="live-feed"></div>
+<!-- INVESTMENT PLANS -->
+<div class="section" id="plansSection">
+  <h2 class="in">Investment Plans</h2>
+
+  <div class="plan" onclick="goLogin('starter')">
+  <h3>Starter Plan</h3>
+  <p>💰 $50 – $999</p>
+  <p>Low risk plan for beginners</p>
+</div>
+
+<div class="plan" onclick="goLogin('pro')">
+  <h3>Pro Plan</h3>
+  <p>💰 $1,000 – $5,000</p>
+  <p>Balanced growth investment</p>
+</div>
+
+<div class="plan" onclick="goLogin('premium')">
+  <h3>Premium Plan</h3>
+  <p>💰 $5,000 – $100,000</p>
+  <p>High return premium investment</p>
+</div>
+</div>
+
+<!-- CALL TO ACTION -->
+<div class="section">
+  <h2>Start Your Investment Journey Today</h2>
+  <button class="btn btn-primary" onclick="goLogin()">Get Started</button>
+</div>
+<iframe
+  src="https://widget.coinlib.io/widget?type=single&coin=bitcoin&pref_coin_id=1505&theme=dark"
+  width="100%"
+  height="160"
+  scrolling="auto"
+  marginwidth="0"
+  marginheight="0"
+  frameborder="0"
+  border="0"
+  style="border:0; margin:0; padding:0;">
+</iframe>
+<!-- FOOTER -->
+<div class="footer">
+  <p>© 2026 SmartInvest</p>
+</div>
+
+<script>
+function goLogin() {
+  window.location.href = "login.html";
+}
+
+function goSignup() {
+  window.location.href = "signup.html";
+}
+window.addEventListener("scroll", function () {
+  let section = document.getElementById("plansSection");
+
+  let position = section.getBoundingClientRect().top;
+  let screenHeight = window.innerHeight;
+
+  if (position < screenHeight - 100) {
+    section.classList.add("animate");
+  } else {
+    section.classList.remove("animate");
+  }
+});
+function goLogin(plan) {
+  // store selected plan (optional but useful later)
+  localStorage.setItem("selectedPlan", plan);
+
+  // redirect to login page
+  window.location.href = "login.html";
+}
+function toggleSidebar() {
+  let sidebar = document.getElementById("sidebar");
+  sidebar.classList.toggle("active");
+}
+
+function goLogin() {
+  window.location.href = "login.html";
+}
+
+function goSignup() {
+  window.location.href = "signup.html";
+}
+
+function goContact() {
+  window.location.href = "contact.html";
+}
+</script>
+  
+<script>
+  //live event
+const names = [
+  "hugo", "Samuel", "Emmanuel", "Mohamad",
+  "Tunde", "Zainab", "Kelvin", "Ibrahim",
+  "Grace", "Joshua", "David", "Fatima"
+];
+
+const plans = ["Starter", "Pro", "Premium"];
+
+function showLiveProfit() {
+
+  let name = names[Math.floor(Math.random() * names.length)];
+  let plan = plans[Math.floor(Math.random() * plans.length)];
+
+  let amount = Math.floor(Math.random() * 90000) + 10000;
+
+  let feed = document.getElementById("liveFeed");
+
+  feed.innerText = `${name} just earned $${amount.toLocaleString()} from ${plan} plan`;
+
+  feed.style.opacity = 1;
+
+  setTimeout(() => {
+    feed.style.opacity = 0;
+  }, 4000);
+}
+
+setInterval(showLiveProfit, 5000);
+</script>
+</body>
+</html>

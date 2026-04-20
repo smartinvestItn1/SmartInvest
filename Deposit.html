@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deposit Crypto</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<button class="back-btn" onclick="goBack()">⬅ Back</button>
+<div class="container">
+
+  <h2>Deposit Crypto</h2>
+
+  <!-- SELECT COIN -->
+  <label>Select Cryptocurrency</label><br>
+  <select id="coin" onchange="updateWallet()">
+    <option value="USDT">USDT (TRC20)</option>
+    <option value="BTC">Bitcoin (BTC)</option>
+    <option value="ETH">Ethereum (ETH)</option>
+    <option value="BNB">BNB Smart Chain</option>
+  </select>
+
+  <br><br>
+
+  <!-- WALLET ADDRESS -->
+  <label>Company Wallet Address</label>
+
+  <div style="display:flex; gap:10px;">
+    <input id="wallet" readonly>
+    <button onclick="copyWallet()">Copy</button>
+  </div>
+
+  <br>
+
+  <!-- AMOUNT -->
+  <input id="amount" placeholder="Enter amount">
+
+  <br><br>
+
+  <button onclick="submitDeposit()">Submit Deposit</button>
+
+  <p class="link" onclick="goDashboard()">Back to Dashboard</p>
+
+</div>
+
+<script>
+
+const wallets = {
+  USDT: "TXYZUSDT_COMPANY",
+  BTC: "bc1qcompanybtc",
+  ETH: "0xCOMPANYETH",
+  BNB: "bnbCOMPANY"
+};
+
+function updateWallet() {
+  let coin = document.getElementById("coin").value;
+  document.getElementById("wallet").value = wallets[coin];
+}
+
+updateWallet();
+
+function submitDeposit() {
+
+  let coin = document.getElementById("coin").value;
+  let amount = Number(document.getElementById("amount").value);
+
+  if (!amount || amount <= 0) {
+    return alert("Enter valid amount");
+  }
+
+  let user = localStorage.getItem("loggedInUser");
+
+  let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
+
+  deposits.push({
+    user: user,
+    coin: coin,
+    amount: amount,
+    wallet: wallets[coin],
+    status: "pending",
+    time: Date.now()
+  });
+
+  localStorage.setItem("deposits", JSON.stringify(deposits));
+
+  alert("Deposit submitted for admin approval");
+
+  document.getElementById("amount").value = "";
+}
+
+function goDashboard() {
+  window.location.href = "dashboard.html";
+}
+function goBack() {
+  window.location.href = "dashboard.html";
+}
+</script>
+</body>
+</html>
