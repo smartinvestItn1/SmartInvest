@@ -11,22 +11,25 @@
 
 <div class="container">
 
+  <!-- HOME BUTTON -->
   <button onclick="goHome()">🏠 Home</button>
 
+  <!-- LOGIN FORM -->
   <form onsubmit="login(event)">
 
     <h2>Login</h2>
 
+    <!-- USERNAME -->
     <input id="username" placeholder="Username" required><br>
 
-    <div style="position:relative;">
-      <input id="password" type="password" placeholder="Password" autocomplete="Password" required>
-    </div>
+    <!-- PASSWORD (NO ICON) -->
+    <input id="password" type="password" placeholder="Password" required><br><br>
 
     <button type="submit">Login</button>
 
   </form>
 
+  <!-- SIGNUP LINK -->
   <p onclick="goSignup()" class="link">
     Don't have an account? Sign up
   </p>
@@ -36,7 +39,7 @@
 <script>
 
 /////////////////////////////////////////////////////
-// 🔐 LOGIN FUNCTION (FORM SAFE)
+// 🔐 LOGIN FUNCTION (ADMIN + USER)
 /////////////////////////////////////////////////////
 
 function login(event) {
@@ -50,24 +53,32 @@ function login(event) {
     return;
   }
 
-  // ADMIN LOGIN
-  if (username === "admin" && password === "123123") {
-    localStorage.setItem("loggedInUser", "admin");
+  // 🔥 ADMIN LOGIN
+  const admins = [
+    { username: "admin", password: "123123", role: "admin" }
+  ];
+
+  let admin = admins.find(a =>
+    a.username === username && a.password === password
+  );
+
+  if (admin) {
+    localStorage.setItem("loggedInUser", username);
     localStorage.setItem("role", "admin");
 
-    window.location.href = "dashboard.html";
+    window.location.href = "admin.html";
     return;
   }
 
-  // USER LOGIN
+  // 👤 USER LOGIN
   let users = JSON.parse(localStorage.getItem("users")) || [];
 
-  let found = users.find(u =>
+  let foundUser = users.find(u =>
     u.username === username && u.password === password
   );
 
-  if (!found) {
-    alert("Invalid login details");
+  if (!foundUser) {
+    alert("Invalid username or password");
     return;
   }
 
@@ -87,15 +98,6 @@ function goHome() {
 
 function goSignup() {
   window.location.href = "signup.html";
-}
-
-/////////////////////////////////////////////////////
-// 👁 PASSWORD TOGGLE
-/////////////////////////////////////////////////////
-
-function togglePassword() {
-  let input = document.getElementById("password");
-  input.type = input.type === "password" ? "text" : "password";
 }
 
 </script>
