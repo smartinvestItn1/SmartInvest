@@ -147,7 +147,7 @@ body {
 }
 .plan {
   animation: slideUp 0.7s ease-in;
-  background-image: url('/u.jpg');
+  background-image: url('u.jpg');
   color: white;
 }
 .in{
