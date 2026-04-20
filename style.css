@@ -147,7 +147,7 @@ body {
 }
 .plan {
   animation: slideUp 0.7s ease-in;
-  background-image: url('u.jpg');
+  background-image: url("u.jpg");
   color: white;
 }
 .in{
@@ -567,7 +567,7 @@ body {
 }
 .plan {
   animation: slideUp 0.7s ease-in;
-  background-image: url('/u.jpg');
+  background-image: url("u.jpg");
   color: white;
 }
 .in{
@@ -912,4 +912,4 @@ h2 {
 #historyList p {
   color: green;
   margin-top: 20px;
-}
+  }
