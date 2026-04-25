@@ -3,30 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Deposit Crypto</title>
+  <title>Deposit & Invest</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+
 <button class="back-btn" onclick="goBack()">⬅ Back</button>
+
 <div class="container">
 
-  <h2>Deposit Crypto</h2>
+  <h2>Deposit & Invest</h2>
 
   <!-- SELECT COIN -->
-  <label>Select Cryptocurrency</label><br>
+  <label>Select Cryptocurrency</label>
   <select id="coin" onchange="updateWallet()">
     <option value="USDT">USDT (TRC20)</option>
-    <option value="BTC">Bitcoin (BTC)</option>
-    <option value="ETH">Ethereum (ETH)</option>
-    <option value="BNB">BNB Smart Chain</option>
+    <option value="BTC">Bitcoin</option>
+    <option value="ETH">Ethereum</option>
+    <option value="BNB">BNB</option>
   </select>
 
   <br><br>
 
-  <!-- WALLET ADDRESS -->
-  <label>Company Wallet Address</label>
-
+  <!-- WALLET -->
+  <label>Company Wallet</label>
   <div style="display:flex; gap:10px;">
     <input id="wallet" readonly>
     <button onclick="copyWallet()">Copy</button>
@@ -39,13 +40,25 @@
 
   <br><br>
 
-  <button onclick="submitDeposit()">Submit Deposit</button>
+  <!-- 🔥 PLAN SELECTION -->
+  <label>Select Investment Plan</label>
+  <select id="plan">
+    <option value="Starter">Starter (10%)</option>
+    <option value="Pro">Pro (20%)</option>
+    <option value="Premium">Premium (40%)</option>
+  </select>
 
-  <p class="link" onclick="goDashboard()">Back to Dashboard</p>
+  <br><br>
+
+  <button onclick="submitDeposit()">Submit Deposit</button>
 
 </div>
 
 <script>
+
+/////////////////////////////////////////////////////
+// WALLET SYSTEM
+/////////////////////////////////////////////////////
 
 const wallets = {
   USDT: "TXYZUSDT_COMPANY",
@@ -61,10 +74,15 @@ function updateWallet() {
 
 updateWallet();
 
+/////////////////////////////////////////////////////
+// 🔥 SUBMIT DEPOSIT + PLAN TO ADMIN
+/////////////////////////////////////////////////////
+
 function submitDeposit() {
 
-  let coin = document.getElementById("coin").value;
   let amount = Number(document.getElementById("amount").value);
+  let coin = document.getElementById("coin").value;
+  let plan = document.getElementById("plan").value;
 
   if (!amount || amount <= 0) {
     return alert("Enter valid amount");
@@ -72,7 +90,18 @@ function submitDeposit() {
 
   let user = localStorage.getItem("loggedInUser");
 
+  if (!user) {
+    alert("Login required");
+    return;
+  }
+
+  // GET STORAGE
   let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
+  let investments = JSON.parse(localStorage.getItem("pendingInvestments")) || [];
+
+  /////////////////////////////////////////////////////
+  // SAVE DEPOSIT (PENDING)
+  /////////////////////////////////////////////////////
 
   deposits.push({
     user: user,
@@ -83,19 +112,57 @@ function submitDeposit() {
     time: Date.now()
   });
 
-  localStorage.setItem("deposits", JSON.stringify(deposits));
+  /////////////////////////////////////////////////////
+  // SAVE INVESTMENT (LINKED TO DEPOSIT)
+  /////////////////////////////////////////////////////
 
-  alert("Deposit submitted for admin approval");
+  investments.push({
+    user: user,
+    plan: plan,
+    amount: amount,
+    profit:
+      plan === "Starter" ? 0.10 :
+      plan === "Pro" ? 0.20 :
+      0.40,
+
+    duration:
+      plan === "Starter" ? 24 * 60 * 60 * 1000 :
+      plan === "Pro" ? 48 * 60 * 60 * 1000 :
+      72 * 60 * 60 * 1000,
+
+    startTime: Date.now(),
+    status: "pending",
+    processed: false
+  });
+
+  /////////////////////////////////////////////////////
+  // SAVE
+  /////////////////////////////////////////////////////
+
+  localStorage.setItem("deposits", JSON.stringify(deposits));
+  localStorage.setItem("pendingInvestments", JSON.stringify(investments));
+
+  alert("Deposit & Investment submitted for admin approval");
 
   document.getElementById("amount").value = "";
 }
 
-function goDashboard() {
-  window.location.href = "dashboard.html";
-}
+/////////////////////////////////////////////////////
+// NAVIGATION
+/////////////////////////////////////////////////////
+
 function goBack() {
   window.location.href = "dashboard.html";
 }
+
+function copyWallet() {
+  let input = document.getElementById("wallet");
+  input.select();
+  document.execCommand("copy");
+  alert("Wallet copied");
+}
+
 </script>
+
 </body>
 </html>
