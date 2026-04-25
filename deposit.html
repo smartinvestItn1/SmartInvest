@@ -76,9 +76,8 @@ updateWallet();
 
 /////////////////////////////////////////////////////
 // 🔥 SUBMIT DEPOSIT + PLAN TO ADMIN
-/////////////////////////////////////////////////////
-
-function submitDeposit() {
+///////////////////////////////////////////////
+  function submitDeposit() {
 
   let amount = Number(document.getElementById("amount").value);
   let coin = document.getElementById("coin").value;
@@ -91,10 +90,28 @@ function submitDeposit() {
   let user = localStorage.getItem("loggedInUser");
 
   if (!user) {
-    alert("Login required");
-    return;
+    return alert("Login required");
   }
 
+  let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
+
+  // ✅ ONLY SAVE DEPOSIT (WITH PLAN)
+  deposits.push({
+    user: user,
+    coin: coin,
+    amount: amount,
+    wallet: wallets[coin],
+    plan: plan, // 🔥 attach plan here
+    status: "pending",
+    time: Date.now()
+  });
+
+  localStorage.setItem("deposits", JSON.stringify(deposits));
+
+  alert("Deposit submitted! Waiting for admin approval.");
+
+  document.getElementById("amount").value = "";
+  }
   // GET STORAGE
   let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
   let investments = JSON.parse(localStorage.getItem("pendingInvestments")) || [];
