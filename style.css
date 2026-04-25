@@ -1,6 +1,6 @@
 body {
   font-family: Arial;
-  background: #f5f5f5;
+  background: gray;
   text-align: center;
 }
 
@@ -18,7 +18,7 @@ input {
 
 button {
   padding: 10px 20px;
-  background: #00c853;
+  background: navy;
   color: white;
   border: none;
   border-radius: 5px;
@@ -26,7 +26,7 @@ button {
 }
 
 button:hover {
-  background: #009624;
+  background: blue;
 }
 
 .link {
@@ -40,7 +40,7 @@ body {
     }
 
     .hero {
-      background: linear-gradient(to right, #00c853, #009624);
+      background: linear-gradient(to right, navy, blue);
       color: white;
       padding: 80px 20px;
       text-align: center;
@@ -65,7 +65,7 @@ body {
 
     .btn-primary {
       background: white;
-      color: #00c853;
+      color: navy;
     }
 
     .btn-secondary {
@@ -85,7 +85,7 @@ body {
     }
 
     .card {
-      background: white;
+      background: navy;
       padding: 15px;
       border-radius: 10px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -147,11 +147,11 @@ body {
 }
 .plan {
   animation: slideUp 0.7s ease-in;
-  background-image: url("u.jpg");
+  background-image: url('/u.jpg');
   color: white;
 }
 .in{
-  color: green;
+  color: navy;
 }
 button {
   transition: 0.3s;
@@ -201,7 +201,7 @@ button:hover {
   padding: 10px;
   border: none;
   border-radius: 5px;
-  background: #00c853;
+  background: navy;
   color: white;
   cursor: pointer;
 }
@@ -225,7 +225,7 @@ button {
       margin: 5px;
       width: 85%;
       cursor: pointer;
-      background: #00c853;
+      background: navy;
       color: white;
       border: none;
       border-radius: 5px;
@@ -234,7 +234,7 @@ button {
     .balance {
       font-size: 28px;
       font-weight: bold;
-      color: #00c853;
+      color: navy;
  }
  .inputBox {
   position: relative;
@@ -287,7 +287,7 @@ button {
 .card h4 {
   margin: 0;
   font-size: 14px;
-  color: gray;
+  color: navy;
 }
 
 .card h2 {
@@ -326,13 +326,13 @@ button {
   cursor: pointer;
 }
 .card {
-  background: white;
+  background: navy;
   padding: 10px;
   margin: 10px;
   border-radius: 10px;
 }
 .back-btn {
-  background: #333;
+  background: navy;
   color: white;
   padding: 8px 12px;
   border: none;
@@ -343,22 +343,6 @@ button {
       text-align: center;
       padding: 20px;
 }
-
-.whatsapp-btn {
-      background: #25D366;
-      color: white;
-      border: none;
-      padding: 15px;
-      width: 100%;
-      font-size: 16px;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-
-    .whatsapp-btn:hover {
-      background: #1ebe5d;
-    }
-
     .nav-btn {
       margin-top: 10px;
       padding: 10px;
@@ -389,7 +373,7 @@ button {
   height: 50px;
   border-radius: 50%; /* makes it circle */
   object-fit: cover;
-  border: 3px solid #00c896;
+  border: 3px solid lightblue;
   display: block;
   margin: 10px auto;
 
@@ -411,7 +395,7 @@ button {
   height: 50px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #00c896;
+  border: 3px solid lightblue;
   transition: 0.5s;
 }
 
@@ -438,7 +422,7 @@ input {
 
 button {
   padding: 10px 20px;
-  background: #00c853;
+  background: navy;
   color: white;
   border: none;
   border-radius: 5px;
@@ -446,7 +430,7 @@ button {
 }
 
 button:hover {
-  background: #009624;
+  background: blue;
 }
 
 .link {
@@ -460,7 +444,7 @@ body {
     }
 
     .hero {
-      background: linear-gradient(to right, #00c853, #009624);
+      background: linear-gradient(to right, navy, blue);
       color: white;
       padding: 80px 20px;
       text-align: center;
@@ -485,7 +469,7 @@ body {
 
     .btn-primary {
       background: white;
-      color: #00c853;
+      color: navy;
     }
 
     .btn-secondary {
@@ -571,7 +555,7 @@ body {
   color: white;
 }
 .in{
-  color: green;
+  color: navy;
 }
 button {
   transition: 0.3s;
@@ -621,7 +605,7 @@ button:hover {
   padding: 10px;
   border: none;
   border-radius: 5px;
-  background: #00c853;
+  background: navy;
   color: white;
   cursor: pointer;
 }
@@ -645,7 +629,7 @@ button {
       margin: 5px;
       width: 85%;
       cursor: pointer;
-      background: #00c853;
+      background: #navy;
       color: white;
       border: none;
       border-radius: 5px;
@@ -654,7 +638,7 @@ button {
     .balance {
       font-size: 28px;
       font-weight: bold;
-      color: #00c853;
+      color: #navy;
  }
  .inputBox {
   position: relative;
@@ -716,7 +700,7 @@ button {
 .card h4 {
   margin: 0;
   font-size: 14px;
-  color: gray;
+  color: navy;
 }
 
 .card h2 {
@@ -749,7 +733,7 @@ button {
 .card button {
   padding: 8px 12px;
   border: none;
-  background: #2d6cdf;
+  background: #navy;
   color: white;
   border-radius: 6px;
   cursor: pointer;
@@ -761,7 +745,7 @@ button {
   border-radius: 10px;
 }
 .back-btn {
-  background: #333;
+  background: #navy;
   color: white;
   padding: 8px 12px;
   border: none;
@@ -818,7 +802,7 @@ button {
   height: 50px;
   border-radius: 50%; /* makes it circle */
   object-fit: cover;
-  border: 3px solid #00c896;
+  border: 3px solid darkblue;
   display: block;
   margin: 10px auto;
 
@@ -863,7 +847,7 @@ button {
 h2 {
   margin-bottom: 20px;
   font-size: 22px;
-  color: #green;
+  color: #navy;
 }
 
 /* history card */
@@ -880,14 +864,14 @@ h2 {
 .card h4 {
   margin: 0;
   font-size: 14px;
-  color: green;
+  color: navy;
 }
 
 /* amount */
 .card h2 {
   margin: 10px 0;
   font-size: 20px;
-  color: #00c853;
+  color: navy;
 }
 
 /* status text */
@@ -901,7 +885,7 @@ h2 {
 .back-btn {
   margin-top: 20px;
   padding: 10px 15px;
-  background: green;
+  background: navy;
   color: white;
   border: none;
   border-radius: 8px;
@@ -912,4 +896,4 @@ h2 {
 #historyList p {
   color: green;
   margin-top: 20px;
-  }
+      }
