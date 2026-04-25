@@ -179,16 +179,42 @@ function approveDeposit(i) {
   let userIndex = users.findIndex(u => u.username === d.user);
 
   if (userIndex !== -1) {
+
+    // ✅ ADD BALANCE
     users[userIndex].balance += d.amount;
+
+    // ✅ CREATE INVESTMENT AFTER APPROVAL
+    let investments = JSON.parse(localStorage.getItem("pendingInvestments")) || [];
+
+    investments.push({
+      user: d.user,
+      plan: d.plan,
+      amount: d.amount,
+      profit:
+        d.plan === "Starter" ? 0.10 :
+        d.plan === "Pro" ? 0.20 :
+        0.40,
+
+      duration:
+        d.plan === "Starter" ? 24 * 60 * 60 * 1000 :
+        d.plan === "Pro" ? 48 * 60 * 60 * 1000 :
+        72 * 60 * 60 * 1000,
+
+      startTime: Date.now(),
+      status: "approved",
+      processed: false
+    });
+
+    localStorage.setItem("pendingInvestments", JSON.stringify(investments));
   }
 
   deposits[i].status = "approved";
 
-  addNotification(`${d.user} deposit approved ($${d.amount})`);
+  addNotification(`${d.user} deposit approved + investment started`);
 
   saveAll();
 }
-
+  
 function rejectDeposit(i) {
   deposits[i].status = "rejected";
   addNotification(`Deposit rejected`);
