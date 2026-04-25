@@ -18,35 +18,35 @@
 <button onclick="setFilter('approved')">Approved</button>
 <button onclick="setFilter('rejected')">Rejected</button>
 
-<h3>Notifications</h3>
+<h3>🔔 Notifications</h3>
 <div id="notifications"></div>
 
 <button onclick="logout()">Logout</button>
 
 <hr>
 
-<h3>Users</h3>
+<h3>👥 Users</h3>
 <div id="usersList"></div>
 
 <hr>
 
-<h3>Deposits</h3>
+<h3>💰 Deposits</h3>
 <div id="depositList"></div>
 
 <hr>
 
-<h3>Investments</h3>
+<h3>📈 Investments</h3>
 <div id="investList"></div>
 
 <hr>
 
-<h3>Withdrawals</h3>
+<h3>💸 Withdrawals</h3>
 <div id="withdrawList"></div>
 
 <script>
 
 /////////////////////////////////////////////////////
-// 🔐 ADMIN CHECK
+// 🔐 ADMIN ACCESS
 /////////////////////////////////////////////////////
 
 let role = localStorage.getItem("role");
@@ -57,13 +57,15 @@ if (role !== "admin") {
 }
 
 /////////////////////////////////////////////////////
-// 📦 DATA
+// 📦 LOAD DATA
 /////////////////////////////////////////////////////
 
 let users = JSON.parse(localStorage.getItem("users")) || [];
 let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
 let investments = JSON.parse(localStorage.getItem("pendingInvestments")) || [];
 let withdrawals = JSON.parse(localStorage.getItem("withdrawals")) || [];
+
+let filterStatus = "all";
 
 /////////////////////////////////////////////////////
 // 🔔 NOTIFICATIONS
@@ -94,7 +96,7 @@ function renderNotifications() {
 }
 
 /////////////////////////////////////////////////////
-// 👤 USERS
+// 👥 USERS (WITH SEARCH + PROFILE IMAGE)
 /////////////////////////////////////////////////////
 
 function loadUsers() {
@@ -108,35 +110,67 @@ function loadUsers() {
   document.getElementById("usersList").innerHTML =
     filtered.map(u => `
       <div class="card">
-        <b>${u.username}</b><br>
-        ${u.email || ""}<br>
-        Balance: $${u.balance || 0}
+
+        <img src="${u.image || 'https://via.placeholder.com/60'}"
+             style="width:60px;height:60px;border-radius:50%;margin-bottom:10px;">
+
+        <p><b>Username:</b> ${u.username}</p>
+        <p><b>Email:</b> ${u.email || "N/A"}</p>
+        <p><b>Balance:</b> $${u.balance || 0}</p>
+
       </div>
     `).join("");
 }
 
 /////////////////////////////////////////////////////
-// 💰 DEPOSITS (NEW IMPORTANT PART)
+// 💰 FILTER SYSTEM
+/////////////////////////////////////////////////////
+
+function setFilter(status) {
+  filterStatus = status;
+  loadDeposits();
+  loadInvestments();
+  loadWithdrawals();
+}
+
+/////////////////////////////////////////////////////
+// 💰 DEPOSITS (FULL FIX)
 /////////////////////////////////////////////////////
 
 function loadDeposits() {
 
+  let list = deposits;
+
+  if (filterStatus !== "all") {
+    list = list.filter(d => d.status === filterStatus);
+  }
+
   document.getElementById("depositList").innerHTML =
-    deposits.map((d, i) => `
+    list.map((d, i) => {
 
-      <div class="card">
-        <p>User: ${d.user}</p>
-        <p>Coin: ${d.coin}</p>
-        <p>Amount: ${d.amount}</p>
-        <p>Status: ${d.status}</p>
+      let userData = users.find(u => u.username === d.user) || {};
 
-        ${d.status === "pending" ? `
-          <button onclick="approveDeposit(${i})">Approve</button>
-          <button onclick="rejectDeposit(${i})">Reject</button>
-        ` : ""}
-      </div>
+      return `
+        <div class="card">
 
-    `).join("");
+          <img src="${userData.image || 'https://via.placeholder.com/50'}"
+               style="width:50px;height:50px;border-radius:50%;">
+
+          <p><b>User:</b> ${d.user}</p>
+          <p><b>Email:</b> ${userData.email || "N/A"}</p>
+
+          <p><b>Coin:</b> ${d.coin}</p>
+          <p><b>Amount:</b> $${d.amount}</p>
+          <p><b>Status:</b> ${d.status}</p>
+
+          ${d.status === "pending" ? `
+            <button onclick="approveDeposit(${i})">✅ Approve</button>
+            <button onclick="rejectDeposit(${i})">❌ Reject</button>
+          ` : ""}
+
+        </div>
+      `;
+    }).join("");
 }
 
 function approveDeposit(i) {
@@ -167,21 +201,27 @@ function rejectDeposit(i) {
 
 function loadInvestments() {
 
-  document.getElementById("investList").innerHTML =
-    investments.map((i, index) => `
+  let list = investments;
 
+  if (filterStatus !== "all") {
+    list = list.filter(i => i.status === filterStatus);
+  }
+
+  document.getElementById("investList").innerHTML =
+    list.map((i, index) => `
       <div class="card">
-        <p>User: ${i.user}</p>
-        <p>Plan: ${i.plan}</p>
-        <p>Amount: ${i.amount}</p>
-        <p>Status: ${i.status}</p>
+
+        <p><b>User:</b> ${i.user}</p>
+        <p><b>Plan:</b> ${i.plan}</p>
+        <p><b>Amount:</b> $${i.amount}</p>
+        <p><b>Status:</b> ${i.status}</p>
 
         ${i.status === "pending" ? `
           <button onclick="approveInvest(${index})">Approve</button>
           <button onclick="rejectInvest(${index})">Reject</button>
         ` : ""}
-      </div>
 
+      </div>
     `).join("");
 }
 
@@ -214,20 +254,26 @@ function rejectInvest(i) {
 
 function loadWithdrawals() {
 
-  document.getElementById("withdrawList").innerHTML =
-    withdrawals.map((w, i) => `
+  let list = withdrawals;
 
+  if (filterStatus !== "all") {
+    list = list.filter(w => w.status === filterStatus);
+  }
+
+  document.getElementById("withdrawList").innerHTML =
+    list.map((w, i) => `
       <div class="card">
-        <p>User: ${w.user}</p>
-        <p>Amount: ${w.amount}</p>
-        <p>Status: ${w.status}</p>
+
+        <p><b>User:</b> ${w.user}</p>
+        <p><b>Amount:</b> $${w.amount}</p>
+        <p><b>Status:</b> ${w.status}</p>
 
         ${w.status === "pending" ? `
           <button onclick="approveWithdraw(${i})">Approve</button>
           <button onclick="rejectWithdraw(${i})">Reject</button>
         ` : ""}
-      </div>
 
+      </div>
     `).join("");
 }
 
@@ -254,7 +300,7 @@ function rejectWithdraw(i) {
 }
 
 /////////////////////////////////////////////////////
-// 💾 SAVE ALL
+// 💾 SAVE SYSTEM
 /////////////////////////////////////////////////////
 
 function saveAll() {
@@ -280,7 +326,7 @@ function logout() {
 }
 
 /////////////////////////////////////////////////////
-// INIT
+// 🚀 INIT
 /////////////////////////////////////////////////////
 
 loadUsers();
@@ -294,4 +340,4 @@ setInterval(renderNotifications, 3000);
 </script>
 
 </body>
-</html>
+  </html>
