@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invest</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<button class="back-btn" onclick="goBack()">⬅ Back</button>
+<h2 id="planTitle"></h2>
+
+<p>Send payment to company wallet:</p>
+
+<input id="wallet" value="0xABC123COMPANYWALLET" readonly>
+<button onclick="copyWallet()">Copy Wallet</button>
+
+<br><br>
+
+<input id="amount" placeholder="Enter amount">
+<button onclick="confirmInvest()">Submit Investment</button>
+<script>
+
+let plan = localStorage.getItem("selectedPlan");
+document.getElementById("planTitle").innerText = plan + " Plan";
+
+function confirmInvest() {
+
+  let amount = Number(document.getElementById("amount").value);
+
+  if (!amount || amount <= 0) {
+    return alert("Enter valid amount");
+  }
+
+  let user = localStorage.getItem("loggedInUser");
+
+  let investments = JSON.parse(localStorage.getItem("pendingInvestments")) || [];
+
+  let profitMap = {
+    Starter: 0.10,
+    Pro: 0.20,
+    Premium: 0.40
+  };
+
+  let durationMap = {
+    Starter: 24 * 60 * 60 * 1000,
+    Pro: 48 * 60 * 60 * 1000,
+    Premium: 72 * 60 * 60 * 1000
+  };
+
+  investments.push({
+    user: user,
+    plan: plan,
+    amount: amount,
+    profit: profitMap[plan],
+    duration: durationMap[plan],
+    startTime: Date.now(),
+    status: "pending",
+    processed: false
+  });
+
+  localStorage.setItem("pendingInvestments", JSON.stringify(investments));
+
+  alert("Investment submitted for admin approval");
+
+  window.location.href = "dashboard.html";
+}
+
+function copyWallet() {
+  let wallet = document.getElementById("wallet");
+  wallet.select();
+  document.execCommand("copy");
+  alert("Wallet copied");
+}
+function goBack() {
+  window.location.href = "dashboard.html";
+}
+</script>
+
+</body>
+</html>
