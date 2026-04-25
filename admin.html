@@ -44,7 +44,6 @@
 <div id="withdrawList"></div>
 
 <script>
-
 /////////////////////////////////////////////////////
 // 🔐 ADMIN ACCESS
 /////////////////////////////////////////////////////
@@ -96,7 +95,7 @@ function renderNotifications() {
 }
 
 /////////////////////////////////////////////////////
-// 👥 USERS (WITH SEARCH + PROFILE IMAGE)
+// 👥 USERS
 /////////////////////////////////////////////////////
 
 function loadUsers() {
@@ -104,7 +103,7 @@ function loadUsers() {
   let search = document.getElementById("searchUser").value.toLowerCase();
 
   let filtered = users.filter(u =>
-    u.username.toLowerCase().includes(search)
+    (u.username || "").toLowerCase().includes(search)
   );
 
   document.getElementById("usersList").innerHTML =
@@ -123,7 +122,7 @@ function loadUsers() {
 }
 
 /////////////////////////////////////////////////////
-// 💰 FILTER SYSTEM
+// 💰 FILTER
 /////////////////////////////////////////////////////
 
 function setFilter(status) {
@@ -134,7 +133,7 @@ function setFilter(status) {
 }
 
 /////////////////////////////////////////////////////
-// 💰 DEPOSITS (FULL FIX)
+// 💰 DEPOSITS
 /////////////////////////////////////////////////////
 
 function loadDeposits() {
@@ -146,7 +145,7 @@ function loadDeposits() {
   }
 
   document.getElementById("depositList").innerHTML =
-    list.map((d, i) => {
+    list.map(d => {
 
       let userData = users.find(u => u.username === d.user) || {};
 
@@ -164,8 +163,8 @@ function loadDeposits() {
           <p><b>Status:</b> ${d.status}</p>
 
           ${d.status === "pending" ? `
-            <button onclick="approveDeposit(${i})">✅ Approve</button>
-            <button onclick="rejectDeposit(${i})">❌ Reject</button>
+            <button onclick="approveDeposit(${deposits.indexOf(d)})">✅ Approve</button>
+            <button onclick="rejectDeposit(${deposits.indexOf(d)})">❌ Reject</button>
           ` : ""}
 
         </div>
@@ -180,12 +179,10 @@ function approveDeposit(i) {
 
   if (userIndex !== -1) {
 
-    // ✅ ADD BALANCE
-    users[userIndex].balance += d.amount;
+    users[userIndex].balance =
+      (users[userIndex].balance || 0) + Number(d.amount);
 
-    // ✅ CREATE INVESTMENT AFTER APPROVAL
-    let investments = JSON.parse(localStorage.getItem("pendingInvestments")) || [];
-
+    // CREATE INVESTMENT
     investments.push({
       user: d.user,
       plan: d.plan,
@@ -204,8 +201,6 @@ function approveDeposit(i) {
       status: "approved",
       processed: false
     });
-
-    localStorage.setItem("pendingInvestments", JSON.stringify(investments));
   }
 
   deposits[i].status = "approved";
@@ -214,10 +209,10 @@ function approveDeposit(i) {
 
   saveAll();
 }
-  
+
 function rejectDeposit(i) {
   deposits[i].status = "rejected";
-  addNotification(`Deposit rejected`);
+  addNotification("Deposit rejected");
   saveAll();
 }
 
@@ -234,7 +229,7 @@ function loadInvestments() {
   }
 
   document.getElementById("investList").innerHTML =
-    list.map((i, index) => `
+    list.map(i => `
       <div class="card">
 
         <p><b>User:</b> ${i.user}</p>
@@ -243,8 +238,8 @@ function loadInvestments() {
         <p><b>Status:</b> ${i.status}</p>
 
         ${i.status === "pending" ? `
-          <button onclick="approveInvest(${index})">Approve</button>
-          <button onclick="rejectInvest(${index})">Reject</button>
+          <button onclick="approveInvest(${investments.indexOf(i)})">Approve</button>
+          <button onclick="rejectInvest(${investments.indexOf(i)})">Reject</button>
         ` : ""}
 
       </div>
@@ -258,7 +253,9 @@ function approveInvest(i) {
 
   if (userIndex !== -1) {
     let profit = item.amount * item.profit;
-    users[userIndex].balance += item.amount + profit;
+
+    users[userIndex].balance =
+      (users[userIndex].balance || 0) + item.amount + profit;
   }
 
   investments[i].status = "approved";
@@ -270,7 +267,7 @@ function approveInvest(i) {
 
 function rejectInvest(i) {
   investments[i].status = "rejected";
-  addNotification(`Investment rejected`);
+  addNotification("Investment rejected");
   saveAll();
 }
 
@@ -287,7 +284,7 @@ function loadWithdrawals() {
   }
 
   document.getElementById("withdrawList").innerHTML =
-    list.map((w, i) => `
+    list.map(w => `
       <div class="card">
 
         <p><b>User:</b> ${w.user}</p>
@@ -295,8 +292,8 @@ function loadWithdrawals() {
         <p><b>Status:</b> ${w.status}</p>
 
         ${w.status === "pending" ? `
-          <button onclick="approveWithdraw(${i})">Approve</button>
-          <button onclick="rejectWithdraw(${i})">Reject</button>
+          <button onclick="approveWithdraw(${withdrawals.indexOf(w)})">Approve</button>
+          <button onclick="rejectWithdraw(${withdrawals.indexOf(w)})">Reject</button>
         ` : ""}
 
       </div>
@@ -309,7 +306,8 @@ function approveWithdraw(i) {
   let userIndex = users.findIndex(u => u.username === w.user);
 
   if (userIndex !== -1) {
-    users[userIndex].balance -= w.amount;
+    users[userIndex].balance =
+      (users[userIndex].balance || 0) - Number(w.amount);
   }
 
   withdrawals[i].status = "approved";
@@ -321,7 +319,7 @@ function approveWithdraw(i) {
 
 function rejectWithdraw(i) {
   withdrawals[i].status = "rejected";
-  addNotification(`Withdrawal rejected`);
+  addNotification("Withdrawal rejected");
   saveAll();
 }
 
