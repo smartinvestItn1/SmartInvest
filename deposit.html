@@ -55,7 +55,6 @@
 </div>
 
 <script>
-
 /////////////////////////////////////////////////////
 // WALLET SYSTEM
 /////////////////////////////////////////////////////
@@ -72,12 +71,19 @@ function updateWallet() {
   document.getElementById("wallet").value = wallets[coin];
 }
 
-updateWallet();
+/////////////////////////////////////////////////////
+// RUN AFTER PAGE LOAD
+/////////////////////////////////////////////////////
+
+window.onload = function () {
+  updateWallet();
+};
 
 /////////////////////////////////////////////////////
 // 🔥 SUBMIT DEPOSIT + PLAN TO ADMIN
-///////////////////////////////////////////////
-  function submitDeposit() {
+/////////////////////////////////////////////////////
+
+function submitDeposit() {
 
   let amount = Number(document.getElementById("amount").value);
   let coin = document.getElementById("coin").value;
@@ -94,45 +100,20 @@ updateWallet();
   }
 
   let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
-
-  // ✅ ONLY SAVE DEPOSIT (WITH PLAN)
-  deposits.push({
-    user: user,
-    coin: coin,
-    amount: amount,
-    wallet: wallets[coin],
-    plan: plan, // 🔥 attach plan here
-    status: "pending",
-    time: Date.now()
-  });
-
-  localStorage.setItem("deposits", JSON.stringify(deposits));
-
-  alert("Deposit submitted! Waiting for admin approval.");
-
-  document.getElementById("amount").value = "";
-  }
-  // GET STORAGE
-  let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
   let investments = JSON.parse(localStorage.getItem("pendingInvestments")) || [];
 
-  /////////////////////////////////////////////////////
-  // SAVE DEPOSIT (PENDING)
-  /////////////////////////////////////////////////////
-
+  // SAVE DEPOSIT
   deposits.push({
     user: user,
     coin: coin,
     amount: amount,
     wallet: wallets[coin],
+    plan: plan,
     status: "pending",
     time: Date.now()
   });
 
-  /////////////////////////////////////////////////////
-  // SAVE INVESTMENT (LINKED TO DEPOSIT)
-  /////////////////////////////////////////////////////
-
+  // SAVE INVESTMENT
   investments.push({
     user: user,
     plan: plan,
@@ -151,10 +132,6 @@ updateWallet();
     status: "pending",
     processed: false
   });
-
-  /////////////////////////////////////////////////////
-  // SAVE
-  /////////////////////////////////////////////////////
 
   localStorage.setItem("deposits", JSON.stringify(deposits));
   localStorage.setItem("pendingInvestments", JSON.stringify(investments));
@@ -177,9 +154,6 @@ function copyWallet() {
   input.select();
   document.execCommand("copy");
   alert("Wallet copied");
-}
-
+    }
 </script>
-
-</body>
 </html>
