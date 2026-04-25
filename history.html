@@ -1,58 +1,155 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>History</title>
+  <title>Transaction History</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<div class="container">
-  <h2>Your Transaction History</h2>
+<button class="back-btn" onclick="goBack()">⬅ Back</button>
 
+<div class="container">
+
+  <h2>Transaction History</h2>
+
+  <!-- FILTER BUTTONS -->
+  <div class="nav">
+    <button onclick="setFilter('all')">All</button>
+    <button onclick="setFilter('deposit')">Deposits</button>
+    <button onclick="setFilter('investment')">Investments</button>
+  </div>
+
+  <!-- HISTORY LIST -->
   <div id="historyList"></div>
 
-  <button onclick="goBack()" class="back-btn">Back</button>
 </div>
 
 <script>
+
+/////////////////////////////////////////////////////
+// 🔐 USER CHECK
+/////////////////////////////////////////////////////
+
+let currentUser = localStorage.getItem("loggedInUser");
+
+if (!currentUser) {
+  window.location.href = "login.html";
+}
+
+/////////////////////////////////////////////////////
+// 📦 DATA
+/////////////////////////////////////////////////////
+
+let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
+let investments = JSON.parse(localStorage.getItem("pendingInvestments")) || [];
+
+let filter = "all";
+
+/////////////////////////////////////////////////////
+// 🎯 FILTER FUNCTION
+/////////////////////////////////////////////////////
+
+function setFilter(type) {
+  filter = type;
+  loadHistory();
+}
+
+/////////////////////////////////////////////////////
+// 📜 LOAD HISTORY
+/////////////////////////////////////////////////////
+
 function loadHistory() {
-  let user = localStorage.getItem("currentUser");
 
-  let allData = JSON.parse(localStorage.getItem("allHistory")) || {};
+  let list = [];
 
-  let userHistory = allData[user] || [];
+  // 👉 Deposits
+  if (filter === "all" || filter === "deposit") {
+    deposits
+      .filter(d => d.user === currentUser)
+      .forEach(d => {
+        list.push({
+          type: "Deposit",
+          amount: d.amount,
+          status: d.status,
+          date: d.time
+        });
+      });
+  }
 
-  let list = document.getElementById("historyList");
+  // 👉 Investments
+  if (filter === "all" || filter === "investment") {
+    investments
+      .filter(i => i.user === currentUser)
+      .forEach(i => {
+        list.push({
+          type: "Investment",
+          amount: i.amount,
+          status: i.status,
+          date: i.startTime || Date.now(),
+          plan: i.plan
+        });
+      });
+  }
 
-  list.innerHTML = "";
+  // 👉 Sort latest first
+  list.sort((a, b) => b.date - a.date);
 
-  if (userHistory.length === 0) {
-    list.innerHTML = "<p>No history yet</p>";
+  /////////////////////////////////////////////////////
+  // 🖥 RENDER
+  /////////////////////////////////////////////////////
+
+  let container = document.getElementById("historyList");
+
+  if (list.length === 0) {
+    container.innerHTML = "<p>No transactions yet</p>";
     return;
   }
 
-  userHistory.forEach(item => {
-    let div = document.createElement("div");
-    div.classList.add("card");
+  container.innerHTML = list.map(item => `
 
-    div.innerHTML = `
+    <div class="card">
+
       <h4>${item.type}</h4>
-      <h2>₦${item.amount}</h2>
-      <p>${item.status}</p>
-    `;
 
-    list.appendChild(div);
-  });
+      <h2>₦${item.amount.toLocaleString()}</h2>
+
+      ${item.plan ? `<p>Plan: ${item.plan}</p>` : ""}
+
+      <p>Status: 
+        <span style="
+          color: ${
+            item.status === 'approved' ? '#22c55e' :
+            item.status === 'pending' ? '#facc15' :
+            '#ef4444'
+          };">
+          ${item.status}
+        </span>
+      </p>
+
+      <small>${new Date(item.date).toLocaleString()}</small>
+
+    </div>
+
+  `).join("");
 }
+
+/////////////////////////////////////////////////////
+// 🔙 NAVIGATION
+/////////////////////////////////////////////////////
 
 function goBack() {
   window.location.href = "dashboard.html";
 }
 
+/////////////////////////////////////////////////////
+// INIT
+/////////////////////////////////////////////////////
+
 loadHistory();
+
 </script>
 
 </body>
