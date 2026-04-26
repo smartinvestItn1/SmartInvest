@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h2>Admin Dashboard</h2>
+
+<input id="searchUser" placeholder="Search users..." onkeyup="loadUsers()">
+
+<button onclick="setFilter('all')">All</button>
+<button onclick="setFilter('pending')">Pending</button>
+<button onclick="setFilter('approved')">Approved</button>
+<button onclick="setFilter('rejected')">Rejected</button>
+
+<h3>🔔 Notifications</h3>
+<div id="notifications"></div>
+
+<button onclick="logout()">Logout</button>
+
+<hr>
+
+<h3>👥 Users</h3>
+<div id="usersList"></div>
+
+<hr>
+
+<h3>💰 Deposits</h3>
+<div id="depositList"></div>
+
+<hr>
+
+<h3>📈 Investments</h3>
+<div id="investList"></div>
+
+<hr>
+
+<h3>💸 Withdrawals</h3>
+<div id="withdrawList"></div>
+
+<script>
+
+/////////////////////////////////////////////////////
+// 🔐 ADMIN CHECK
+/////////////////////////////////////////////////////
+
+let role = localStorage.getItem("role");
+
+if (role !== "admin") {
+  alert("Access denied");
+  window.location.href = "login.html";
+}
+
+/////////////////////////////////////////////////////
+// 📦 DATA
+/////////////////////////////////////////////////////
+
+let users = JSON.parse(localStorage.getItem("users")) || [];
+let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
+let investments = JSON.parse(localStorage.getItem("pendingInvestments")) || [];
+let withdrawals = JSON.parse(localStorage.getItem("withdrawals")) || [];
+
+let filterStatus = "all";
+
+/////////////////////////////////////////////////////
+// 💱 RATES
+/////////////////////////////////////////////////////
+
+let btcRate = 65000;
+let ethRate = 3500;
+
+/////////////////////////////////////////////////////
+// 🔔 NOTIFICATIONS
+/////////////////////////////////////////////////////
+
+let notifications = JSON.parse(localStorage.getItem("adminNotifications")) || [];
+
+function addNotification(text) {
+  notifications.unshift({
+    text,
+    time: new Date().toLocaleTimeString()
+  });
+
+  if (notifications.length > 10) notifications.pop();
+
+  localStorage.setItem("adminNotifications", JSON.stringify(notifications));
+  renderNotifications();
+}
+
+function renderNotifications() {
+  document.getElementById("notifications").innerHTML =
+    notifications.map(n => `
+      <div class="card">
+        🔔 ${n.text}<br>
+        <small>${n.time}</small>
+      </div>
+    `).join("");
+}
+
+/////////////////////////////////////////////////////
+// 👥 USERS
+/////////////////////////////////////////////////////
+
+function loadUsers() {
+
+  let search = document.getElementById("searchUser").value.toLowerCase();
+
+  let filtered = users.filter(u =>
+    (u.username || "").toLowerCase().includes(search)
+  );
+
+  document.getElementById("usersList").innerHTML =
+    filtered.map(u => {
+
+      let balance = Number(u.balance || 0);
+
+      return `
+        <div class="card">
+
+          <img src="${u.image || 'https://via.placeholder.com/60'}"
+               style="width:60px;height:60px;border-radius:50%;margin-bottom:10px;">
+
+          <p><b>Username:</b> ${u.username}</p>
+          <p><b>Email:</b> ${u.email || "N/A"}</p>
+
+          <p><b>USDT:</b> ${balance.toFixed(2)}</p>
+          <p><b>BTC:</b> ${(balance / btcRate).toFixed(6)}</p>
+          <p><b>ETH:</b> ${(balance / ethRate).toFixed(4)}</p>
+
+        </div>
+      `;
+    }).join("");
+}
+
+/////////////////////////////////////////////////////
+// 💰 DEPOSITS
+/////////////////////////////////////////////////////
+
+function loadDeposits() {
+
+  let list = deposits;
+
+  if (filterStatus !== "all") {
+    list = list.filter(d => d.status === filterStatus);
+  }
+
+  document.getElementById("depositList").innerHTML =
+    list.map((d, i) => {
+
+      let userData = users.find(u => u.username === d.user) || {};
+      let amount = Number(d.amount || 0);
+
+      return `
+        <div class="card">
+
+          <p><b>User:</b> ${d.user}</p>
+          <p><b>Email:</b> ${userData.email || "N/A"}</p>
+
+          <p><b>USDT:</b> ${amount}</p>
+          <p><b>BTC:</b> ${(amount / btcRate).toFixed(6)}</p>
+          <p><b>ETH:</b> ${(amount / ethRate).toFixed(4)}</p>
+
+          <p><b>Status:</b> ${d.status}</p>
+
+          ${d.status === "pending" ? `
+            <button onclick="approveDeposit(${i})">✅ Approve</button>
+            <button onclick="rejectDeposit(${i})">❌ Reject</button>
+          ` : ""}
+
+        </div>
+      `;
+    }).join("");
+}
+
+function approveDeposit(i) {
+
+  if (!deposits[i]) return;
+
+  let d = deposits[i];
+  let userIndex = users.findIndex(u => u.username === d.user);
+
+  if (userIndex === -1) return;
+
+  let amount = Number(d.amount || 0);
+
+  users[userIndex].balance =
+    Number(users[userIndex].balance || 0) + amount;
+
+  deposits[i].status = "approved";
+
+  saveAll();
+  addNotification("Deposit approved for " + d.user);
+}
+
+function rejectDeposit(i) {
+  if (!deposits[i]) return;
+
+  deposits[i].status = "rejected";
+
+  saveAll();
+  addNotification("Deposit rejected");
+}
+
+/////////////////////////////////////////////////////
+// 📈 INVESTMENTS
+/////////////////////////////////////////////////////
+
+function loadInvestments() {
+
+  let list = investments;
+
+  if (filterStatus !== "all") {
+    list = list.filter(i => i.status === filterStatus);
+  }
+
+  document.getElementById("investList").innerHTML =
+    list.map((i, index) => {
+
+      let amount = Number(i.amount || 0);
+
+      return `
+        <div class="card">
+
+          <p><b>User:</b> ${i.user}</p>
+          <p><b>Plan:</b> ${i.plan}</p>
+
+          <p><b>USDT:</b> ${amount}</p>
+          <p><b>BTC:</b> ${(amount / btcRate).toFixed(6)}</p>
+          <p><b>ETH:</b> ${(amount / ethRate).toFixed(4)}</p>
+
+          <p><b>Status:</b> ${i.status}</p>
+
+          ${i.status === "pending" ? `
+            <button onclick="approveInvest(${index})">Approve</button>
+            <button onclick="rejectInvest(${index})">Reject</button>
+          ` : ""}
+
+        </div>
+      `;
+    }).join("");
+}
+
+function approveInvest(i) {
+
+  if (!investments[i]) return;
+
+  let inv = investments[i];
+  let userIndex = users.findIndex(u => u.username === inv.user);
+
+  if (userIndex === -1) return;
+
+  let amount = Number(inv.amount || 0);
+  let profit = amount * Number(inv.profit || 0);
+
+  users[userIndex].balance =
+    Number(users[userIndex].balance || 0) + amount + profit;
+
+  investments[i].status = "approved";
+
+  saveAll();
+  addNotification("Investment approved for " + inv.user);
+}
+
+function rejectInvest(i) {
+  if (!investments[i]) return;
+
+  investments[i].status = "rejected";
+
+  saveAll();
+  addNotification("Investment rejected");
+}
+
+/////////////////////////////////////////////////////
+// 💸 WITHDRAWALS
+/////////////////////////////////////////////////////
+
+function loadWithdrawals() {
+
+  let list = withdrawals;
+
+  if (filterStatus !== "all") {
+    list = list.filter(w => w.status === filterStatus);
+  }
+
+  document.getElementById("withdrawList").innerHTML =
+    list.map((w, i) => {
+
+      let amount = Number(w.amount || 0);
+
+      return `
+        <div class="card">
+
+          <p><b>User:</b> ${w.user}</p>
+
+          <p><b>USDT:</b> ${amount}</p>
+          <p><b>BTC:</b> ${(amount / btcRate).toFixed(6)}</p>
+          <p><b>ETH:</b> ${(amount / ethRate).toFixed(4)}</p>
+
+          <p><b>Status:</b> ${w.status}</p>
+
+        </div>
+      `;
+    }).join("");
+}
+
+/////////////////////////////////////////////////////
+// SAVE SYSTEM
+/////////////////////////////////////////////////////
+
+function saveAll() {
+  localStorage.setItem("users", JSON.stringify(users));
+  localStorage.setItem("deposits", JSON.stringify(deposits));
+  localStorage.setItem("pendingInvestments", JSON.stringify(investments));
+  localStorage.setItem("withdrawals", JSON.stringify(withdrawals));
+
+  loadUsers();
+  loadDeposits();
+  loadInvestments();
+  loadWithdrawals();
+}
+
+/////////////////////////////////////////////////////
+// FILTER
+/////////////////////////////////////////////////////
+
+function setFilter(status) {
+  filterStatus = status;
+  loadDeposits();
+  loadInvestments();
+  loadWithdrawals();
+}
+
+/////////////////////////////////////////////////////
+// LOGOUT
+/////////////////////////////////////////////////////
+
+function logout() {
+  localStorage.removeItem("loggedInUser");
+  localStorage.removeItem("role");
+  window.location.href = "login.html";
+}
+
+/////////////////////////////////////////////////////
+// INIT
+/////////////////////////////////////////////////////
+
+loadUsers();
+loadDeposits();
+loadInvestments();
+loadWithdrawals();
+renderNotifications();
+
+setInterval(renderNotifications, 3000);
+
+</script>
+
+</body>
+</html>
