@@ -192,6 +192,17 @@ function approveDeposit(i) {
     Number(users[userIndex].balance || 0) + amount;
 
   deposits[i].status = "approved";
+  let history = JSON.parse(localStorage.getItem("history")) || [];
+
+history.push({
+  user: d.user,
+  type: "Deposit",
+  amount: d.amount,
+  status: "approved",
+  time: new Date().toLocaleString()
+});
+
+localStorage.setItem("history", JSON.stringify(history));
 
   saveAll();
   addNotification("Deposit approved for " + d.user);
