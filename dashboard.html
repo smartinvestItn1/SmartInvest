@@ -92,7 +92,16 @@
 </div>
 
 <script>
+let sessionId = localStorage.getItem("sessionId");
 
+let sessions = JSON.parse(localStorage.getItem("activeSessions")) || [];
+
+let valid = sessions.find(s => s.sessionId === sessionId);
+
+if (!valid) {
+  alert("Session expired. Please login again.");
+  window.location.href = "login.html";
+                          }
 /////////////////////////////////////////////////////
 // USER LOAD
 /////////////////////////////////////////////////////
