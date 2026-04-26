@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deposit Crypto</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<button onclick="goBack()">⬅ Back</button>
+
+<div class="container">
+
+  <h2>Deposit Crypto</h2>
+
+  <label>Select Cryptocurrency</label><br>
+  <select id="coin" onchange="updateWallet()">
+    <option value="USDT">USDT</option>
+    <option value="BTC">Bitcoin</option>
+    <option value="ETH">Ethereum</option>
+    <option value="BNB">BNB</option>
+  </select>
+
+  <br><br>
+
+  <label>Wallet Address</label>
+
+  <div style="display:flex; gap:10px;">
+    <input id="wallet" readonly>
+    <button onclick="copyWallet()">Copy</button>
+  </div>
+
+  <br>
+
+  <input id="amount" placeholder="Enter amount">
+
+  <br><br>
+
+  <button onclick="submitDeposit()">Submit Deposit</button>
+
+</div>
+
+<script>
+
+const wallets = {
+  USDT: "TXYZUSDT_COMPANY",
+  BTC: "bc1qcompanybtc",
+  ETH: "0xCOMPANYETH",
+  BNB: "bnbCOMPANY"
+};
+
+function updateWallet() {
+  let coin = document.getElementById("coin").value;
+  document.getElementById("wallet").value = wallets[coin];
+}
+
+updateWallet();
+
+/////////////////////////////////////////////////////
+// 🔥 FIXED DEPOSIT SYSTEM
+/////////////////////////////////////////////////////
+
+function submitDeposit() {
+
+  let amount = Number(document.getElementById("amount").value);
+  let coin = document.getElementById("coin").value;
+
+  if (!amount || amount <= 0) {
+    return alert("Enter valid amount");
+  }
+
+  let user = localStorage.getItem("loggedInUser");
+
+  if (!user) {
+    alert("Login required");
+    return;
+  }
+
+  let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
+
+  deposits.push({
+    user: user,
+    coin: coin,
+    amount: amount,
+    wallet: wallets[coin],
+    status: "pending",
+    time: Date.now()
+  });
+
+  /////////////////////////////////////////////////////
+  // ✅ ADDED HISTORY SYSTEM (NOTHING REMOVED)
+  /////////////////////////////////////////////////////
+
+  let history = JSON.parse(localStorage.getItem("history")) || [];
+
+  history.push({
+    user: user,
+    type: "Deposit",
+    coin: coin,
+    amount: amount,
+    status: "pending",
+    time: new Date().toLocaleString()
+  });
+
+  localStorage.setItem("history", JSON.stringify(history));
+
+  /////////////////////////////////////////////////////
+
+  localStorage.setItem("deposits", JSON.stringify(deposits));
+
+  alert("Deposit submitted! Waiting for admin approval.");
+
+  document.getElementById("amount").value = "";
+}
+
+/////////////////////////////////////////////////////
+// NAVIGATION
+/////////////////////////////////////////////////////
+
+function goBack() {
+  window.location.href = "dashboard.html";
+}
+
+function copyWallet() {
+  let input = document.getElementById("wallet");
+  input.select();
+  document.execCommand("copy");
+  alert("Wallet copied");
+}
+
+</script>
+
+</body>
+</html>

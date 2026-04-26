@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Withdraw</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+  <h2>Withdraw Funds</h2>
+
+  <input id="wallet" placeholder="Enter wallet address">
+  <input id="amount" placeholder="Enter amount">
+
+  <button onclick="submitWithdraw()">Submit Withdrawal</button>
+
+  <button onclick="goBack()" class="back-btn">Back</button>
+
+</div>
+
+<script>
+
+function submitWithdraw() {
+
+  let wallet = document.getElementById("wallet").value.trim();
+  let amount = document.getElementById("amount").value.trim();
+  let currentUser = localStorage.getItem("loggedInUser");
+
+  if (!currentUser) {
+    alert("You are not logged in");
+    window.location.href = "login.html";
+    return;
+  }
+
+  if (!wallet || !amount) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  if (isNaN(amount) || Number(amount) <= 0) {
+    alert("Enter a valid amount");
+    return;
+  }
+
+  let requests = JSON.parse(localStorage.getItem("withdrawRequests")) || [];
+
+  requests.push({
+    id: Date.now(),
+    user: currentUser,
+    wallet: wallet,
+    amount: Number(amount),
+    status: "pending",
+    date: new Date().toLocaleString()
+  });
+
+  localStorage.setItem("withdrawRequests", JSON.stringify(requests));
+
+  /////////////////////////////////////////////////////
+  // ✅ ALSO SAVE TO "withdrawals" (FOR ADMIN PAGE)
+  /////////////////////////////////////////////////////
+
+  let withdrawals = JSON.parse(localStorage.getItem("withdrawals")) || [];
+
+  withdrawals.push({
+    id: Date.now(),
+    user: currentUser,
+    wallet: wallet,
+    amount: Number(amount),
+    status: "pending",
+    date: new Date().toLocaleString()
+  });
+
+  localStorage.setItem("withdrawals", JSON.stringify(withdrawals));
+
+  /////////////////////////////////////////////////////
+  // ✅ ADD HISTORY HERE (CORRECT PLACE)
+  /////////////////////////////////////////////////////
+
+  let history = JSON.parse(localStorage.getItem("history")) || [];
+
+  history.push({
+    user: currentUser,
+    type: "Withdraw",
+    amount: Number(amount),
+    status: "pending",
+    time: new Date().toLocaleString()
+  });
+
+  localStorage.setItem("history", JSON.stringify(history));
+
+  /////////////////////////////////////////////////////
+
+  alert("Withdrawal submitted and pending approval");
+
+  document.getElementById("wallet").value = "";
+  document.getElementById("amount").value = "";
+}
+
+// go back
+function goBack() {
+  window.location.href = "dashboard.html";
+}
+
+</script>
+
+</body>
+</html>
