@@ -11,25 +11,19 @@
 
 <div class="container">
 
-  <!-- HOME BUTTON -->
   <button onclick="goHome()">🏠 Home</button>
 
-  <!-- LOGIN FORM -->
   <form onsubmit="login(event)">
 
     <h2>Login</h2>
 
-    <!-- USERNAME -->
     <input id="username" placeholder="Username" required><br>
-
-    <!-- PASSWORD (NO ICON) -->
     <input id="password" type="password" placeholder="Password" required><br><br>
 
     <button type="submit">Login</button>
 
   </form>
 
-  <!-- SIGNUP LINK -->
   <p onclick="goSignup()" class="link">
     Don't have an account? Sign up
   </p>
@@ -39,7 +33,7 @@
 <script>
 
 /////////////////////////////////////////////////////
-// 🔐 LOGIN FUNCTION (ADMIN + USER)
+// 🔐 LOGIN SYSTEM (MULTI USER + 50 SESSIONS)
 /////////////////////////////////////////////////////
 
 function login(event) {
@@ -54,7 +48,7 @@ function login(event) {
   }
 
   /////////////////////////////////////////////////////
-  // 🔥 MULTI ADMIN LOGIN
+  // 🔥 ADMIN LOGIN
   /////////////////////////////////////////////////////
 
   const admins = [
@@ -69,8 +63,27 @@ function login(event) {
   );
 
   if (admin) {
+
+    let sessionId = Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+
+    let sessions = JSON.parse(localStorage.getItem("activeSessions")) || [];
+
+    sessions.push({
+      username,
+      role: "admin",
+      sessionId,
+      time: Date.now()
+    });
+
+    if (sessions.length > 50) {
+      sessions.shift(); // keep only last 50 sessions
+    }
+
+    localStorage.setItem("activeSessions", JSON.stringify(sessions));
+
     localStorage.setItem("loggedInUser", username);
     localStorage.setItem("role", "admin");
+    localStorage.setItem("sessionId", sessionId);
 
     window.location.href = "admin.html";
     return;
@@ -91,8 +104,29 @@ function login(event) {
     return;
   }
 
+  // 🔐 CREATE SESSION ID
+  let sessionId = Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+
+  let sessions = JSON.parse(localStorage.getItem("activeSessions")) || [];
+
+  sessions.push({
+    username,
+    role: "user",
+    sessionId,
+    time: Date.now()
+  });
+
+  // keep only 50 active sessions
+  if (sessions.length > 50) {
+    sessions.shift();
+  }
+
+  localStorage.setItem("activeSessions", JSON.stringify(sessions));
+
+  // SAVE LOGIN STATE
   localStorage.setItem("loggedInUser", username);
   localStorage.setItem("role", "user");
+  localStorage.setItem("sessionId", sessionId);
 
   window.location.href = "dashboard.html";
 }
@@ -107,7 +141,7 @@ function goHome() {
 
 function goSignup() {
   window.location.href = "signup.html";
-  }
+}
 
 </script>
 
