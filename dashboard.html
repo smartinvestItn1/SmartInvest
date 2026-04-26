@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<img id="dashAvatar" class="iavatar">
+
+<div class="nav">
+  <button onclick="goHome()">Home</button>
+  <button onclick="goProfile()">Profile</button>
+  <button onclick="goHistory()">History</button>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<h3>Welcome, <span id="user"></span></h3>
+<h2>Investment Dashboard</h2>
+
+<!-- CARDS -->
+<div class="grid">
+
+  <div class="card">
+    <h4>USDT Balance</h4>
+    <h2><span id="balance">0</span> USDT</h2>
+
+    <p style="margin-top:10px;">
+      ETH: <span id="eth">0</span> ETH
+    </p>
+  </div>
+
+  <div class="card">
+    <h4>Bitcoin</h4>
+    <h2><span id="btc">0</span> BTC</h2>
+  </div>
+
+  <div class="card">
+    <h4>USDT Value</h4>
+    <h2><span id="usdt">0</span> USDT</h2>
+  </div>
+
+  <div class="card">
+    <h4>Pending Deposits</h4>
+    <h2>$<span id="pending">0</span></h2>
+  </div>
+
+  <div class="card">
+    <h4>Plan</h4>
+    <h2 id="planType">Starter</h2>
+  </div>
+
+</div>
+
+<!-- ACTIONS -->
+<div class="box">
+  <h3>Deposit</h3>
+  <button onclick="goDeposit()">Go to Deposit Page</button>
+</div>
+
+<div class="box">
+  <h3>Withdraw</h3>
+  <button onclick="goWithdraw()">Withdraw Funds</button>
+</div>
+
+<!-- PLANS -->
+<h2>Investment Plans</h2>
+
+<div class="grid">
+
+  <div class="card">
+    <h3>Starter</h3>
+    <p>10% Profit</p>
+    <button onclick="goInvest('Starter')">Invest</button>
+  </div>
+
+  <div class="card">
+    <h3>Pro</h3>
+    <p>20% Profit</p>
+    <button onclick="goInvest('Pro')">Invest</button>
+  </div>
+
+  <div class="card">
+    <h3>Premium</h3>
+    <p>40% Profit</p>
+    <button onclick="goInvest('Premium')">Invest</button>
+  </div>
+
+</div>
+
+<script>
+
+/////////////////////////////////////////////////////
+// USER LOAD
+/////////////////////////////////////////////////////
+
+let users = JSON.parse(localStorage.getItem("users")) || [];
+let history = JSON.parse(localStorage.getItem("history")) || [];
+let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
+
+let currentUser = localStorage.getItem("loggedInUser");
+
+if (!currentUser) {
+  window.location.href = "login.html";
+}
+
+let userIndex = users.findIndex(u => u.username === currentUser);
+
+if (userIndex === -1) {
+  alert("User not found");
+  window.location.href = "login.html";
+}
+
+let user = users[userIndex];
+
+/////////////////////////////////////////////////////
+// CRYPTO RATES
+/////////////////////////////////////////////////////
+
+let btcRate = 65000;
+let ethRate = 3500;
+
+/////////////////////////////////////////////////////
+// SMART PROFIT SYSTEM (FIXED + WORKING)
+/////////////////////////////////////////////////////
+
+function applyProfit() {
+
+  let balance = user.balance || 0;
+  let now = Date.now();
+
+  if (!user.lastProfitTime) {
+    user.lastProfitTime = now;
+  }
+
+  let profitRate = 0;
+  let interval = 0;
+
+  // 🔻 LESS THAN 1000 → 10% every 12h
+  if (balance < 1000) {
+    profitRate = 0.10;
+    interval = 12 * 60 * 60 * 1000;
+  }
+
+  // 🔹 1000 - 4999 → 20% every 24h
+  else if (balance >= 1000 && balance < 5000) {
+    profitRate = 0.20;
+    interval = 24 * 60 * 60 * 1000;
+  }
+
+  // 🔥 5000+ → 50% every 72h
+  else if (balance >= 5000) {
+    profitRate = 0.50;
+    interval = 72 * 60 * 60 * 1000;
+  }
+
+  // ⏳ CHECK TIME
+  if (now - user.lastProfitTime >= interval) {
+
+    let profit = balance * profitRate;
+    user.balance = balance + profit;
+    user.lastProfitTime = now;
+
+    history.push({
+      user: currentUser,
+      plan: user.plan,
+      profit: profit.toFixed(2),
+      balance: user.balance.toFixed(2),
+      time: new Date().toLocaleString()
+    });
+
+    localStorage.setItem("history", JSON.stringify(history));
+
+    users[userIndex] = user;
+    localStorage.setItem("users", JSON.stringify(users));
+
+    updateUI();
+  }
+}
+
+/////////////////////////////////////////////////////
+// UPDATE UI
+/////////////////////////////////////////////////////
+
+function updateUI() {
+
+  document.getElementById("user").innerText = user.username;
+
+  let balance = user.balance || 0;
+
+  document.getElementById("balance").innerText = balance.toFixed(2);
+  document.getElementById("btc").innerText = (balance / btcRate).toFixed(6);
+  document.getElementById("eth").innerText = (balance / ethRate).toFixed(4);
+  document.getElementById("planType").innerText = user.plan || "Starter";
+
+  let pendingTotal = deposits
+    .filter(d => d.user === currentUser && d.status === "pending")
+    .reduce((sum, d) => sum + d.amount, 0);
+
+  document.getElementById("pending").innerText = pendingTotal;
+
+  document.getElementById("dashAvatar").src =
+    user.image && user.image !== ""
+      ? user.image
+      : "https://via.placeholder.com/80";
+}
+
+/////////////////////////////////////////////////////
+// RUN PROFIT ENGINE PROPERLY
+/////////////////////////////////////////////////////
+
+setInterval(applyProfit, 60000); // check every 1 minute
+
+/////////////////////////////////////////////////////
+// NAVIGATION
+/////////////////////////////////////////////////////
+
+function goDeposit() {
+  window.location.href = "deposit.html";
+}
+
+function goWithdraw() {
+  window.location.href = "withdraw.html";
+}
+
+function goInvest(plan) {
+  user.plan = plan;
+  users[userIndex] = user;
+  localStorage.setItem("users", JSON.stringify(users));
+
+  updateUI();
+  alert("Plan updated to " + plan);
+}
+
+function goHome() {
+  window.location.href = "index.html";
+}
+
+function goProfile() {
+  window.location.href = "profile.html";
+}
+
+function goHistory() {
+  window.location.href = "history.html";
+}
+
+function logout() {
+  localStorage.removeItem("loggedInUser");
+  window.location.href = "login.html";
+}
+
+/////////////////////////////////////////////////////
+// START
+/////////////////////////////////////////////////////
+
+updateUI();
+
+</script>
+
+</body>
+</html>
