@@ -2,7 +2,6 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>History</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -10,55 +9,40 @@
 <body>
 
 <div class="container">
-  <h2>Your Transaction History</h2>
+  <h2>Transaction History</h2>
 
   <div id="historyList"></div>
 
-  <button onclick="goBack()" class="back-btn">Back</button>
+  <button onclick="goBack()">Back</button>
 </div>
 
 <script>
 
 function loadHistory() {
 
-  let user = localStorage.getItem("currentUser");
-
-  let allData = JSON.parse(localStorage.getItem("allHistory")) || {};
-
-  let userHistory = allData[user] || [];
+  let currentUser = localStorage.getItem("loggedInUser");
+  let history = JSON.parse(localStorage.getItem("history")) || [];
 
   let list = document.getElementById("historyList");
-
   list.innerHTML = "";
+
+  let userHistory = history.filter(h => h.user === currentUser);
 
   if (userHistory.length === 0) {
     list.innerHTML = "<p>No history yet</p>";
     return;
   }
 
-  // crypto rates
-  let btcRate = 65000;
-  let ethRate = 3500;
-
-  userHistory.forEach(item => {
-
-    let usdt = item.amount || 0;
-    let btc = usdt / btcRate;
-    let eth = usdt / ethRate;
+  userHistory.reverse().forEach(item => {
 
     let div = document.createElement("div");
     div.classList.add("card");
 
     div.innerHTML = `
       <h4>${item.type}</h4>
-
-      <h2>₦${item.amount}</h2>
-
-      <p>💰 USDT: ${usdt.toFixed(2)}</p>
-      <p>₿ BTC: ${btc.toFixed(6)}</p>
-      <p>Ξ ETH: ${eth.toFixed(4)}</p>
-
-      <p>Status: ${item.status}</p>
+      <p><b>Amount:</b> ${item.amount} USDT</p>
+      <p><b>Status:</b> ${item.status}</p>
+      <p><small>${item.time}</small></p>
     `;
 
     list.appendChild(div);
