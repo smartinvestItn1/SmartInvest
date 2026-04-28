@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartInvest</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- MENU BUTTON -->
+<div class="menuBtn" onclick="toggleSidebar()">☰</div>
+
+<!-- SIDEBAR -->
+<div id="sidebar" class="sideBar">
+  <h3>Quick Access</h3>
+  <button onclick="goLogin()">Login</button>
+  <button onclick="goSignup()">Sign Up</button>
+  <button onclick="goContact()">Contact Us</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <img id="dashAvatar" class="avatar" src="go.png">
+  <h1>SmartInvest</h1>
+  <p>Grow your money smarter and safer</p>
+
+  <button class="btn btn-primary" onclick="goLogin()">Sign in to start your investment</button>
+  <button class="btn btn-secondary" onclick="goSignup()">Create Account</button>
+</div>
+
+<!-- FEATURES -->
+<div class="section">
+  <h2>Why Choose Us</h2>
+
+  <div class="cards">
+    <div class="card">
+      <h3>📈 Smart Growth</h3>
+      <p>We help you grow your funds with intelligent strategies.</p>
+    </div>
+
+    <div class="card">
+      <h3>🔒 Secure System</h3>
+      <p>Your investments are protected with modern security.</p>
+    </div>
+
+    <div class="card">
+      <h3>⚡ Fast Access</h3>
+      <p>Quick deposits and withdrawals anytime.</p>
+    </div>
+
+    <div class="card">
+      <h3>🤝 Trusted Platform</h3>
+      <p>Join thousands building financial freedom.</p>
+    </div>
+  </div>
+</div>
+
+<!-- LIVE FEED -->
+<div id="liveFeed" class="live-feed"></div>
+
+<!-- INVESTMENT PLANS -->
+<div class="section" id="plansSection">
+  <h2 class="in">Investment Plans</h2>
+
+  <div class="plan" onclick="goLogin('starter')">
+    <h3>Starter Plan</h3>
+    <p>💰 $100 – $999</p>
+    <p>Low risk plan for beginners</p>
+  </div>
+
+  <div class="plan" onclick="goLogin('pro')">
+    <h3>Pro Plan</h3>
+    <p>💰 $1,000 – $5,000</p>
+    <p>Balanced growth investment</p>
+  </div>
+
+  <div class="plan" onclick="goLogin('premium')">
+    <h3>Premium Plan</h3>
+    <p>💰 $5,000 – $100,000</p>
+    <p>High return premium investment</p>
+  </div>
+</div>
+
+<!-- CALL TO ACTION -->
+<div class="section">
+  <h2>Start Your Investment Journey Today</h2>
+  <button class="btn btn-primary" onclick="goLogin()">Get Started</button>
+</div>
+
+<!-- CRYPTO WIDGET -->
+<iframe 
+  src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_crypto&screen=crypto_mkt&displayCurrency=USD"
+  width="100%" 
+  height="500" 
+  frameborder="0">
+</iframe>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-content">
+
+    <h2 class="footer-logo">SmartInvest</h2>
+
+    <p class="footer-text">
+      SmartInvest is a modern investment platform designed to help users grow wealth through smart,
+      secure and transparent financial systems.
+    </p>
+
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="dashboard.html">Invest</a>
+      <a href="contact.html">Support</a>
+      <a href="terms.html">Terms</a>
+    </div>
+
+    <p class="footer-copy">
+      © 2026 SmartInvest. All Rights Reserved.
+    </p>
+
+  </div>
+</footer>
+</div>
+
+<script>
+
+/////////////////////////////////////////////////////
+// NAVIGATION (FIXED - NO DUPLICATES)
+/////////////////////////////////////////////////////
+
+function goLogin(plan = null) {
+  if (plan) {
+    localStorage.setItem("selectedPlan", plan);
+  }
+  window.location.href = "login.html";
+}
+
+function goSignup() {
+  window.location.href = "signup.html";
+}
+
+function goContact() {
+  window.location.href = "contact.html";
+}
+
+/////////////////////////////////////////////////////
+// SIDEBAR
+/////////////////////////////////////////////////////
+
+function toggleSidebar() {
+  document.getElementById("sidebar").classList.toggle("active");
+}
+
+/////////////////////////////////////////////////////
+// SCROLL ANIMATION
+/////////////////////////////////////////////////////
+
+window.addEventListener("scroll", function () {
+  let section = document.getElementById("plansSection");
+  let position = section.getBoundingClientRect().top;
+  let screenHeight = window.innerHeight;
+
+  if (position < screenHeight - 100) {
+    section.classList.add("animate");
+  } else {
+    section.classList.remove("animate");
+  }
+});
+function repeatPlansAnimation() {
+  let plans = document.querySelectorAll(".plan");
+
+  plans.forEach(plan => {
+    plan.classList.remove("show");
+  });
+
+  setTimeout(() => {
+    plans.forEach((plan, index) => {
+      setTimeout(() => {
+        plan.classList.add("show");
+      }, index * 110);
+    });
+  }, 400);
+}
+
+// repeat every 8 seconds
+setInterval(repeatPlansAnimation, 8000);
+
+/////////////////////////////////////////////////////
+// LIVE FEED SYSTEM
+/////////////////////////////////////////////////////
+const names = [
+  "Hugo","Samuel","Emmanuel","Mohamad","Zainab","Kelvin","Grace",
+  "Oliver","William","James","Henry","Liam","Noah","Amina","Yusuf",
+  "Omar","Layla","Fatima","Sofia"
+];
+
+const plans = ["Starter","Pro","Premium"];
+
+const countries = [
+  {name:"UK",flag:"🇬🇧"},
+  {name:"USA",flag:"🇺🇸"},
+  {name:"Germany",flag:"🇩🇪"},
+  {name:"France",flag:"🇫🇷"},
+  {name:"UAE",flag:"🇦🇪"},
+  {name:"Saudi",flag:"🇸🇦"},
+  {name:"Nigeria",flag:"🇳🇬"},
+  {name:"Turkey",flag:"🇹🇷"}
+];
+
+function showLiveProfit() {
+
+  let name = names[Math.floor(Math.random() * names.length)];
+  let plan = plans[Math.floor(Math.random() * plans.length)];
+  let country = countries[Math.floor(Math.random() * countries.length)];
+
+  let amount =
+    plan === "Starter"
+      ? Math.floor(Math.random() * 200) + 20
+      : plan === "Pro"
+      ? Math.floor(Math.random() * 1500) + 200
+      : Math.floor(Math.random() * 8000) + 1000;
+
+  let time = new Date().toLocaleTimeString();
+
+  let div = document.createElement("div");
+
+  div.innerHTML = `
+    ${country.flag} ${name} earned $${amount} (${plan}) ⏰ ${time}
+  `;
+
+  // 🎯 FLOAT RANDOM POSITION
+  div.style.position = "fixed";
+  div.style.left = Math.random() * 80 + "vw";
+  div.style.top = Math.random() * 80 + "vh";
+  div.style.background = "white";
+  div.style.padding = "10px";
+  div.style.borderRadius = "10px";
+  div.style.boxShadow = "0 2px 10px rgba(0,0,0,0.2)";
+  div.style.zIndex = "9999";
+  div.style.fontSize = "12px";
+  div.style.transition = "all 1s ease";
+  div.style.opacity = "0";
+
+  document.body.appendChild(div);
+
+  setTimeout(() => div.style.opacity = "1", 100);
+
+  setTimeout(() => {
+    div.style.opacity = "0";
+    setTimeout(() => div.remove(), 1000);
+  }, 4000);
+}
+
+setInterval(showLiveProfit, 2500);
+</script>
+
+</body>
+</html>

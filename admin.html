@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h2>Admin Dashboard</h2>
+
+<input id="searchUser" placeholder="Search users..." onkeyup="loadUsers()">
+
+<button onclick="setFilter('all')">All</button>
+<button onclick="setFilter('pending')">Pending</button>
+<button onclick="setFilter('approved')">Approved</button>
+<button onclick="setFilter('rejected')">Rejected</button>
+
+<h3>🔔 Notifications</h3>
+<div id="notifications"></div>
+
+<button onclick="logout()">Logout</button>
+
+<hr>
+
+<h3>👥 Users</h3>
+<div id="usersList"></div>
+
+<hr>
+
+<h3>💰 Deposits</h3>
+<div id="depositList"></div>
+
+<hr>
+
+<h3>📈 Investments</h3>
+<div id="investList"></div>
+
+<hr>
+
+<h3>💸 Withdrawals</h3>
+<div id="withdrawList"></div>
+
+<script>
+
+let role = localStorage.getItem("role");
+if (role !== "admin") {
+  alert("Access denied");
+  window.location.href = "login.html";
+}
+
+let users = JSON.parse(localStorage.getItem("users")) || [];
+let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
+let investments = JSON.parse(localStorage.getItem("pendingInvestments")) || [];
+let withdrawals = JSON.parse(localStorage.getItem("withdrawals")) || [];
+let history = JSON.parse(localStorage.getItem("history")) || [];
+
+let filterStatus = "all";
+
+let notifications = JSON.parse(localStorage.getItem("adminNotifications")) || [];
+
+function addNotification(text) {
+  notifications.unshift({
+    text,
+    time: new Date().toLocaleTimeString()
+  });
+
+  if (notifications.length > 10) notifications.pop();
+
+  localStorage.setItem("adminNotifications", JSON.stringify(notifications));
+  renderNotifications();
+}
+
+function renderNotifications() {
+  document.getElementById("notifications").innerHTML =
+    notifications.map(n => `
+      <div class="card">
+        🔔 ${n.text}<br>
+        <small>${n.time}</small>
+      </div>
+    `).join("");
+}
+
+/////////////////////////////////////////////////////
+// USERS
+/////////////////////////////////////////////////////
+
+function loadUsers() {
+
+  let search = document.getElementById("searchUser").value.toLowerCase();
+
+  let filtered = users.filter(u =>
+    (u.username || "").toLowerCase().includes(search)
+  );
+
+  document.getElementById("usersList").innerHTML =
+    filtered.map(u => `
+      <div class="card">
+        <p><b>${u.username}</b></p>
+        <p>Balance: $${Number(u.balance || 0).toFixed(2)}</p>
+      </div>
+    `).join("");
+}
+
+/////////////////////////////////////////////////////
+// DEPOSITS
+/////////////////////////////////////////////////////
+
+function loadDeposits() {
+
+  let list = filterStatus === "all"
+    ? deposits
+    : deposits.filter(d => d.status === filterStatus);
+
+  document.getElementById("depositList").innerHTML =
+    list.map((d, i) => `
+      <div class="card">
+        <p><b>User:</b> ${d.user}</p>
+        <p>Amount: $${d.amount}</p>
+        <p>Status: ${d.status}</p>
+
+        ${d.status === "pending" ? `
+          <button onclick="approveDeposit(${i})">Approve</button>
+          <button onclick="rejectDeposit(${i})">Reject</button>
+        ` : ""}
+      </div>
+    `).join("");
+}
+
+function approveDeposit(i) {
+
+  let d = deposits[i];
+  let userIndex = users.findIndex(u => u.username === d.user);
+  if (userIndex === -1) return;
+
+  users[userIndex].balance =
+    Number(users[userIndex].balance || 0) + Number(d.amount || 0);
+
+  deposits[i].status = "approved";
+
+  saveHistory(d.user, "Deposit", d.amount, "approved");
+
+  saveAll();
+  addNotification("Deposit approved: " + d.user);
+}
+
+function rejectDeposit(i) {
+  deposits[i].status = "rejected";
+  saveHistory(deposits[i].user, "Deposit", deposits[i].amount, "rejected");
+  saveAll();
+  addNotification("Deposit rejected");
+}
+
+/////////////////////////////////////////////////////
+// INVESTMENTS (NO PROFIT CONTROL HERE ANYMORE)
+/////////////////////////////////////////////////////
+
+function loadInvestments() {
+
+  document.getElementById("investList").innerHTML =
+    investments.map((i, index) => `
+      <div class="card">
+        <p><b>User:</b> ${i.user}</p>
+        <p>Plan: ${i.plan}</p>
+        <p>Amount: $${i.amount}</p>
+        <p>Status: ${i.status}</p>
+      </div>
+    `).join("");
+}
+
+/////////////////////////////////////////////////////
+// WITHDRAWALS
+/////////////////////////////////////////////////////
+
+function loadWithdrawals() {
+
+  let list = filterStatus === "all"
+    ? withdrawals
+    : withdrawals.filter(w => w.status === filterStatus);
+
+  document.getElementById("withdrawList").innerHTML =
+    list.map((w, i) => `
+      <div class="card">
+        <p><b>User:</b> ${w.user}</p>
+        <p>Amount: $${w.amount}</p>
+        <p>Status: ${w.status}</p>
+
+        ${w.status === "pending" ? `
+          <button onclick="approveWithdraw(${i})">Approve</button>
+          <button onclick="rejectWithdraw(${i})">Reject</button>
+        ` : ""}
+      </div>
+    `).join("");
+}
+
+function approveWithdraw(i) {
+
+  let w = withdrawals[i];
+  let userIndex = users.findIndex(u => u.username === w.user);
+  if (userIndex === -1) return;
+
+  let amount = Number(w.amount || 0);
+
+  if (users[userIndex].balance < amount) {
+    alert("Insufficient balance");
+    return;
+  }
+
+  users[userIndex].balance -= amount;
+  withdrawals[i].status = "approved";
+
+  saveHistory(w.user, "Withdraw", amount, "approved");
+
+  saveAll();
+  addNotification("Withdrawal approved: " + w.user);
+}
+
+function rejectWithdraw(i) {
+  withdrawals[i].status = "rejected";
+  saveHistory(withdrawals[i].user, "Withdraw", withdrawals[i].amount, "rejected");
+  saveAll();
+  addNotification("Withdrawal rejected");
+}
+
+/////////////////////////////////////////////////////
+// HISTORY
+/////////////////////////////////////////////////////
+
+function saveHistory(user, type, amount, status) {
+
+  history.push({
+    user,
+    type,
+    amount,
+    status,
+    time: new Date().toLocaleString()
+  });
+
+  localStorage.setItem("history", JSON.stringify(history));
+}
+
+/////////////////////////////////////////////////////
+// SAVE
+/////////////////////////////////////////////////////
+
+function saveAll() {
+  localStorage.setItem("users", JSON.stringify(users));
+  localStorage.setItem("deposits", JSON.stringify(deposits));
+  localStorage.setItem("pendingInvestments", JSON.stringify(investments));
+  localStorage.setItem("withdrawals", JSON.stringify(withdrawals));
+
+  loadUsers();
+  loadDeposits();
+  loadInvestments();
+  loadWithdrawals();
+}
+
+function setFilter(status) {
+  filterStatus = status;
+  loadDeposits();
+  loadWithdrawals();
+}
+
+function logout() {
+  localStorage.clear();
+  window.location.href = "login.html";
+}
+
+loadUsers();
+loadDeposits();
+loadInvestments();
+loadWithdrawals();
+renderNotifications();
+
+</script>
+
+</body>
+</html>

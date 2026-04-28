@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+  <h2>My Profile</h2>
+
+  <!-- Profile Picture -->
+  <img id="iavatar" class="iavatar" src="" onclick="triggerUpload()">
+
+  <input type="file" id="fileInput" style="display:none" onchange="uploadImage(event)">
+
+  <br><br>
+
+  <!-- USER INFO -->
+  <p><strong>Username:</strong></p>
+  <input id="usernameInput"><br><br>
+
+  <p><strong>Email:</strong></p>
+  <input id="emailInput"><br><br>
+
+  <p><strong>Balance:</strong> $<span id="balance"></span></p>
+
+  <button onclick="updateProfile()">Save Changes</button>
+
+  <hr>
+
+  <!-- PASSWORD CHANGE -->
+  <h3>Change Password</h3>
+  <input id="oldPassword" type="password" placeholder="Old Password"><br><br>
+  <input id="newPassword" type="password" placeholder="New Password"><br><br>
+
+  <button onclick="changePassword()">Update Password</button>
+
+  <br><br>
+  <button onclick="goDashboard()">Back</button>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<script>
+
+let currentUser = localStorage.getItem("loggedInUser");
+
+if (!currentUser) {
+  window.location.href = "login.html";
+}
+
+let users = JSON.parse(localStorage.getItem("users")) || [];
+let userIndex = users.findIndex(u => u.username === currentUser);
+
+if (userIndex === -1) {
+  window.location.href = "login.html";
+}
+
+let userData = users[userIndex];
+
+// DISPLAY
+document.getElementById("usernameInput").value = userData.username;
+document.getElementById("emailInput").value = userData.email || "";
+document.getElementById("balance").innerText = userData.balance || 0;
+
+let avatar = document.getElementById("iavatar");
+avatar.src = userData.image || "https://via.placeholder.com/90";
+
+/////////////////////////////////////////////////////
+// UPDATE PROFILE
+/////////////////////////////////////////////////////
+
+function updateProfile() {
+
+  let newUsername = document.getElementById("usernameInput").value.trim();
+  let newEmail = document.getElementById("emailInput").value.trim();
+
+  if (!newUsername || !newEmail) {
+    alert("Fill all fields");
+    return;
+  }
+
+  users[userIndex].username = newUsername;
+  users[userIndex].email = newEmail;
+
+  localStorage.setItem("users", JSON.stringify(users));
+  localStorage.setItem("loggedInUser", newUsername);
+
+  alert("Profile updated");
+}
+
+/////////////////////////////////////////////////////
+// CHANGE PASSWORD
+/////////////////////////////////////////////////////
+
+function changePassword() {
+
+  let oldPass = document.getElementById("oldPassword").value;
+  let newPass = document.getElementById("newPassword").value;
+
+  if (!oldPass || !newPass) {
+    alert("Fill all fields");
+    return;
+  }
+
+  if (oldPass !== users[userIndex].password) {
+    alert("Old password incorrect");
+    return;
+  }
+
+  users[userIndex].password = newPass;
+  localStorage.setItem("users", JSON.stringify(users));
+
+  alert("Password changed");
+
+  document.getElementById("oldPassword").value = "";
+  document.getElementById("newPassword").value = "";
+}
+
+/////////////////////////////////////////////////////
+// IMAGE UPLOAD
+/////////////////////////////////////////////////////
+
+function uploadImage(event) {
+
+  let file = event.target.files[0];
+  if (!file) return;
+
+  let reader = new FileReader();
+
+  reader.onload = function(e) {
+    users[userIndex].image = e.target.result;
+    localStorage.setItem("users", JSON.stringify(users));
+    avatar.src = e.target.result;
+  };
+
+  reader.readAsDataURL(file);
+}
+
+function triggerUpload() {
+  document.getElementById("fileInput").click();
+}
+
+/////////////////////////////////////////////////////
+// NAVIGATION
+/////////////////////////////////////////////////////
+
+function goDashboard() {
+  window.location.href = "dashboard.html";
+}
+
+function logout() {
+  localStorage.clear();
+  window.location.href = "login.html";
+}
+
+</script>
+
+</body>
+</html>

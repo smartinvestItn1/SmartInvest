@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+  <button onclick="goHome()">🏠 Home</button>
+
+  <form onsubmit="login(event)">
+
+    <h2>Login</h2>
+
+    <input id="username" placeholder="Username" required><br>
+    <input id="password" type="password" placeholder="Password" required><br><br>
+
+    <button type="submit">Login</button>
+    <p id="result" class="message"></p>
+  </form>
+
+  <p onclick="goSignup()" class="link">
+    Don't have an account? Sign up
+  </p>
+
+</div>
+
+<script>
+
+function login(event) {
+  event.preventDefault();
+
+  let username = document.getElementById("username").value.trim();
+  let password = document.getElementById("password").value.trim();
+  let result = document.getElementById("result");
+
+  if (!username || !password) {
+    result.innerText = "Please fill all fields";
+    result.className = "message error";
+    return;
+  }
+
+  /////////////////////////////////////////////////////
+  // ADMIN LOGIN
+  /////////////////////////////////////////////////////
+
+  const admins = [
+    { username: "admin1", password: "123##**@@", role: "admin" },
+    { username: "admin2", password: "123##**@@", role: "admin" },
+    { username: "admin3", password: "123##**@@", role: "admin" },
+    { username: "admin4", password: "123##**@@", role: "admin" }
+  ];
+
+  let admin = admins.find(a =>
+    a.username === username && a.password === password
+  );
+
+  if (admin) {
+    createSession(username, "admin");
+
+    result.innerText = "Admin Login Successful ✔";
+    result.className = "message success";
+
+    setTimeout(() => {
+      window.location.href = "admin.html";
+    }, 800);
+
+    return;
+  }
+
+  /////////////////////////////////////////////////////
+  // USER LOGIN
+  /////////////////////////////////////////////////////
+
+  let users = JSON.parse(localStorage.getItem("users")) || [];
+
+  let foundUser = users.find(u =>
+    u.username === username && u.password === password
+  );
+
+  if (foundUser) {
+    createSession(username, "user");
+
+    result.innerText = "Login Successful ✔";
+    result.className = "message success";
+
+    setTimeout(() => {
+      window.location.href = "dashboard.html";
+    }, 800);
+
+  } else {
+    result.innerText = "Invalid login ❌";
+    result.className = "message error";
+  }
+}
+
+/////////////////////////////////////////////////////
+// SESSION SYSTEM (FIXED CLEAN)
+/////////////////////////////////////////////////////
+
+function createSession(username, role) {
+
+  let sessionId = Date.now() + "_" + Math.random().toString(36).substring(2, 10);
+
+  let sessions = JSON.parse(localStorage.getItem("activeSessions")) || [];
+
+  sessions.push({
+    username,
+    role,
+    sessionId,
+    time: Date.now()
+  });
+
+  if (sessions.length > 50) sessions.shift();
+
+  localStorage.setItem("activeSessions", JSON.stringify(sessions));
+  localStorage.setItem("loggedInUser", username);
+  localStorage.setItem("role", role);
+  localStorage.setItem("sessionId", sessionId);
+}
+
+function goHome() {
+  window.location.href = "index.html";
+}
+
+function goSignup() {
+  window.location.href = "signup.html";
+}
+
+</script>
+
+</body>
+</html>

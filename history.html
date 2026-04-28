@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>History</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Transaction History</h2>
+  <div id="historyList"></div>
+  <button onclick="goBack()">Back</button>
+</div>
+
+<script>
+
+function loadHistory() {
+
+  let currentUser = localStorage.getItem("loggedInUser");
+  let history = JSON.parse(localStorage.getItem("history")) || [];
+
+  let list = document.getElementById("historyList");
+  list.innerHTML = "";
+
+  let userHistory = history.filter(h => h.user === currentUser);
+
+  if (userHistory.length === 0) {
+    list.innerHTML = "<p>No history yet</p>";
+    return;
+  }
+
+  userHistory.reverse().forEach(item => {
+
+    let div = document.createElement("div");
+    div.classList.add("card");
+
+    let titleColor = item.type === "deposit" ? "green"
+                     : item.type === "withdrawal" ? "red"
+                     : "navy";
+
+    div.innerHTML = `
+      <h4 style="color:${titleColor}">
+        ${item.type.toUpperCase()} - ${item.status.toUpperCase()}
+      </h4>
+
+      <p><b>Amount:</b> ${item.amount || 0} USDT</p>
+
+      ${item.profit ? `<p><b>Profit:</b> ${item.profit} USDT</p>` : ""}
+
+      ${item.plan ? `<p><b>Plan:</b> ${item.plan}</p>` : ""}
+
+      ${item.balance ? `<p><b>Balance:</b> ${item.balance}</p>` : ""}
+
+      <p><small>${item.time}</small></p>
+    `;
+
+    list.appendChild(div);
+  });
+}
+
+function goBack() {
+  window.location.href = "dashboard.html";
+}
+
+loadHistory();
+
+</script>
+
+</body>
+</html>

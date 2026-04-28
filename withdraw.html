@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Withdraw</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+  <h2>Withdraw Funds</h2>
+
+  <input id="wallet" placeholder="Enter wallet address">
+  <input id="amount" placeholder="Enter amount">
+
+  <button onclick="submitWithdraw()">Submit Withdrawal</button>
+
+  <button onclick="goBack()" class="back-btn">Back</button>
+
+</div>
+
+<script>
+
+function submitWithdraw() {
+
+  let wallet = document.getElementById("wallet").value.trim();
+  let amount = Number(document.getElementById("amount").value);
+  let currentUser = localStorage.getItem("loggedInUser");
+
+  if (!currentUser) {
+    alert("You are not logged in");
+    window.location.href = "login.html";
+    return;
+  }
+
+  if (!wallet || !amount || amount <= 0) {
+    alert("Enter valid details");
+    return;
+  }
+
+  /////////////////////////////////////////////////////
+  // MAIN WITHDRAW STORAGE (ADMIN USE)
+  /////////////////////////////////////////////////////
+
+  let withdrawals = JSON.parse(localStorage.getItem("withdrawals")) || [];
+
+  let request = {
+    id: Date.now(),
+    user: currentUser,
+    wallet: wallet,
+    amount: amount,
+    status: "pending",
+    date: new Date().toLocaleString()
+  };
+
+  withdrawals.push(request);
+  localStorage.setItem("withdrawals", JSON.stringify(withdrawals));
+
+  /////////////////////////////////////////////////////
+  // HISTORY SYSTEM
+  /////////////////////////////////////////////////////
+
+  let history = JSON.parse(localStorage.getItem("history")) || [];
+
+  history.push({
+    user: currentUser,
+    type: "Withdraw",
+    amount: amount,
+    status: "pending",
+    time: new Date().toLocaleString()
+  });
+
+  localStorage.setItem("history", JSON.stringify(history));
+
+  alert("Withdrawal submitted and pending approval");
+
+  document.getElementById("wallet").value = "";
+  document.getElementById("amount").value = "";
+}
+
+function goBack() {
+  window.location.href = "dashboard.html";
+}
+
+</script>
+
+</body>
+</html>
