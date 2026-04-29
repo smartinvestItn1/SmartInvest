@@ -55,29 +55,40 @@ function signup(event) {
 
   let users = JSON.parse(localStorage.getItem("users")) || [];
 
-  let exists = users.find(u => u.username === username);
+  // ✅ FIX 1: case-insensitive username check
+  let exists = users.find(u =>
+    String(u.username).toLowerCase() === String(username).toLowerCase()
+  );
 
   if (exists) {
     alert("User already exists");
     return;
   }
 
-  users.push({
-    username: username,
-    email: email,
-    password: password,
-    balance: 0,
-    pending: 0,
+  // ✅ FIX 2: force consistent data format
+  let newUser = {
+    username: String(username),
+    email: String(email),
+    password: String(password),
+    balance: Number(0),
+    pending: Number(0),
     plan: "None",
     image: "",
     role: "user"
-  });
+  };
 
+  users.push(newUser);
+
+  // ✅ FIX 3: safe storage
   localStorage.setItem("users", JSON.stringify(users));
+
+  // ✅ DEBUG (you can remove later)
+  console.log("Users saved:", users);
 
   alert("Account created successfully");
 
-  window.location.href = "login.html";
+  // ✅ FIX 4: better redirect (prevents back issues)
+  window.location.replace("login.html");
 }
 
 function goHome() {
@@ -86,8 +97,7 @@ function goHome() {
 
 function goLogin() {
   window.location.href = "login.html";
-}
-
+                                              }
 </script>
 
 </body>
