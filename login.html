@@ -67,7 +67,7 @@ function login(event) {
     result.className = "message success";
 
     setTimeout(() => {
-      window.location.href = "admin.html";
+      window.location.replace("admin.html"); // ✅ safer navigation
     }, 800);
 
     return;
@@ -79,8 +79,13 @@ function login(event) {
 
   let users = JSON.parse(localStorage.getItem("users")) || [];
 
+  // 🔍 Debug (optional - remove later)
+  console.log("Users in storage:", users);
+
+  // ✅ Ensure correct comparison (force string)
   let foundUser = users.find(u =>
-    u.username === username && u.password === password
+    String(u.username) === String(username) &&
+    String(u.password) === String(password)
   );
 
   if (foundUser) {
@@ -90,11 +95,11 @@ function login(event) {
     result.className = "message success";
 
     setTimeout(() => {
-      window.location.href = "dashboard.html";
+      window.location.replace("dashboard.html"); // ✅ better than href
     }, 800);
 
   } else {
-    result.innerText = "Invalid login ❌";
+    result.innerText = "Invalid username or password ❌";
     result.className = "message error";
   }
 }
@@ -116,13 +121,20 @@ function createSession(username, role) {
     time: Date.now()
   });
 
+  // ✅ keep sessions limited
   if (sessions.length > 50) sessions.shift();
 
   localStorage.setItem("activeSessions", JSON.stringify(sessions));
+
+  // ✅ IMPORTANT: store login state clearly
   localStorage.setItem("loggedInUser", username);
   localStorage.setItem("role", role);
   localStorage.setItem("sessionId", sessionId);
 }
+
+/////////////////////////////////////////////////////
+// NAVIGATION
+/////////////////////////////////////////////////////
 
 function goHome() {
   window.location.href = "index.html";
@@ -131,7 +143,6 @@ function goHome() {
 function goSignup() {
   window.location.href = "signup.html";
 }
-
 </script>
 
 </body>
