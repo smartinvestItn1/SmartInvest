@@ -32,6 +32,10 @@
 
 <script>
 
+/////////////////////////////////////////////////////
+// SAFE LOGIN
+/////////////////////////////////////////////////////
+
 function login(event) {
   event.preventDefault();
 
@@ -40,10 +44,19 @@ function login(event) {
   let result = document.getElementById("result");
 
   if (!username || !password) {
-    result.innerText = "Please fill all fields";
-    result.className = "message error";
+    show("Please fill all fields ❌", "error");
     return;
   }
+
+  /////////////////////////////////////////////////////
+  // CLEAR OLD SESSION BEFORE LOGIN (IMPORTANT FIX)
+  /////////////////////////////////////////////////////
+
+  localStorage.removeItem("loggedInUser");
+  localStorage.removeItem("role");
+  localStorage.removeItem("sessionId");
+
+  let sessions = JSON.parse(localStorage.getItem("activeSessions")) || [];
 
   /////////////////////////////////////////////////////
   // ADMIN LOGIN
@@ -61,13 +74,11 @@ function login(event) {
   );
 
   if (admin) {
-    createSession(username, "admin");
-
-    result.innerText = "Admin Login Successful ✔";
-    result.className = "message success";
+    createSession(username, "admin", sessions);
+    show("Admin Login Successful ✔", "success");
 
     setTimeout(() => {
-      window.location.replace("admin.html"); // ✅ safer navigation
+      window.location.replace("admin.html");
     }, 800);
 
     return;
@@ -79,40 +90,34 @@ function login(event) {
 
   let users = JSON.parse(localStorage.getItem("users")) || [];
 
-  // 🔍 Debug (optional - remove later)
-  console.log("Users in storage:", users);
-
-  // ✅ Ensure correct comparison (force string)
   let foundUser = users.find(u =>
     String(u.username) === String(username) &&
     String(u.password) === String(password)
   );
 
   if (foundUser) {
-    createSession(username, "user");
-
-    result.innerText = "Login Successful ✔";
-    result.className = "message success";
+    createSession(username, "user", sessions);
+    show("Login Successful ✔", "success");
 
     setTimeout(() => {
-      window.location.replace("dashboard.html"); // ✅ better than href
+      window.location.replace("dashboard.html");
     }, 800);
 
   } else {
-    result.innerText = "Invalid username or password ❌";
-    result.className = "message error";
+    show("Invalid username or password ❌", "error");
   }
 }
 
 /////////////////////////////////////////////////////
-// SESSION SYSTEM (FIXED CLEAN)
+// SESSION SYSTEM (FIXED)
 /////////////////////////////////////////////////////
 
-function createSession(username, role) {
+function createSession(username, role, sessions) {
 
-  let sessionId = Date.now() + "_" + Math.random().toString(36).substring(2, 10);
+  let sessionId = Date.now() + "_" + Math.random().toString(36).slice(2, 10);
 
-  let sessions = JSON.parse(localStorage.getItem("activeSessions")) || [];
+  // ❌ remove old sessions for this user (IMPORTANT FIX)
+  sessions = sessions.filter(s => s.username !== username);
 
   sessions.push({
     username,
@@ -121,15 +126,21 @@ function createSession(username, role) {
     time: Date.now()
   });
 
-  // ✅ keep sessions limited
-  if (sessions.length > 50) sessions.shift();
-
   localStorage.setItem("activeSessions", JSON.stringify(sessions));
 
-  // ✅ IMPORTANT: store login state clearly
   localStorage.setItem("loggedInUser", username);
   localStorage.setItem("role", role);
   localStorage.setItem("sessionId", sessionId);
+}
+
+/////////////////////////////////////////////////////
+// UI MESSAGE HELPER
+/////////////////////////////////////////////////////
+
+function show(text, type) {
+  let result = document.getElementById("result");
+  result.innerText = text;
+  result.className = "message " + type;
 }
 
 /////////////////////////////////////////////////////
@@ -143,6 +154,7 @@ function goHome() {
 function goSignup() {
   window.location.href = "signup.html";
 }
+
 </script>
 
 </body>
