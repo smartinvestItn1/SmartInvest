@@ -95,7 +95,7 @@
   <div class="loader"></div>
   <p>Logging out...</p>
 </div>
-
+<script src="auth-guard.js"></script>
 <script>
 
 /////////////////////////////////////////////////////
@@ -320,16 +320,6 @@ function logout() {
 
   }, 1500);
 }
-
-/////////////////////////////////////////////////////
-// BACK BUTTON FIX
-/////////////////////////////////////////////////////
-
-window.history.pushState(null, null, location.href);
-
-window.onpopstate = function () {
-  window.history.go(1);
-};
 
 updateUI();
 
