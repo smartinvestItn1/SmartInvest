@@ -472,3 +472,40 @@ button:hover {
     transform: translateY(0);
   }
 }
+/* welcome */
+.welcome {
+  font-size: 22px;
+  color: navy;
+  margin-top: 10px;
+}
+
+.sub {
+  color: gray;
+  margin-bottom: 20px;
+}
+
+/* highlight balance */
+.highlight {
+  background: linear-gradient(to right, navy, blue);
+  color: white;
+}
+
+.highlight h2 {
+  font-size: 26px;
+}
+
+/* card hover */
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+/* glowing status */
+#investStatus {
+  animation: glow 1.5s infinite alternate;
+}
+
+@keyframes glow {
+  from { text-shadow: 0 0 5px green; }
+  to { text-shadow: 0 0 15px lime; }
+}
