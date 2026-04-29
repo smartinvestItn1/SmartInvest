@@ -235,7 +235,7 @@ function goInvest(plan) {
 /////////////////////////////////////////////////////
 
 function getProfitRate(amount) {
-  if (amount >= 50 && amount <= 999) return 0.10;
+  if (amount >= 100 && amount <= 999) return 0.10;
   if (amount >= 1000 && amount <= 4999) return 0.20;
   if (amount >= 5000) return 0.40;
   return 0;
