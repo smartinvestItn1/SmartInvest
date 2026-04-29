@@ -42,14 +42,33 @@
 
 <h3>💸 Withdrawals</h3>
 <div id="withdrawList"></div>
+
 <script src="auth-guard.js"></script>
+
 <script>
 
-let role = localStorage.getItem("role");
-if (role !== "admin") {
-  alert("Access denied");
+/////////////////////////////////////////////////////
+// 🔐 SAFE ADMIN SESSION CHECK (FIXED)
+/////////////////////////////////////////////////////
+
+const role = localStorage.getItem("role");
+const sessionId = localStorage.getItem("sessionId");
+const loggedUser = localStorage.getItem("loggedInUser");
+
+let sessions = JSON.parse(localStorage.getItem("activeSessions")) || [];
+
+let validSession = sessions.find(s =>
+  s.username === loggedUser && s.sessionId === sessionId
+);
+
+if (role !== "admin" || !validSession) {
+  localStorage.clear();
   window.location.href = "login.html";
 }
+
+/////////////////////////////////////////////////////
+// DATA
+/////////////////////////////////////////////////////
 
 let users = JSON.parse(localStorage.getItem("users")) || [];
 let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
@@ -61,7 +80,12 @@ let filterStatus = "all";
 
 let notifications = JSON.parse(localStorage.getItem("adminNotifications")) || [];
 
+/////////////////////////////////////////////////////
+// NOTIFICATIONS
+/////////////////////////////////////////////////////
+
 function addNotification(text) {
+
   notifications.unshift({
     text,
     time: new Date().toLocaleTimeString()
@@ -96,7 +120,7 @@ function loadUsers() {
   );
 
   document.getElementById("usersList").innerHTML =
-    filtered.map(u => `
+    filtered.map((u, index) => `
       <div class="card">
         <p><b>${u.username}</b></p>
         <p>Balance: $${Number(u.balance || 0).toFixed(2)}</p>
@@ -105,14 +129,14 @@ function loadUsers() {
 }
 
 /////////////////////////////////////////////////////
-// DEPOSITS
+// DEPOSITS (FIXED INDEX BUG)
 /////////////////////////////////////////////////////
 
 function loadDeposits() {
 
-  let list = filterStatus === "all"
-    ? deposits
-    : deposits.filter(d => d.status === filterStatus);
+  let list = deposits.filter(d =>
+    filterStatus === "all" ? true : d.status === filterStatus
+  );
 
   document.getElementById("depositList").innerHTML =
     list.map((d, i) => `
@@ -122,28 +146,27 @@ function loadDeposits() {
         <p>Status: ${d.status}</p>
 
         ${d.status === "pending" ? `
-          <button onclick="approveDeposit(${i})">Approve</button>
+          <button onclick="approveDeposit('${d.user}', ${d.amount}, ${i})">Approve</button>
           <button onclick="rejectDeposit(${i})">Reject</button>
         ` : ""}
       </div>
     `).join("");
 }
 
-function approveDeposit(i) {
+function approveDeposit(user, amount, i) {
 
-  let d = deposits[i];
-  let userIndex = users.findIndex(u => u.username === d.user);
+  let userIndex = users.findIndex(u => u.username === user);
   if (userIndex === -1) return;
 
   users[userIndex].balance =
-    Number(users[userIndex].balance || 0) + Number(d.amount || 0);
+    Number(users[userIndex].balance || 0) + Number(amount);
 
   deposits[i].status = "approved";
 
-  saveHistory(d.user, "Deposit", d.amount, "approved");
+  saveHistory(user, "Deposit", amount, "approved");
 
   saveAll();
-  addNotification("Deposit approved: " + d.user);
+  addNotification("Deposit approved: " + user);
 }
 
 function rejectDeposit(i) {
@@ -154,13 +177,13 @@ function rejectDeposit(i) {
 }
 
 /////////////////////////////////////////////////////
-// INVESTMENTS (NO PROFIT CONTROL HERE ANYMORE)
+// INVESTMENTS
 /////////////////////////////////////////////////////
 
 function loadInvestments() {
 
   document.getElementById("investList").innerHTML =
-    investments.map((i, index) => `
+    investments.map(i => `
       <div class="card">
         <p><b>User:</b> ${i.user}</p>
         <p>Plan: ${i.plan}</p>
@@ -171,14 +194,14 @@ function loadInvestments() {
 }
 
 /////////////////////////////////////////////////////
-// WITHDRAWALS
+// WITHDRAWALS (FIXED INDEX BUG)
 /////////////////////////////////////////////////////
 
 function loadWithdrawals() {
 
-  let list = filterStatus === "all"
-    ? withdrawals
-    : withdrawals.filter(w => w.status === filterStatus);
+  let list = withdrawals.filter(w =>
+    filterStatus === "all" ? true : w.status === filterStatus
+  );
 
   document.getElementById("withdrawList").innerHTML =
     list.map((w, i) => `
@@ -188,20 +211,17 @@ function loadWithdrawals() {
         <p>Status: ${w.status}</p>
 
         ${w.status === "pending" ? `
-          <button onclick="approveWithdraw(${i})">Approve</button>
+          <button onclick="approveWithdraw('${w.user}', ${w.amount}, ${i})">Approve</button>
           <button onclick="rejectWithdraw(${i})">Reject</button>
         ` : ""}
       </div>
     `).join("");
 }
 
-function approveWithdraw(i) {
+function approveWithdraw(user, amount, i) {
 
-  let w = withdrawals[i];
-  let userIndex = users.findIndex(u => u.username === w.user);
+  let userIndex = users.findIndex(u => u.username === user);
   if (userIndex === -1) return;
-
-  let amount = Number(w.amount || 0);
 
   if (users[userIndex].balance < amount) {
     alert("Insufficient balance");
@@ -211,10 +231,10 @@ function approveWithdraw(i) {
   users[userIndex].balance -= amount;
   withdrawals[i].status = "approved";
 
-  saveHistory(w.user, "Withdraw", amount, "approved");
+  saveHistory(user, "Withdraw", amount, "approved");
 
   saveAll();
-  addNotification("Withdrawal approved: " + w.user);
+  addNotification("Withdrawal approved: " + user);
 }
 
 function rejectWithdraw(i) {
@@ -257,16 +277,37 @@ function saveAll() {
   loadWithdrawals();
 }
 
+/////////////////////////////////////////////////////
+// FILTER
+/////////////////////////////////////////////////////
+
 function setFilter(status) {
   filterStatus = status;
   loadDeposits();
   loadWithdrawals();
 }
 
+/////////////////////////////////////////////////////
+// LOGOUT (FIXED)
+/////////////////////////////////////////////////////
+
 function logout() {
+
+  let sessionId = localStorage.getItem("sessionId");
+
+  let sessions = JSON.parse(localStorage.getItem("activeSessions")) || [];
+
+  sessions = sessions.filter(s => s.sessionId !== sessionId);
+
+  localStorage.setItem("activeSessions", JSON.stringify(sessions));
+
   localStorage.clear();
   window.location.href = "login.html";
 }
+
+/////////////////////////////////////////////////////
+// INIT
+/////////////////////////////////////////////////////
 
 loadUsers();
 loadDeposits();
