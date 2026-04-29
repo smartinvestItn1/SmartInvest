@@ -90,47 +90,51 @@
   <p>📈 Investment running</p>
 </div>
 
-<!-- LOGOUT OVERLAY -->
 <div id="logoutOverlay" class="logout-overlay">
   <div class="loader"></div>
   <p>Logging out...</p>
 </div>
+
 <script src="auth-guard.js"></script>
+
 <script>
 
 /////////////////////////////////////////////////////
-// SESSION CHECK
-/////////////////////////////////////////////////////
-
-let sessionId = localStorage.getItem("sessionId");
-let sessions = JSON.parse(localStorage.getItem("activeSessions")) || [];
-
-let valid = sessions.find(s => s.sessionId === sessionId);
-
-if (!valid) {
-  window.location.replace("login.html");
-}
-
-/////////////////////////////////////////////////////
-// DATA
+// LOAD DATA SAFELY
 /////////////////////////////////////////////////////
 
 let users = JSON.parse(localStorage.getItem("users")) || [];
 let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
 
-let currentUser = localStorage.getItem("loggedInUser"); // ✅ ONLY ONCE
+let sessionId = localStorage.getItem("sessionId");
+let sessions = JSON.parse(localStorage.getItem("activeSessions")) || [];
 
-if (!currentUser) {
+let currentUser = localStorage.getItem("loggedInUser");
+
+// SESSION CHECK
+let validSession = sessions.find(s => s.sessionId === sessionId);
+
+if (!validSession || !currentUser) {
   window.location.replace("login.html");
 }
 
 let userIndex = users.findIndex(u => u.username === currentUser);
 
 if (userIndex === -1) {
+  localStorage.clear();
   window.location.replace("login.html");
 }
 
 let user = users[userIndex];
+
+if (!user) {
+  localStorage.clear();
+  window.location.replace("login.html");
+}
+
+/////////////////////////////////////////////////////
+// RATES
+/////////////////////////////////////////////////////
 
 let btcRate = 65000;
 let ethRate = 3500;
@@ -158,45 +162,57 @@ function animateBalance(value) {
       clearInterval(balanceInterval);
     }
 
-    document.getElementById("balance").innerText =
-      start.toLocaleString(undefined, {
+    let el = document.getElementById("balance");
+    if (el) {
+      el.innerText = start.toLocaleString(undefined, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       });
+    }
 
   }, 16);
 }
 
 /////////////////////////////////////////////////////
-// UPDATE UI
+// UPDATE UI (SAFE)
 /////////////////////////////////////////////////////
 
 function updateUI() {
 
-  document.getElementById("user").innerText = user.username;
+  if (!user) return;
+
+  let userEl = document.getElementById("user");
+  if (userEl) userEl.innerText = user.username;
 
   let balance = user.balance || 0;
 
   animateBalance(balance);
 
-  document.getElementById("btc").innerText = (balance / btcRate).toFixed(6);
-  document.getElementById("eth").innerText = (balance / ethRate).toFixed(4);
-  document.getElementById("planType").innerText = user.plan || "None";
+  let btcEl = document.getElementById("btc");
+  let ethEl = document.getElementById("eth");
+  let planEl = document.getElementById("planType");
+
+  if (btcEl) btcEl.innerText = (balance / btcRate).toFixed(6);
+  if (ethEl) ethEl.innerText = (balance / ethRate).toFixed(4);
+  if (planEl) planEl.innerText = user.plan || "None";
 
   let pendingTotal = deposits
     .filter(d => d.user === currentUser && d.status === "pending")
     .reduce((sum, d) => sum + d.amount, 0);
 
-  document.getElementById("pending").innerText = pendingTotal;
+  let pendingEl = document.getElementById("pending");
+  if (pendingEl) pendingEl.innerText = pendingTotal;
 
-  document.getElementById("dashAvatar").src =
-    user.image || "https://via.placeholder.com/80";
+  let avatar = document.getElementById("dashAvatar");
+  if (avatar) {
+    avatar.src = user.image || "https://via.placeholder.com/80";
+  }
 
   updateInvestmentStatus();
 }
 
 /////////////////////////////////////////////////////
-// INVESTMENT SYSTEM
+// INVESTMENT
 /////////////////////////////////////////////////////
 
 function goInvest(plan) {
@@ -217,10 +233,9 @@ function goInvest(plan) {
     return;
   }
 
-  user.balance = (user.balance || 0) - amount;
+  user.balance -= amount;
   user.plan = plan;
   user.invested = amount;
-
   user.investStart = Date.now();
 
   users[userIndex] = user;
@@ -231,7 +246,7 @@ function goInvest(plan) {
 }
 
 /////////////////////////////////////////////////////
-// PROFIT SYSTEM (FIXED & SAFE)
+// PROFIT SYSTEM
 /////////////////////////////////////////////////////
 
 function getProfitRate(amount) {
@@ -250,21 +265,17 @@ function getDuration(rate) {
 
 function runAutoProfit() {
 
-  if (!user.invested || !user.investStart) return;
+  if (!user || !user.invested || !user.investStart) return;
 
   let rate = getProfitRate(user.invested);
   let duration = getDuration(rate);
 
-  let now = Date.now();
-  let elapsed = now - user.investStart;
-
-  if (elapsed >= duration) {
+  if (Date.now() - user.investStart >= duration) {
 
     let profit = user.invested * rate;
 
-    user.balance = (user.balance || 0) + profit;
-
-    user.investStart = now;
+    user.balance += profit;
+    user.investStart = Date.now();
 
     users[userIndex] = user;
     localStorage.setItem("users", JSON.stringify(users));
@@ -282,6 +293,7 @@ setInterval(runAutoProfit, 60000);
 function updateInvestmentStatus() {
 
   let el = document.getElementById("investStatus");
+  if (!el) return;
 
   if (user.plan && user.plan !== "None") {
     el.innerText = "🟢 Active (" + user.plan + ")";
@@ -308,7 +320,8 @@ function goHistory() { window.location.href = "history.html"; }
 
 function logout() {
 
-  document.getElementById("logoutOverlay").classList.add("active");
+  let overlay = document.getElementById("logoutOverlay");
+  if (overlay) overlay.classList.add("active");
 
   setTimeout(() => {
 
@@ -321,9 +334,13 @@ function logout() {
   }, 1500);
 }
 
+/////////////////////////////////////////////////////
+// START
+/////////////////////////////////////////////////////
+
 updateUI();
 
 </script>
 
 </body>
-  </html>
+      </html>
