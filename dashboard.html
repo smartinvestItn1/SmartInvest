@@ -20,6 +20,7 @@
 
 <h2 class="welcome">👋 Welcome back, <span id="user"></span></h2>
 <p class="sub">Your investments are growing 📈</p>
+
 <h4>Investment Status: <span id="investStatus">Loading...</span></h4>
 
 <h2>Investment Dashboard</h2>
@@ -82,23 +83,71 @@
   </div>
 
 </div>
-  <div class="box">
+
+<div class="box">
   <h3>📊 Activity</h3>
   <p>✔ Account active</p>
   <p>📈 Investment running</p>
-  </div>
+</div>
+
+<!-- LOGOUT OVERLAY -->
+<div id="logoutOverlay" class="logout-overlay">
+  <div class="loader"></div>
+  <p>Logging out...</p>
+</div>
 
 <script>
-  let balanceInterval; // 👈 add this at top of script
+
+/////////////////////////////////////////////////////
+// SESSION CHECK
+/////////////////////////////////////////////////////
+
+let sessionId = localStorage.getItem("sessionId");
+let sessions = JSON.parse(localStorage.getItem("activeSessions")) || [];
+
+let valid = sessions.find(s => s.sessionId === sessionId);
+
+if (!valid) {
+  window.location.replace("login.html");
+}
+
+/////////////////////////////////////////////////////
+// DATA
+/////////////////////////////////////////////////////
+
+let users = JSON.parse(localStorage.getItem("users")) || [];
+let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
+
+let currentUser = localStorage.getItem("loggedInUser"); // ✅ ONLY ONCE
+
+if (!currentUser) {
+  window.location.replace("login.html");
+}
+
+let userIndex = users.findIndex(u => u.username === currentUser);
+
+if (userIndex === -1) {
+  window.location.replace("login.html");
+}
+
+let user = users[userIndex];
+
+let btcRate = 65000;
+let ethRate = 3500;
+
+/////////////////////////////////////////////////////
+// BALANCE ANIMATION
+/////////////////////////////////////////////////////
+
+let balanceInterval;
 
 function animateBalance(value) {
 
-  clearInterval(balanceInterval); // ✅ stop previous animation
+  clearInterval(balanceInterval);
 
   let start = 0;
   let end = value;
-  let duration = 800;
-  let step = end / (duration / 16);
+  let step = end / 50;
 
   balanceInterval = setInterval(() => {
 
@@ -116,32 +165,18 @@ function animateBalance(value) {
       });
 
   }, 16);
-    }
-
-let users = JSON.parse(localStorage.getItem("users")) || [];
-let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
-let currentUser = localStorage.getItem("loggedInUser");
-
-let userIndex = users.findIndex(u => u.username === currentUser);
-if (userIndex === -1) {
-  window.location.href = "login.html";
 }
 
-let user = users[userIndex];
+/////////////////////////////////////////////////////
+// UPDATE UI
+/////////////////////////////////////////////////////
 
-let btcRate = 65000;
-let ethRate = 3500;
-
-/* =========================
-UPDATE UI
-==========================*/
-  function updateUI() {
+function updateUI() {
 
   document.getElementById("user").innerText = user.username;
 
   let balance = user.balance || 0;
 
-  // ✅ USE ANIMATION INSTEAD OF DIRECT TEXT
   animateBalance(balance);
 
   document.getElementById("btc").innerText = (balance / btcRate).toFixed(6);
@@ -158,10 +193,12 @@ UPDATE UI
     user.image || "https://via.placeholder.com/80";
 
   updateInvestmentStatus();
-  }
-/* =========================
-   INVEST
-========================= */
+}
+
+/////////////////////////////////////////////////////
+// INVESTMENT SYSTEM
+/////////////////////////////////////////////////////
+
 function goInvest(plan) {
 
   if (user.plan && user.plan !== "None") {
@@ -180,24 +217,22 @@ function goInvest(plan) {
     return;
   }
 
-  user.balance -= amount;
+  user.balance = (user.balance || 0) - amount;
   user.plan = plan;
   user.invested = amount;
 
-  // IMPORTANT: set investment time
   user.investStart = Date.now();
-  user.lastProfit = 0;
 
   users[userIndex] = user;
   localStorage.setItem("users", JSON.stringify(users));
 
   updateUI();
-  alert(`Invested ${amount} USDT`);
+  alert("Invested successfully");
 }
 
-/* =========================
-   PROFIT SYSTEM (FIXED)
-========================= */
+/////////////////////////////////////////////////////
+// PROFIT SYSTEM (FIXED & SAFE)
+/////////////////////////////////////////////////////
 
 function getProfitRate(amount) {
   if (amount >= 50 && amount <= 999) return 0.10;
@@ -215,29 +250,21 @@ function getDuration(rate) {
 
 function runAutoProfit() {
 
-  if (!user.invested) return;
+  if (!user.invested || !user.investStart) return;
 
   let rate = getProfitRate(user.invested);
   let duration = getDuration(rate);
 
   let now = Date.now();
-
-  if (!user.investStart) user.investStart = now;
-
   let elapsed = now - user.investStart;
-
-  // prevent multiple profit stacking
-  if (user.lastProfit && elapsed - user.lastProfit < duration) return;
 
   if (elapsed >= duration) {
 
     let profit = user.invested * rate;
 
-    user.balance += profit;
+    user.balance = (user.balance || 0) + profit;
 
-    // reset cycle
     user.investStart = now;
-    user.lastProfit = now;
 
     users[userIndex] = user;
     localStorage.setItem("users", JSON.stringify(users));
@@ -248,10 +275,12 @@ function runAutoProfit() {
 
 setInterval(runAutoProfit, 60000);
 
-/* =========================
-   STATUS
-========================= */
+/////////////////////////////////////////////////////
+// STATUS
+/////////////////////////////////////////////////////
+
 function updateInvestmentStatus() {
+
   let el = document.getElementById("investStatus");
 
   if (user.plan && user.plan !== "None") {
@@ -263,23 +292,48 @@ function updateInvestmentStatus() {
   }
 }
 
-/* =========================
-   NAV
-========================= */
+/////////////////////////////////////////////////////
+// NAVIGATION
+/////////////////////////////////////////////////////
+
 function goDeposit() { window.location.href = "deposit.html"; }
 function goWithdraw() { window.location.href = "withdraw.html"; }
 function goHome() { window.location.href = "index.html"; }
 function goProfile() { window.location.href = "profile.html"; }
 function goHistory() { window.location.href = "history.html"; }
 
+/////////////////////////////////////////////////////
+// LOGOUT
+/////////////////////////////////////////////////////
+
 function logout() {
-  localStorage.removeItem("loggedInUser");
-  window.location.href = "login.html";
+
+  document.getElementById("logoutOverlay").classList.add("active");
+
+  setTimeout(() => {
+
+    localStorage.removeItem("loggedInUser");
+    localStorage.removeItem("sessionId");
+    localStorage.removeItem("role");
+
+    window.location.replace("login.html");
+
+  }, 1500);
 }
+
+/////////////////////////////////////////////////////
+// BACK BUTTON FIX
+/////////////////////////////////////////////////////
+
+window.history.pushState(null, null, location.href);
+
+window.onpopstate = function () {
+  window.history.go(1);
+};
 
 updateUI();
 
 </script>
 
 </body>
-</html>
+  </html>
