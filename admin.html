@@ -46,7 +46,12 @@
 <script src="auth-guard.js"></script>
 
 <script>
+  
+history.pushState(null, null, location.href);
 
+window.onpopstate = function () {
+  history.pushState(null, null, location.href);
+};
 /////////////////////////////////////////////////////
 // 🔐 SAFE ADMIN SESSION CHECK (FIXED)
 /////////////////////////////////////////////////////
@@ -293,6 +298,7 @@ function setFilter(status) {
 
 function logout() {
 
+  // remove session properly
   let sessionId = localStorage.getItem("sessionId");
 
   let sessions = JSON.parse(localStorage.getItem("activeSessions")) || [];
@@ -301,10 +307,20 @@ function logout() {
 
   localStorage.setItem("activeSessions", JSON.stringify(sessions));
 
-  localStorage.clear();
-  window.location.href = "login.html";
-}
+  // clear login data
+  localStorage.removeItem("loggedInUser");
+  localStorage.removeItem("role");
+  localStorage.removeItem("sessionId");
 
+  // prevent back button restore
+  history.pushState(null, null, location.href);
+  window.onpopstate = function () {
+    history.go(1);
+  };
+
+  // force reload to break cached state
+  window.location.replace("login.html");
+                       }
 /////////////////////////////////////////////////////
 // INIT
 /////////////////////////////////////////////////////
