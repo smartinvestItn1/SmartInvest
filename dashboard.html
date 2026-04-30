@@ -95,40 +95,32 @@
   <p>Logging out...</p>
 </div>
 
-<script>
+<script type="module">
 
 /////////////////////////////////////////////////////
-// LOAD DATA SAFELY
+// CURRENT USER (TEMP SAFE METHOD)
+/////////////////////////////////////////////////////
+
+let currentUser = sessionStorage.getItem("loggedInUser");
+
+if (!currentUser) {
+  window.location.replace("login.html");
+}
+
+/////////////////////////////////////////////////////
+// DEMO DATA (YOU WILL REPLACE WITH FIRESTORE LATER)
 /////////////////////////////////////////////////////
 
 let users = JSON.parse(localStorage.getItem("users")) || [];
 let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
 
-let sessionId = localStorage.getItem("sessionId");
-let sessions = JSON.parse(localStorage.getItem("activeSessions")) || [];
-
-let currentUser = localStorage.getItem("loggedInUser");
-
-// SESSION CHECK
-let validSession = sessions.find(s => s.sessionId === sessionId);
-
-if (!validSession || !currentUser) {
-  window.location.replace("login.html");
-}
-
 let userIndex = users.findIndex(u => u.username === currentUser);
 
 if (userIndex === -1) {
-  localStorage.clear();
   window.location.replace("login.html");
 }
 
 let user = users[userIndex];
-
-if (!user) {
-  localStorage.clear();
-  window.location.replace("login.html");
-}
 
 /////////////////////////////////////////////////////
 // RATES
@@ -160,51 +152,37 @@ function animateBalance(value) {
       clearInterval(balanceInterval);
     }
 
-    let el = document.getElementById("balance");
-    if (el) {
-      el.innerText = start.toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
-    }
+    document.getElementById("balance").innerText =
+      start.toFixed(2);
 
   }, 16);
 }
 
 /////////////////////////////////////////////////////
-// UPDATE UI (SAFE)
+// UI UPDATE
 /////////////////////////////////////////////////////
 
 function updateUI() {
 
-  if (!user) return;
-
-  let userEl = document.getElementById("user");
-  if (userEl) userEl.innerText = user.username;
+  document.getElementById("user").innerText = user.username;
 
   let balance = user.balance || 0;
 
   animateBalance(balance);
 
-  let btcEl = document.getElementById("btc");
-  let ethEl = document.getElementById("eth");
-  let planEl = document.getElementById("planType");
+  document.getElementById("btc").innerText = (balance / btcRate).toFixed(6);
+  document.getElementById("eth").innerText = (balance / ethRate).toFixed(4);
 
-  if (btcEl) btcEl.innerText = (balance / btcRate).toFixed(6);
-  if (ethEl) ethEl.innerText = (balance / ethRate).toFixed(4);
-  if (planEl) planEl.innerText = user.plan || "None";
+  document.getElementById("planType").innerText = user.plan || "None";
+
+  document.getElementById("dashAvatar").src =
+    user.image || "https://via.placeholder.com/80";
 
   let pendingTotal = deposits
     .filter(d => d.user === currentUser && d.status === "pending")
     .reduce((sum, d) => sum + d.amount, 0);
 
-  let pendingEl = document.getElementById("pending");
-  if (pendingEl) pendingEl.innerText = pendingTotal;
-
-  let avatar = document.getElementById("dashAvatar");
-  if (avatar) {
-    avatar.src = user.image || "https://via.placeholder.com/80";
-  }
+  document.getElementById("pending").innerText = pendingTotal;
 
   updateInvestmentStatus();
 }
@@ -215,74 +193,27 @@ function updateUI() {
 
 function goInvest(plan) {
 
-  if (user.plan && user.plan !== "None") {
-    alert("Already invested");
-    return;
-  }
-
   let amount = 0;
 
   if (plan === "Starter") amount = 100;
   if (plan === "Pro") amount = 1000;
   if (plan === "Premium") amount = 5000;
 
-  if ((user.balance || 0) < amount) {
+  if (user.balance < amount) {
     alert("Not enough balance");
     return;
   }
 
   user.balance -= amount;
   user.plan = plan;
-  user.invested = amount;
-  user.investStart = Date.now();
 
   users[userIndex] = user;
+
   localStorage.setItem("users", JSON.stringify(users));
 
   updateUI();
-  alert("Invested successfully");
+  alert("Investment successful ✔");
 }
-
-/////////////////////////////////////////////////////
-// PROFIT SYSTEM
-/////////////////////////////////////////////////////
-
-function getProfitRate(amount) {
-  if (amount >= 100 && amount <= 999) return 0.10;
-  if (amount >= 1000 && amount <= 4999) return 0.20;
-  if (amount >= 5000) return 0.40;
-  return 0;
-}
-
-function getDuration(rate) {
-  if (rate === 0.10) return 48 * 60 * 60 * 1000;
-  if (rate === 0.20) return 96 * 60 * 60 * 1000;
-  if (rate === 0.40) return 120 * 60 * 60 * 1000;
-  return 0;
-}
-
-function runAutoProfit() {
-
-  if (!user || !user.invested || !user.investStart) return;
-
-  let rate = getProfitRate(user.invested);
-  let duration = getDuration(rate);
-
-  if (Date.now() - user.investStart >= duration) {
-
-    let profit = user.invested * rate;
-
-    user.balance += profit;
-    user.investStart = Date.now();
-
-    users[userIndex] = user;
-    localStorage.setItem("users", JSON.stringify(users));
-
-    updateUI();
-  }
-}
-
-setInterval(runAutoProfit, 60000);
 
 /////////////////////////////////////////////////////
 // STATUS
@@ -291,7 +222,6 @@ setInterval(runAutoProfit, 60000);
 function updateInvestmentStatus() {
 
   let el = document.getElementById("investStatus");
-  if (!el) return;
 
   if (user.plan && user.plan !== "None") {
     el.innerText = "🟢 Active (" + user.plan + ")";
@@ -319,26 +249,29 @@ function goHistory() { window.location.href = "history.html"; }
 function logout() {
 
   let overlay = document.getElementById("logoutOverlay");
-  if (overlay) overlay.classList.add("active");
+  overlay.classList.add("active");
 
   setTimeout(() => {
-
-    localStorage.removeItem("loggedInUser");
-    localStorage.removeItem("sessionId");
-    localStorage.removeItem("role");
-
+    sessionStorage.removeItem("loggedInUser");
     window.location.replace("login.html");
-
-  }, 1500);
+  }, 1200);
 }
 
 /////////////////////////////////////////////////////
-// START
+// INIT
 /////////////////////////////////////////////////////
 
 updateUI();
 
+window.goInvest = goInvest;
+window.goDeposit = goDeposit;
+window.goWithdraw = goWithdraw;
+window.goHome = goHome;
+window.goProfile = goProfile;
+window.goHistory = goHistory;
+window.logout = logout;
+
 </script>
 
 </body>
-      </html>
+</html>
