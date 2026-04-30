@@ -32,11 +32,18 @@
   </p>
 
 </div>
-  <script type="module" src="firebase.js"></script>
+
+<script type="module" src="firebase.js"></script>
+
 <script type="module">
+
 import { db } from "./firebase.js";
 import { collection, addDoc, getDocs } 
 from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+/////////////////////////////////////////////////////
+// SIGNUP
+/////////////////////////////////////////////////////
 
 async function signup(event) {
   event.preventDefault();
@@ -57,12 +64,13 @@ async function signup(event) {
   }
 
   // check if user exists
-  let usersSnap = await getDocs(collection(db, "users"));
+  const usersSnap = await getDocs(collection(db, "users"));
 
   let exists = false;
 
   usersSnap.forEach(doc => {
-    if (doc.data().username === username) {
+    const u = doc.data();
+    if (u.username === username) {
       exists = true;
     }
   });
@@ -72,7 +80,7 @@ async function signup(event) {
     return;
   }
 
-  // create user
+  // create user in Firebase
   await addDoc(collection(db, "users"), {
     username,
     email,
@@ -87,13 +95,27 @@ async function signup(event) {
 
   window.location.replace("login.html");
 }
+
+/////////////////////////////////////////////////////
+// NAVIGATION (IMPORTANT FIX)
+/////////////////////////////////////////////////////
+
 function goHome() {
   window.location.href = "index.html";
 }
+
 function goLogin() {
   window.location.href = "login.html";
 }
+
+/////////////////////////////////////////////////////
+// EXPOSE TO HTML
+/////////////////////////////////////////////////////
+
 window.signup = signup;
+window.goHome = goHome;
+window.goLogin = goLogin;
+
 </script>
 
 </body>
