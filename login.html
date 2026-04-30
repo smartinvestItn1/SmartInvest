@@ -32,11 +32,14 @@
 
 <!-- Firebase file is loaded (keep if you use it later) -->
 <script type="module" src="firebase.js"></script>
-
-<script type="module">
+  <script type="module">
 import { db } from "./firebase.js";
 import { collection, getDocs } 
 from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+/////////////////////////////////////////////////////
+// LOGIN
+/////////////////////////////////////////////////////
 
 async function login(event) {
   event.preventDefault();
@@ -65,7 +68,6 @@ async function login(event) {
     return;
   }
 
-  // session only (NOT localStorage for users)
   sessionStorage.setItem("loggedInUser", foundUser.username);
 
   if (foundUser.username.includes("admin")) {
@@ -73,17 +75,28 @@ async function login(event) {
   } else {
     window.location.replace("dashboard.html");
   }
- function goHome() {
+}
+
+/////////////////////////////////////////////////////
+// NAVIGATION (MUST BE OUTSIDE LOGIN)
+/////////////////////////////////////////////////////
+
+function goHome() {
   window.location.href = "index.html";
 }
 
 function goSignup() {
   window.location.href = "signup.html";
-  } 
 }
 
-window.login = login;
-</script>
+/////////////////////////////////////////////////////
+// MAKE FUNCTIONS GLOBAL (IMPORTANT)
+/////////////////////////////////////////////////////
 
+window.login = login;
+window.goHome = goHome;
+window.goSignup = goSignup;
+
+  </script>
 </body>
 </html>
