@@ -30,13 +30,16 @@
 
 </div>
 
+<!-- IMPORTANT: only load your firebase.js -->
+
+<script type="module" src="firebase.js"></script>
 <script>
 
 /////////////////////////////////////////////////////
-// SAFE LOGIN
+// LOGIN (NO LOCALSTORAGE VERSION)
 /////////////////////////////////////////////////////
 
-function login(event) {
+async function login(event) {
   event.preventDefault();
 
   let username = document.getElementById("username").value.trim();
@@ -49,17 +52,7 @@ function login(event) {
   }
 
   /////////////////////////////////////////////////////
-  // CLEAR OLD SESSION BEFORE LOGIN (IMPORTANT FIX)
-  /////////////////////////////////////////////////////
-
-  localStorage.removeItem("loggedInUser");
-  localStorage.removeItem("role");
-  localStorage.removeItem("sessionId");
-
-  let sessions = JSON.parse(localStorage.getItem("activeSessions")) || [];
-
-  /////////////////////////////////////////////////////
-  // ADMIN LOGIN
+  // ADMIN LOGIN (STATIC)
   /////////////////////////////////////////////////////
 
   const admins = [
@@ -74,7 +67,6 @@ function login(event) {
   );
 
   if (admin) {
-    createSession(username, "admin", sessions);
     show("Admin Login Successful ✔", "success");
 
     setTimeout(() => {
@@ -85,63 +77,19 @@ function login(event) {
   }
 
   /////////////////////////////////////////////////////
-  // USER LOGIN
+  // USER LOGIN (WAITING FOR FIREBASE CONNECTION)
   /////////////////////////////////////////////////////
 
-  let users = JSON.parse(localStorage.getItem("users")) || [];
+  show("Checking user...", "success");
 
-  let foundUser = users.find(u =>
-    String(u.username) === String(username) &&
-    String(u.password) === String(password)
-  );
-
-  if (foundUser) {
-    createSession(username, "user", sessions);
-    show("Login Successful ✔", "success");
-
-    setTimeout(() => {
-      window.location.replace("dashboard.html");
-    }, 800);
-
-  } else {
-    show("Invalid username or password ❌", "error");
-  }
+  // NOTE: real Firebase login will be connected via firebase.js
+  setTimeout(() => {
+    show("Login system not fully connected yet ❗", "error");
+  }, 1000);
 }
 
 /////////////////////////////////////////////////////
-// SESSION SYSTEM (FIXED)
-/////////////////////////////////////////////////////
-function createSession(username, role) {
-
-  let sessions = JSON.parse(localStorage.getItem("activeSessions")) || [];
-
-  // remove existing session of this user (no duplicates)
-  sessions = sessions.filter(s => s.username !== username);
-
-  let sessionId = Date.now() + "_" + Math.random().toString(36).slice(2, 10);
-
-  // add new session
-  sessions.push({
-    username,
-    role,
-    sessionId
-  });
-
-  // 🔥 LIMIT USERS PER DEVICE (3 MAX)
-  if (sessions.length > 3) {
-    sessions.shift(); // remove oldest user
-  }
-
-  localStorage.setItem("activeSessions", JSON.stringify(sessions));
-
-  // current active session
-  localStorage.setItem("sessionId", sessionId);
-  localStorage.setItem("loggedInUser", username);
-  localStorage.setItem("role", role);
-}
-
-/////////////////////////////////////////////////////
-// UI MESSAGE HELPER
+// UI HELPER
 /////////////////////////////////////////////////////
 
 function show(text, type) {
