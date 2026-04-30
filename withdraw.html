@@ -21,68 +21,87 @@
   <button onclick="goBack()" class="back-btn">Back</button>
 
 </div>
-<script>
 
-function submitWithdraw() {
+<script type="module">
+
+import { db } from "./firebase.js";
+import {
+  collection,
+  addDoc,
+  doc,
+  updateDoc,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+/////////////////////////////////////////////////////
+// GET USER
+/////////////////////////////////////////////////////
+
+let user = sessionStorage.getItem("loggedInUser");
+
+if (!user) {
+  window.location.href = "login.html";
+}
+
+/////////////////////////////////////////////////////
+// SUBMIT WITHDRAWAL (FIREBASE)
+/////////////////////////////////////////////////////
+
+async function submitWithdraw() {
 
   let wallet = document.getElementById("wallet").value.trim();
   let amount = Number(document.getElementById("amount").value);
-  let currentUser = localStorage.getItem("loggedInUser");
-
-  if (!currentUser) {
-    alert("You are not logged in");
-    window.location.href = "login.html";
-    return;
-  }
 
   if (!wallet || !amount || amount <= 0) {
     alert("Enter valid details");
     return;
   }
 
-  /////////////////////////////////////////////////////
-  // MAIN WITHDRAW STORAGE (ADMIN USE)
-  /////////////////////////////////////////////////////
+  try {
 
-  let withdrawals = JSON.parse(localStorage.getItem("withdrawals")) || [];
+    // Save withdrawal request
+    await addDoc(collection(db, "withdrawals"), {
+      user: user,
+      wallet: wallet,
+      amount: amount,
+      status: "pending",
+      time: Date.now()
+    });
 
-  let request = {
-    id: Date.now(),
-    user: currentUser,
-    wallet: wallet,
-    amount: amount,
-    status: "pending",
-    date: new Date().toLocaleString()
-  };
+    // Save wallet to user profile (update user document)
+    const usersSnap = await getDocs(collection(db, "users"));
 
-  withdrawals.push(request);
-  localStorage.setItem("withdrawals", JSON.stringify(withdrawals));
+    usersSnap.forEach(async (u) => {
+      if (u.data().username === user) {
 
-  /////////////////////////////////////////////////////
-  // HISTORY SYSTEM
-  /////////////////////////////////////////////////////
+        await updateDoc(doc(db, "users", u.id), {
+          wallet: wallet
+        });
 
-  let history = JSON.parse(localStorage.getItem("history")) || [];
+      }
+    });
 
-  history.push({
-    user: currentUser,
-    type: "Withdraw",
-    amount: amount,
-    status: "pending",
-    time: new Date().toLocaleString()
-  });
+    alert("Withdrawal submitted and pending approval");
 
-  localStorage.setItem("history", JSON.stringify(history));
+    document.getElementById("wallet").value = "";
+    document.getElementById("amount").value = "";
 
-  alert("Withdrawal submitted and pending approval");
-
-  document.getElementById("wallet").value = "";
-  document.getElementById("amount").value = "";
+  } catch (err) {
+    console.log(err);
+    alert("Error submitting withdrawal");
+  }
 }
+
+/////////////////////////////////////////////////////
+// NAVIGATION
+/////////////////////////////////////////////////////
 
 function goBack() {
   window.location.href = "dashboard.html";
 }
+
+window.submitWithdraw = submitWithdraw;
+window.goBack = goBack;
 
 </script>
 
