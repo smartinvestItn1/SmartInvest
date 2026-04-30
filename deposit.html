@@ -40,7 +40,18 @@
   <button onclick="submitDeposit()">Submit Deposit</button>
 
 </div>
-<script>
+
+<script type="module">
+
+import { db } from "./firebase.js";
+import {
+  collection,
+  addDoc
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+/////////////////////////////////////////////////////
+// WALLET SYSTEM
+/////////////////////////////////////////////////////
 
 const wallets = {
   USDT: "TXYZUSDT_COMPANY",
@@ -57,61 +68,49 @@ function updateWallet() {
 updateWallet();
 
 /////////////////////////////////////////////////////
-// DEPOSIT SYSTEM (ADMIN QUEUE + HISTORY)
+// GET USER (FROM SESSION STORAGE)
 /////////////////////////////////////////////////////
 
-function submitDeposit() {
+let user = sessionStorage.getItem("loggedInUser");
+
+if (!user) {
+  window.location.href = "login.html";
+}
+
+/////////////////////////////////////////////////////
+// SUBMIT DEPOSIT (FIREBASE)
+/////////////////////////////////////////////////////
+
+async function submitDeposit() {
 
   let amount = Number(document.getElementById("amount").value);
   let coin = document.getElementById("coin").value;
-  let user = localStorage.getItem("loggedInUser");
 
   if (!amount || amount <= 0) {
     alert("Enter valid amount");
     return;
   }
 
-  if (!user) {
-    alert("Login required");
-    return;
+  try {
+
+    await addDoc(collection(db, "deposits"), {
+      user: user,
+      coin: coin,
+      amount: amount,
+      wallet: wallets[coin],
+      status: "pending",
+      type: "deposit",
+      time: Date.now()
+    });
+
+    alert("Deposit submitted! Waiting for admin approval.");
+
+    document.getElementById("amount").value = "";
+
+  } catch (err) {
+    alert("Error submitting deposit");
+    console.log(err);
   }
-
-  // --------------------------
-  // SEND TO ADMIN QUEUE
-  // --------------------------
-  let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
-
-  deposits.push({
-    user: user,
-    coin: coin,
-    amount: amount,
-    wallet: wallets[coin],
-    status: "pending",
-    type: "deposit",
-    time: Date.now()
-  });
-
-  localStorage.setItem("deposits", JSON.stringify(deposits));
-
-  // --------------------------
-  // HISTORY LOG
-  // --------------------------
-  let history = JSON.parse(localStorage.getItem("history")) || [];
-
-  history.push({
-    user: user,
-    type: "Deposit",
-    coin: coin,
-    amount: amount,
-    status: "pending",
-    time: new Date().toLocaleString()
-  });
-
-  localStorage.setItem("history", JSON.stringify(history));
-
-  alert("Deposit submitted! Waiting for admin approval.");
-
-  document.getElementById("amount").value = "";
 }
 
 /////////////////////////////////////////////////////
@@ -128,6 +127,11 @@ function copyWallet() {
   document.execCommand("copy");
   alert("Wallet copied");
 }
+
+window.submitDeposit = submitDeposit;
+window.goBack = goBack;
+window.copyWallet = copyWallet;
+window.updateWallet = updateWallet;
 
 </script>
 
