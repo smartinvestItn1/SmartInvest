@@ -43,71 +43,47 @@
 <h3>💸 Withdrawals</h3>
 <div id="withdrawList"></div>
 
-<script>
-  
-history.pushState(null, null, location.href);
+<script type="module">
 
-window.onpopstate = function () {
-  history.pushState(null, null, location.href);
-};
-/////////////////////////////////////////////////////
-// 🔐 SAFE ADMIN SESSION CHECK (FIXED)
-/////////////////////////////////////////////////////
-
-const role = localStorage.getItem("role");
-const sessionId = localStorage.getItem("sessionId");
-const loggedUser = localStorage.getItem("loggedInUser");
-
-let sessions = JSON.parse(localStorage.getItem("activeSessions")) || [];
-
-let validSession = sessions.find(s =>
-  s.username === loggedUser && s.sessionId === sessionId
-);
-
-if (role !== "admin" || !validSession) {
-  localStorage.clear();
-  window.location.href = "login.html";
-}
+import { db } from "./firebase.js";
+import {
+  collection,
+  getDocs,
+  doc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 /////////////////////////////////////////////////////
-// DATA
+// GLOBAL DATA
 /////////////////////////////////////////////////////
 
-let users = JSON.parse(localStorage.getItem("users")) || [];
-let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
-let investments = JSON.parse(localStorage.getItem("pendingInvestments")) || [];
-let withdrawals = JSON.parse(localStorage.getItem("withdrawals")) || [];
-let history = JSON.parse(localStorage.getItem("history")) || [];
+let users = [];
+let deposits = [];
+let withdrawals = [];
+let investments = [];
+let notifications = [];
 
 let filterStatus = "all";
 
-let notifications = JSON.parse(localStorage.getItem("adminNotifications")) || [];
-
 /////////////////////////////////////////////////////
-// NOTIFICATIONS
+// LOAD DATA FROM FIREBASE
 /////////////////////////////////////////////////////
 
-function addNotification(text) {
+async function loadData() {
 
-  notifications.unshift({
-    text,
-    time: new Date().toLocaleTimeString()
-  });
+  const usersSnap = await getDocs(collection(db, "users"));
+  users = usersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  if (notifications.length > 10) notifications.pop();
+  const depSnap = await getDocs(collection(db, "deposits"));
+  deposits = depSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  localStorage.setItem("adminNotifications", JSON.stringify(notifications));
-  renderNotifications();
-}
+  const witSnap = await getDocs(collection(db, "withdrawals"));
+  withdrawals = witSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-function renderNotifications() {
-  document.getElementById("notifications").innerHTML =
-    notifications.map(n => `
-      <div class="card">
-        🔔 ${n.text}<br>
-        <small>${n.time}</small>
-      </div>
-    `).join("");
+  const invSnap = await getDocs(collection(db, "investments"));
+  investments = invSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  renderAll();
 }
 
 /////////////////////////////////////////////////////
@@ -123,7 +99,7 @@ function loadUsers() {
   );
 
   document.getElementById("usersList").innerHTML =
-    filtered.map((u, index) => `
+    filtered.map(u => `
       <div class="card">
         <p><b>${u.username}</b></p>
         <p>Balance: $${Number(u.balance || 0).toFixed(2)}</p>
@@ -132,7 +108,7 @@ function loadUsers() {
 }
 
 /////////////////////////////////////////////////////
-// DEPOSITS (FIXED INDEX BUG)
+// DEPOSITS
 /////////////////////////////////////////////////////
 
 function loadDeposits() {
@@ -142,62 +118,47 @@ function loadDeposits() {
   );
 
   document.getElementById("depositList").innerHTML =
-    list.map((d, i) => `
+    list.map(d => `
       <div class="card">
         <p><b>User:</b> ${d.user}</p>
         <p>Amount: $${d.amount}</p>
         <p>Status: ${d.status}</p>
 
         ${d.status === "pending" ? `
-          <button onclick="approveDeposit('${d.user}', ${d.amount}, ${i})">Approve</button>
-          <button onclick="rejectDeposit(${i})">Reject</button>
+          <button onclick="approveDeposit('${d.id}', '${d.user}', ${d.amount})">Approve</button>
+          <button onclick="rejectDeposit('${d.id}')">Reject</button>
         ` : ""}
       </div>
     `).join("");
 }
 
-function approveDeposit(user, amount, i) {
+async function approveDeposit(id, user, amount) {
 
-  let userIndex = users.findIndex(u => u.username === user);
-  if (userIndex === -1) return;
+  const userRef = users.find(u => u.username === user);
 
-  users[userIndex].balance =
-    Number(users[userIndex].balance || 0) + Number(amount);
+  if (!userRef) return;
 
-  deposits[i].status = "approved";
+  await updateDoc(doc(db, "users", userRef.id), {
+    balance: Number(userRef.balance || 0) + Number(amount)
+  });
 
-  saveHistory(user, "Deposit", amount, "approved");
+  await updateDoc(doc(db, "deposits", id), {
+    status: "approved"
+  });
 
-  saveAll();
-  addNotification("Deposit approved: " + user);
+  loadData();
 }
 
-function rejectDeposit(i) {
-  deposits[i].status = "rejected";
-  saveHistory(deposits[i].user, "Deposit", deposits[i].amount, "rejected");
-  saveAll();
-  addNotification("Deposit rejected");
-}
+async function rejectDeposit(id) {
+  await updateDoc(doc(db, "deposits", id), {
+    status: "rejected"
+  });
 
-/////////////////////////////////////////////////////
-// INVESTMENTS
-/////////////////////////////////////////////////////
-
-function loadInvestments() {
-
-  document.getElementById("investList").innerHTML =
-    investments.map(i => `
-      <div class="card">
-        <p><b>User:</b> ${i.user}</p>
-        <p>Plan: ${i.plan}</p>
-        <p>Amount: $${i.amount}</p>
-        <p>Status: ${i.status}</p>
-      </div>
-    `).join("");
+  loadData();
 }
 
 /////////////////////////////////////////////////////
-// WITHDRAWALS (FIXED INDEX BUG)
+// WITHDRAWALS
 /////////////////////////////////////////////////////
 
 function loadWithdrawals() {
@@ -207,77 +168,61 @@ function loadWithdrawals() {
   );
 
   document.getElementById("withdrawList").innerHTML =
-    list.map((w, i) => `
+    list.map(w => `
       <div class="card">
         <p><b>User:</b> ${w.user}</p>
         <p>Amount: $${w.amount}</p>
         <p>Status: ${w.status}</p>
 
         ${w.status === "pending" ? `
-          <button onclick="approveWithdraw('${w.user}', ${w.amount}, ${i})">Approve</button>
-          <button onclick="rejectWithdraw(${i})">Reject</button>
+          <button onclick="approveWithdraw('${w.id}', '${w.user}', ${w.amount})">Approve</button>
+          <button onclick="rejectWithdraw('${w.id}')">Reject</button>
         ` : ""}
       </div>
     `).join("");
 }
 
-function approveWithdraw(user, amount, i) {
+async function approveWithdraw(id, user, amount) {
 
-  let userIndex = users.findIndex(u => u.username === user);
-  if (userIndex === -1) return;
+  const userRef = users.find(u => u.username === user);
 
-  if (users[userIndex].balance < amount) {
-    alert("Insufficient balance");
-    return;
-  }
+  if (!userRef) return;
 
-  users[userIndex].balance -= amount;
-  withdrawals[i].status = "approved";
+  if (userRef.balance < amount) return alert("Insufficient balance");
 
-  saveHistory(user, "Withdraw", amount, "approved");
-
-  saveAll();
-  addNotification("Withdrawal approved: " + user);
-}
-
-function rejectWithdraw(i) {
-  withdrawals[i].status = "rejected";
-  saveHistory(withdrawals[i].user, "Withdraw", withdrawals[i].amount, "rejected");
-  saveAll();
-  addNotification("Withdrawal rejected");
-}
-
-/////////////////////////////////////////////////////
-// HISTORY
-/////////////////////////////////////////////////////
-
-function saveHistory(user, type, amount, status) {
-
-  history.push({
-    user,
-    type,
-    amount,
-    status,
-    time: new Date().toLocaleString()
+  await updateDoc(doc(db, "users", userRef.id), {
+    balance: Number(userRef.balance) - Number(amount)
   });
 
-  localStorage.setItem("history", JSON.stringify(history));
+  await updateDoc(doc(db, "withdrawals", id), {
+    status: "approved"
+  });
+
+  loadData();
+}
+
+async function rejectWithdraw(id) {
+  await updateDoc(doc(db, "withdrawals", id), {
+    status: "rejected"
+  });
+
+  loadData();
 }
 
 /////////////////////////////////////////////////////
-// SAVE
+// INVESTMENTS
 /////////////////////////////////////////////////////
 
-function saveAll() {
-  localStorage.setItem("users", JSON.stringify(users));
-  localStorage.setItem("deposits", JSON.stringify(deposits));
-  localStorage.setItem("pendingInvestments", JSON.stringify(investments));
-  localStorage.setItem("withdrawals", JSON.stringify(withdrawals));
-
-  loadUsers();
-  loadDeposits();
-  loadInvestments();
-  loadWithdrawals();
+function loadInvestments() {
+  document.getElementById("investList").innerHTML =
+    investments.map(i => `
+      <div class="card">
+        <p><b>User:</b> ${i.user}</p>
+        <p>Plan: ${i.plan}</p>
+        <p>Amount: $${i.amount}</p>
+        <p>Status: ${i.status}</p>
+      </div>
+    `).join("");
 }
 
 /////////////////////////////////////////////////////
@@ -291,43 +236,33 @@ function setFilter(status) {
 }
 
 /////////////////////////////////////////////////////
-// LOGOUT (FIXED)
+// LOGOUT
 /////////////////////////////////////////////////////
 
 function logout() {
-
-  // remove session properly
-  let sessionId = localStorage.getItem("sessionId");
-
-  let sessions = JSON.parse(localStorage.getItem("activeSessions")) || [];
-
-  sessions = sessions.filter(s => s.sessionId !== sessionId);
-
-  localStorage.setItem("activeSessions", JSON.stringify(sessions));
-
-  // clear login data
-  localStorage.removeItem("loggedInUser");
-  localStorage.removeItem("role");
-  localStorage.removeItem("sessionId");
-
-  // prevent back button restore
-  history.pushState(null, null, location.href);
-  window.onpopstate = function () {
-    history.go(1);
-  };
-
-  // force reload to break cached state
   window.location.replace("login.html");
-                       }
+}
+
 /////////////////////////////////////////////////////
-// INIT
+// RENDER ALL
 /////////////////////////////////////////////////////
 
-loadUsers();
-loadDeposits();
-loadInvestments();
-loadWithdrawals();
-renderNotifications();
+function renderAll() {
+  loadUsers();
+  loadDeposits();
+  loadInvestments();
+  loadWithdrawals();
+}
+
+window.loadUsers = loadUsers;
+window.setFilter = setFilter;
+window.logout = logout;
+window.approveDeposit = approveDeposit;
+window.rejectDeposit = rejectDeposit;
+window.approveWithdraw = approveWithdraw;
+window.rejectWithdraw = rejectWithdraw;
+
+loadData();
 
 </script>
 
