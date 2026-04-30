@@ -14,55 +14,115 @@
   <div id="historyList"></div>
   <button onclick="goBack()">Back</button>
 </div>
-<script>
 
-function loadHistory() {
+<script type="module">
 
-  let currentUser = localStorage.getItem("loggedInUser");
-  let history = JSON.parse(localStorage.getItem("history")) || [];
+import { db } from "./firebase.js";
+import {
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+/////////////////////////////////////////////////////
+// CURRENT USER
+/////////////////////////////////////////////////////
+
+let user = sessionStorage.getItem("loggedInUser");
+
+if (!user) {
+  window.location.href = "login.html";
+}
+
+/////////////////////////////////////////////////////
+// LOAD HISTORY FROM FIREBASE
+/////////////////////////////////////////////////////
+
+async function loadHistory() {
+
+  const depSnap = await getDocs(collection(db, "deposits"));
+  const witSnap = await getDocs(collection(db, "withdrawals"));
+
+  let deposits = depSnap.docs.map(d => d.data());
+  let withdrawals = witSnap.docs.map(d => d.data());
+
+  let history = [];
+
+  // convert deposits
+  deposits.forEach(d => {
+    if (d.user === user) {
+      history.push({
+        type: "deposit",
+        status: d.status,
+        amount: d.amount,
+        time: d.time
+      });
+    }
+  });
+
+  // convert withdrawals
+  withdrawals.forEach(w => {
+    if (w.user === user) {
+      history.push({
+        type: "withdrawal",
+        status: w.status,
+        amount: w.amount,
+        time: w.time,
+        wallet: w.wallet
+      });
+    }
+  });
+
+  render(history);
+}
+
+/////////////////////////////////////////////////////
+// RENDER UI
+/////////////////////////////////////////////////////
+
+function render(history) {
 
   let list = document.getElementById("historyList");
   list.innerHTML = "";
 
-  let userHistory = history.filter(h => h.user === currentUser);
-
-  if (userHistory.length === 0) {
+  if (history.length === 0) {
     list.innerHTML = "<p>No history yet</p>";
     return;
   }
 
-  userHistory.reverse().forEach(item => {
+  history.reverse().forEach(item => {
 
     let div = document.createElement("div");
     div.classList.add("card");
 
-    let titleColor = item.type === "deposit" ? "green"
-                     : item.type === "withdrawal" ? "red"
-                     : "navy";
+    let color =
+      item.type === "deposit" ? "green" :
+      item.type === "withdrawal" ? "red" : "black";
 
     div.innerHTML = `
-      <h4 style="color:${titleColor}">
+      <h4 style="color:${color}">
         ${item.type.toUpperCase()} - ${item.status.toUpperCase()}
       </h4>
 
       <p><b>Amount:</b> ${item.amount || 0} USDT</p>
 
-      ${item.profit ? `<p><b>Profit:</b> ${item.profit} USDT</p>` : ""}
+      ${item.wallet ? `<p><b>Wallet:</b> ${item.wallet}</p>` : ""}
 
-      ${item.plan ? `<p><b>Plan:</b> ${item.plan}</p>` : ""}
-
-      ${item.balance ? `<p><b>Balance:</b> ${item.balance}</p>` : ""}
-
-      <p><small>${item.time}</small></p>
+      <p><small>${new Date(item.time).toLocaleString()}</small></p>
     `;
 
     list.appendChild(div);
   });
 }
 
+/////////////////////////////////////////////////////
+// NAVIGATION
+/////////////////////////////////////////////////////
+
 function goBack() {
   window.location.href = "dashboard.html";
 }
+
+window.goBack = goBack;
 
 loadHistory();
 
