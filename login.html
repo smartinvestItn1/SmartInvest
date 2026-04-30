@@ -111,26 +111,33 @@ function login(event) {
 /////////////////////////////////////////////////////
 // SESSION SYSTEM (FIXED)
 /////////////////////////////////////////////////////
+function createSession(username, role) {
 
-function createSession(username, role, sessions) {
+  let sessions = JSON.parse(localStorage.getItem("activeSessions")) || [];
+
+  // remove existing session of this user (no duplicates)
+  sessions = sessions.filter(s => s.username !== username);
 
   let sessionId = Date.now() + "_" + Math.random().toString(36).slice(2, 10);
 
-  // ❌ remove old sessions for this user (IMPORTANT FIX)
-  sessions = sessions.filter(s => s.username !== username);
-
+  // add new session
   sessions.push({
     username,
     role,
-    sessionId,
-    time: Date.now()
+    sessionId
   });
+
+  // 🔥 LIMIT USERS PER DEVICE (3 MAX)
+  if (sessions.length > 3) {
+    sessions.shift(); // remove oldest user
+  }
 
   localStorage.setItem("activeSessions", JSON.stringify(sessions));
 
+  // current active session
+  localStorage.setItem("sessionId", sessionId);
   localStorage.setItem("loggedInUser", username);
   localStorage.setItem("role", role);
-  localStorage.setItem("sessionId", sessionId);
 }
 
 /////////////////////////////////////////////////////
