@@ -34,7 +34,6 @@
 </div>
 
 <script type="module">
-
 import { db } from "./firebase.js";
 import { collection, addDoc, getDocs } 
 from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
@@ -46,56 +45,64 @@ from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 async function signup(event) {
   event.preventDefault();
 
-  let username = document.getElementById("username").value.trim();
-  let email = document.getElementById("email").value.trim();
-  let password = document.getElementById("password").value.trim();
-  let confirm = document.getElementById("confirm").value.trim();
+  try {
 
-  if (!username || !email || !password || !confirm) {
-    alert("Please fill all fields");
-    return;
-  }
+    let username = document.getElementById("username").value.trim();
+    let email = document.getElementById("email").value.trim();
+    let password = document.getElementById("password").value.trim();
+    let confirm = document.getElementById("confirm").value.trim();
 
-  if (password !== confirm) {
-    alert("Passwords do not match");
-    return;
-  }
-
-  // check if user exists
-  const usersSnap = await getDocs(collection(db, "users"));
-
-  let exists = false;
-
-  usersSnap.forEach(doc => {
-    const u = doc.data();
-    if (u.username === username) {
-      exists = true;
+    if (!username || !email || !password || !confirm) {
+      alert("Please fill all fields");
+      return;
     }
-  });
 
-  if (exists) {
-    alert("User already exists");
-    return;
+    if (password !== confirm) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    // check if user exists
+    const usersSnap = await getDocs(collection(db, "users"));
+
+    let exists = false;
+
+    usersSnap.forEach(doc => {
+      const u = doc.data();
+      if ((u.username || "").toLowerCase() === username.toLowerCase()) {
+        exists = true;
+      }
+    });
+
+    if (exists) {
+      alert("User already exists");
+      return;
+    }
+
+    // create user
+    await addDoc(collection(db, "users"), {
+      username,
+      email,
+      password,
+      balance: 0,
+      plan: "None",
+      wallet: "",
+      createdAt: Date.now()
+    });
+
+    alert("Account created successfully");
+
+    // FORCE redirect (prevents silent stop issues)
+    window.location.href = "login.html";
+
+  } catch (error) {
+    console.error("Signup error:", error);
+    alert("Something went wrong. Check console.");
   }
-
-  // create user in Firebase
-  await addDoc(collection(db, "users"), {
-    username,
-    email,
-    password,
-    balance: 0,
-    plan: "None",
-    wallet: "",
-    createdAt: Date.now()
-  });
-
-  alert("Account created successfully");
-
-  window.location.replace("login.html");
 }
 
 /////////////////////////////////////////////////////
-// NAVIGATION (IMPORTANT FIX)
+// NAVIGATION
 /////////////////////////////////////////////////////
 
 function goHome() {
@@ -107,7 +114,7 @@ function goLogin() {
 }
 
 /////////////////////////////////////////////////////
-// EXPOSE TO HTML
+// EXPOSE FUNCTIONS
 /////////////////////////////////////////////////////
 
 window.signup = signup;
