@@ -29,7 +29,9 @@
   </p>
 
 </div>
-  <script type="module">
+
+<script type="module">
+
 import { db } from "./firebase.js";
 import { collection, getDocs } 
 from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
@@ -41,41 +43,56 @@ from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 async function login(event) {
   event.preventDefault();
 
-  let username = document.getElementById("username").value.trim();
-  let password = document.getElementById("password").value.trim();
+  try {
 
-  if (!username || !password) {
-    alert("Fill all fields");
-    return;
-  }
+    let username = document.getElementById("username").value.trim();
+    let password = document.getElementById("password").value.trim();
 
-  let usersSnap = await getDocs(collection(db, "users"));
-
-  let foundUser = null;
-
-  usersSnap.forEach(doc => {
-    let u = doc.data();
-    if (u.username === username && u.password === password) {
-      foundUser = u;
+    if (!username || !password) {
+      alert("Fill all fields");
+      return;
     }
-  });
 
-  if (!foundUser) {
-    alert("Invalid username or password");
-    return;
-  }
+    const usersSnap = await getDocs(collection(db, "users"));
 
-  sessionStorage.setItem("loggedInUser", foundUser.username);
+    let foundUser = null;
 
-  if (foundUser.username.includes("admin")) {
-    window.location.replace("admin.html");
-  } else {
-    window.location.replace("dashboard.html");
+    usersSnap.forEach(doc => {
+      const u = doc.data();
+
+      // SAFE MATCHING (IMPORTANT FIX)
+      if (
+        (u.username || "").toLowerCase() === username.toLowerCase() &&
+        (u.password || "") === password
+      ) {
+        foundUser = u;
+      }
+    });
+
+    if (!foundUser) {
+      alert("Invalid username or password");
+      return;
+    }
+
+    // session only
+    sessionStorage.setItem("loggedInUser", foundUser.username);
+
+    alert("Login successful ✔");
+
+    // redirect
+    window.location.href =
+      foundUser.username.toLowerCase().includes("admin")
+        ? "admin.html"
+        : "dashboard.html";
+
+  } catch (error) {
+    console.error("Login error:", error);
+    alert("Something went wrong. Check console.");
   }
 }
 
 /////////////////////////////////////////////////////
-// NAVIGATION (MUST BE OUTSIDE LOGIN)
+// NAVIGATION
 /////////////////////////////////////////////////////
 
 function goHome() {
@@ -87,13 +104,14 @@ function goSignup() {
 }
 
 /////////////////////////////////////////////////////
-// MAKE FUNCTIONS GLOBAL (IMPORTANT)
+// GLOBAL ACCESS
 /////////////////////////////////////////////////////
 
 window.login = login;
 window.goHome = goHome;
 window.goSignup = goSignup;
 
-  </script>
+</script>
+
 </body>
 </html>
