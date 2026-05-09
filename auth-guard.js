@@ -1,16 +1,6 @@
-const sessionId = localStorage.getItem("sessionId");
+const currentUser = sessionStorage.getItem("loggedInUser");
 
-let sessions = JSON.parse(localStorage.getItem("activeSessions")) || [];
-
-// find current session
-let currentSession = sessions.find(s => s.sessionId === sessionId);
-
-if (!currentSession) {
-
-  // clear broken login
-  localStorage.removeItem("loggedInUser");
-  localStorage.removeItem("role");
-  localStorage.removeItem("sessionId");
-
+if (!currentUser || currentUser === "null" || currentUser === "undefined") {
+  sessionStorage.removeItem("loggedInUser");
   window.location.replace("login.html");
 }
