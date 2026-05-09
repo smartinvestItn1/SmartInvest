@@ -29,7 +29,6 @@
   </p>
 
 </div>
-
 <script type="module">
 
 import { db } from "./firebase.js";
@@ -60,7 +59,6 @@ async function login(event) {
     usersSnap.forEach(doc => {
       const u = doc.data();
 
-      // SAFE MATCHING (IMPORTANT FIX)
       if (
         (u.username || "").toLowerCase() === username.toLowerCase() &&
         (u.password || "") === password
@@ -79,11 +77,13 @@ async function login(event) {
 
     alert("Login successful ✔");
 
-    // redirect
-    window.location.href =
+    // IMPORTANT FIX: replace instead of href
+    // prevents back button returning to login
+    window.location.replace(
       foundUser.username.toLowerCase().includes("admin")
         ? "admin.html"
-        : "dashboard.html";
+        : "dashboard.html"
+    );
 
   } catch (error) {
     console.error("Login error:", error);
@@ -112,6 +112,5 @@ window.goHome = goHome;
 window.goSignup = goSignup;
 
 </script>
-
 </body>
-</html>
+</HTML>
