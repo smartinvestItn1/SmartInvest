@@ -9,6 +9,18 @@
 
 <body>
 
+<script>
+/////////////////////////////////////////////////////
+// 🔐 AUTH GUARD (IMPROVED - MUST BE FIRST)
+/////////////////////////////////////////////////////
+
+const currentUser = sessionStorage.getItem("loggedInUser");
+
+if (!currentUser) {
+  window.location.replace("login.html");
+}
+</script>
+
 <img id="dashAvatar" class="iavatar">
 
 <div class="nav">
@@ -98,17 +110,18 @@
 <script type="module">
 
 /////////////////////////////////////////////////////
-// CURRENT USER (TEMP SAFE METHOD)
+// CURRENT USER
 /////////////////////////////////////////////////////
 
 let currentUser = sessionStorage.getItem("loggedInUser");
 
+// extra safety (prevents page flicker issues)
 if (!currentUser) {
   window.location.replace("login.html");
 }
 
 /////////////////////////////////////////////////////
-// DEMO DATA (YOU WILL REPLACE WITH FIRESTORE LATER)
+// DEMO DATA
 /////////////////////////////////////////////////////
 
 let users = JSON.parse(localStorage.getItem("users")) || [];
@@ -117,6 +130,7 @@ let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
 let userIndex = users.findIndex(u => u.username === currentUser);
 
 if (userIndex === -1) {
+  sessionStorage.removeItem("loggedInUser");
   window.location.replace("login.html");
 }
 
@@ -170,10 +184,14 @@ function updateUI() {
 
   animateBalance(balance);
 
-  document.getElementById("btc").innerText = (balance / btcRate).toFixed(6);
-  document.getElementById("eth").innerText = (balance / ethRate).toFixed(4);
+  document.getElementById("btc").innerText =
+    (balance / btcRate).toFixed(6);
 
-  document.getElementById("planType").innerText = user.plan || "None";
+  document.getElementById("eth").innerText =
+    (balance / ethRate).toFixed(4);
+
+  document.getElementById("planType").innerText =
+    user.plan || "None";
 
   document.getElementById("dashAvatar").src =
     user.image || "https://via.placeholder.com/80";
@@ -182,7 +200,8 @@ function updateUI() {
     .filter(d => d.user === currentUser && d.status === "pending")
     .reduce((sum, d) => sum + d.amount, 0);
 
-  document.getElementById("pending").innerText = pendingTotal;
+  document.getElementById("pending").innerText =
+    pendingTotal || 0;
 
   updateInvestmentStatus();
 }
