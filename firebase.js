@@ -2,7 +2,11 @@ import { initializeApp }
 
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-import { getFirestore }
+import {
+
+  getFirestore
+
+}
 
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -12,8 +16,6 @@ const firebaseConfig = {
   apiKey: "AIzaSyDvQajNkcsd-VvnBsiX0OI_cWOdegQC9JY",
 
   authDomain: "smartinvest-web-dc8b7.firebaseapp.com",
-
-  databaseURL: "https://smartinvest-web-dc8b7-default-rtdb.firebaseio.com",
 
   projectId: "smartinvest-web-dc8b7",
 
@@ -28,5 +30,9 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
+const db = getFirestore(app);
 
-export const db = getFirestore(app);
+export { db };
+
+
+console.log("Firebase Connected Successfully");
