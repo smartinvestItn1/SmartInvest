@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Sign Up</title>
+
   <link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
@@ -17,13 +23,36 @@
 
     <h2>Create Account</h2>
 
-    <input id="username" placeholder="Username" required><br>
-    <input id="email" placeholder="Email" required><br>
+    <input
+      id="username"
+      placeholder="Username"
+      required
+    ><br>
 
-    <input id="password" type="password" placeholder="Password" required><br>
-    <input id="confirm" type="password" placeholder="Confirm Password" required><br>
+    <input
+      id="email"
+      type="email"
+      placeholder="Email"
+      required
+    ><br>
 
-    <button type="submit">Sign Up</button>
+    <input
+      id="password"
+      type="password"
+      placeholder="Password"
+      required
+    ><br>
+
+    <input
+      id="confirm"
+      type="password"
+      placeholder="Confirm Password"
+      required
+    ><br>
+
+    <button type="submit">
+      Sign Up
+    </button>
 
   </form>
 
@@ -32,95 +61,177 @@
   </p>
 
 </div>
+
+
 <script type="module">
+
+/////////////////////////////////////////////////////
+// IMPORT FIREBASE
+/////////////////////////////////////////////////////
+
 import { db } from "./firebase.js";
-import { collection, addDoc, getDocs } 
-from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+import {
+
+  collection,
+
+  addDoc,
+
+  getDocs,
+
+  query,
+
+  where
+
+}
+
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 
 /////////////////////////////////////////////////////
 // SIGNUP
 /////////////////////////////////////////////////////
 
 async function signup(event) {
+
   event.preventDefault();
 
   try {
 
-    let username = document.getElementById("username").value.trim();
-    let email = document.getElementById("email").value.trim();
-    let password = document.getElementById("password").value.trim();
-    let confirm = document.getElementById("confirm").value.trim();
+    let username =
+      document.getElementById("username").value.trim();
+
+    let email =
+      document.getElementById("email").value.trim();
+
+    let password =
+      document.getElementById("password").value.trim();
+
+    let confirm =
+      document.getElementById("confirm").value.trim();
+
+
+    /////////////////////////////////////////////////////
+    // VALIDATION
+    /////////////////////////////////////////////////////
 
     if (!username || !email || !password || !confirm) {
+
       alert("Please fill all fields");
+
       return;
     }
 
     if (password !== confirm) {
+
       alert("Passwords do not match");
+
       return;
     }
 
-    // check if user exists
-    const usersSnap = await getDocs(collection(db, "users"));
 
-    let exists = false;
+    /////////////////////////////////////////////////////
+    // CHECK IF USER EXISTS
+    /////////////////////////////////////////////////////
 
-    usersSnap.forEach(doc => {
-      const u = doc.data();
-      if ((u.username || "").toLowerCase() === username.toLowerCase()) {
-        exists = true;
-      }
-    });
+    const q = query(
 
-    if (exists) {
+      collection(db, "users"),
+
+      where("username", "==", username)
+
+    );
+
+    const querySnapshot = await getDocs(q);
+
+
+    if (!querySnapshot.empty) {
+
       alert("User already exists");
+
       return;
     }
 
-    // create user
+
+    /////////////////////////////////////////////////////
+    // CREATE USER
+    /////////////////////////////////////////////////////
+
     await addDoc(collection(db, "users"), {
-      username,
-      email,
-      password,
+
+      username: username,
+
+      email: email,
+
+      password: password,
+
       balance: 0,
+
+      pending: 0,
+
       plan: "None",
+
       wallet: "",
+
+      image: "",
+
+      role: "user",
+
       createdAt: Date.now()
+
     });
+
+
+    /////////////////////////////////////////////////////
+    // SUCCESS
+    /////////////////////////////////////////////////////
 
     alert("Account created successfully");
 
-    // FIX: prevents back button returning to signup
     window.location.replace("login.html");
 
-  } catch (error) {
-    console.error("Signup error:", error);
-    alert("Something went wrong. Check console.");
   }
+
+  catch (error) {
+
+    console.error(error);
+
+    alert(error.message);
+
+  }
+
 }
+
 
 /////////////////////////////////////////////////////
 // NAVIGATION
 /////////////////////////////////////////////////////
 
 function goHome() {
+
   window.location.href = "index.html";
+
 }
 
 function goLogin() {
+
   window.location.href = "login.html";
+
 }
+
 
 /////////////////////////////////////////////////////
 // EXPOSE FUNCTIONS
 /////////////////////////////////////////////////////
 
 window.signup = signup;
+
 window.goHome = goHome;
+
 window.goLogin = goLogin;
 
 </script>
-<script type="module" src="firebase.js"></script>
+
 </body>
+
 </html>
