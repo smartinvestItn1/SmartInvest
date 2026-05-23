@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Login</title>
+
   <link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
@@ -17,11 +23,25 @@
 
     <h2>Login</h2>
 
-    <input id="username" placeholder="Username" required><br>
-    <input id="password" type="password" placeholder="Password" required><br><br>
+    <input
+      id="username"
+      placeholder="Username"
+      required
+    ><br>
 
-    <button type="submit">Login</button>
+    <input
+      id="password"
+      type="password"
+      placeholder="Password"
+      required
+    ><br><br>
+
+    <button type="submit">
+      Login
+    </button>
+
     <p id="result" class="message"></p>
+
   </form>
 
   <p onclick="goSignup()" class="link">
@@ -29,89 +49,194 @@
   </p>
 
 </div>
+
+
 <script type="module">
 
+/////////////////////////////////////////////////////
+// IMPORT FIREBASE
+/////////////////////////////////////////////////////
+
 import { db } from "./firebase.js";
-import { collection, getDocs } 
-from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+import {
+
+  collection,
+
+  getDocs,
+
+  query,
+
+  where
+
+}
+
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 
 /////////////////////////////////////////////////////
 // LOGIN
 /////////////////////////////////////////////////////
 
 async function login(event) {
+
   event.preventDefault();
 
   try {
 
-    let username = document.getElementById("username").value.trim();
-    let password = document.getElementById("password").value.trim();
+    let username =
+      document.getElementById("username").value.trim();
+
+    let password =
+      document.getElementById("password").value.trim();
+
+    let result =
+      document.getElementById("result");
+
+
+    /////////////////////////////////////////////////////
+    // VALIDATION
+    /////////////////////////////////////////////////////
 
     if (!username || !password) {
-      alert("Fill all fields");
+
+      result.innerText = "Fill all fields";
+
+      result.className = "message error";
+
       return;
     }
 
-    const usersSnap = await getDocs(collection(db, "users"));
+
+    /////////////////////////////////////////////////////
+    // CHECK USER
+    /////////////////////////////////////////////////////
+
+    const q = query(
+
+      collection(db, "users"),
+
+      where("username", "==", username)
+
+    );
+
+    const querySnapshot = await getDocs(q);
+
+
+    if (querySnapshot.empty) {
+
+      result.innerText = "User not found";
+
+      result.className = "message error";
+
+      return;
+    }
+
 
     let foundUser = null;
 
-    usersSnap.forEach(doc => {
-      const u = doc.data();
+    querySnapshot.forEach((doc) => {
 
-      if (
-        (u.username || "").toLowerCase() === username.toLowerCase() &&
-        (u.password || "") === password
-      ) {
-        foundUser = u;
+      const userData = doc.data();
+
+      if (userData.password === password) {
+
+        foundUser = userData;
+
       }
+
     });
 
+
+    /////////////////////////////////////////////////////
+    // INVALID PASSWORD
+    /////////////////////////////////////////////////////
+
     if (!foundUser) {
-      alert("Invalid username or password");
+
+      result.innerText = "Invalid password";
+
+      result.className = "message error";
+
       return;
     }
 
-    // session only
-    sessionStorage.setItem("loggedInUser", foundUser.username);
 
-    alert("Login successful ✔");
+    /////////////////////////////////////////////////////
+    // SAVE SESSION
+    /////////////////////////////////////////////////////
 
-    // IMPORTANT FIX: replace instead of href
-    // prevents back button returning to login
-    window.location.replace(
-      foundUser.username.toLowerCase().includes("admin")
-        ? "admin.html"
-        : "dashboard.html"
+    sessionStorage.setItem(
+      "loggedInUser",
+      foundUser.username
     );
 
-  } catch (error) {
-    console.error("Login error:", error);
-    alert("Something went wrong. Check console.");
+
+    /////////////////////////////////////////////////////
+    // SUCCESS
+    /////////////////////////////////////////////////////
+
+    result.innerText = "Login Successful ✔";
+
+    result.className = "message success";
+
+
+    setTimeout(() => {
+
+      window.location.replace(
+
+        foundUser.username.toLowerCase().includes("admin")
+
+        ? "admin.html"
+
+        : "dashboard.html"
+
+      );
+
+    }, 800);
+
   }
+
+  catch (error) {
+
+    console.error(error);
+
+    alert(error.message);
+
+  }
+
 }
+
 
 /////////////////////////////////////////////////////
 // NAVIGATION
 /////////////////////////////////////////////////////
 
 function goHome() {
+
   window.location.href = "index.html";
+
 }
 
 function goSignup() {
+
   window.location.href = "signup.html";
+
 }
+
 
 /////////////////////////////////////////////////////
 // GLOBAL ACCESS
 /////////////////////////////////////////////////////
 
 window.login = login;
+
 window.goHome = goHome;
+
 window.goSignup = goSignup;
 
 </script>
-  <script type="module" src="firebase.js"></script>
+
 </body>
-</HTML>
+
+</html>
