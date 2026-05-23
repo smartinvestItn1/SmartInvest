@@ -63,11 +63,7 @@ import {
 
   collection,
 
-  getDocs,
-
-  query,
-
-  where
+  getDocs
 
 }
 
@@ -85,10 +81,15 @@ async function login(event) {
   try {
 
     let username =
-      document.getElementById("username").value.trim();
+      document.getElementById("username")
+      .value
+      .trim()
+      .toLowerCase();
 
     let password =
-      document.getElementById("password").value.trim();
+      document.getElementById("password")
+      .value
+      .trim();
 
     let result =
       document.getElementById("result");
@@ -100,48 +101,48 @@ async function login(event) {
 
     if (!username || !password) {
 
-      result.innerText = "Fill all fields";
+      result.innerText =
+        "Please fill all fields";
 
-      result.className = "message error";
+      result.className =
+        "message error";
 
       return;
+
     }
 
 
     /////////////////////////////////////////////////////
-    // CHECK USER
+    // GET USERS
     /////////////////////////////////////////////////////
 
-    const q = query(
-
-      collection(db, "users"),
-
-      where("username", "==", username)
-
+    const usersSnap = await getDocs(
+      collection(db, "users")
     );
-
-    const querySnapshot = await getDocs(q);
-
-
-    if (querySnapshot.empty) {
-
-      result.innerText = "User not found";
-
-      result.className = "message error";
-
-      return;
-    }
 
 
     let foundUser = null;
 
-    querySnapshot.forEach((doc) => {
 
-      const userData = doc.data();
+    usersSnap.forEach((doc) => {
 
-      if (userData.password === password) {
+      const u = doc.data();
 
-        foundUser = userData;
+
+      if (
+
+        (u.username || "")
+        .trim()
+        .toLowerCase() === username
+
+        &&
+
+        (u.password || "")
+        .trim() === password
+
+      ) {
+
+        foundUser = u;
 
       }
 
@@ -149,16 +150,19 @@ async function login(event) {
 
 
     /////////////////////////////////////////////////////
-    // INVALID PASSWORD
+    // INVALID LOGIN
     /////////////////////////////////////////////////////
 
     if (!foundUser) {
 
-      result.innerText = "Invalid password";
+      result.innerText =
+        "Invalid username or password";
 
-      result.className = "message error";
+      result.className =
+        "message error";
 
       return;
+
     }
 
 
@@ -171,27 +175,42 @@ async function login(event) {
       foundUser.username
     );
 
+    sessionStorage.setItem(
+      "role",
+      foundUser.role || "user"
+    );
+
 
     /////////////////////////////////////////////////////
     // SUCCESS
     /////////////////////////////////////////////////////
 
-    result.innerText = "Login Successful ✔";
+    result.innerText =
+      "Login Successful ✔";
 
-    result.className = "message success";
+    result.className =
+      "message success";
 
 
     setTimeout(() => {
 
-      window.location.replace(
+      if (
+        (foundUser.role || "user") === "admin"
+      ) {
 
-        foundUser.username.toLowerCase().includes("admin")
+        window.location.replace(
+          "admin.html"
+        );
 
-        ? "admin.html"
+      }
 
-        : "dashboard.html"
+      else {
 
-      );
+        window.location.replace(
+          "dashboard.html"
+        );
+
+      }
 
     }, 800);
 
@@ -214,13 +233,15 @@ async function login(event) {
 
 function goHome() {
 
-  window.location.href = "index.html";
+  window.location.href =
+    "index.html";
 
 }
 
 function goSignup() {
 
-  window.location.href = "signup.html";
+  window.location.href =
+    "signup.html";
 
 }
 
