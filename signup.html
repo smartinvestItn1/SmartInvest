@@ -18,7 +18,7 @@
     <input id="password" type="password" placeholder="Password (min 6 chars)" required><br>
     <input id="confirm" type="password" placeholder="Confirm Password" required><br>
     <button type="submit" id="signupBtn">Sign Up</button>
-    <p id="result" style="color:red; font-weight:bold; margin-top:10px;"></p>
+    <p id="result" style="color:red; font-weight:bold; margin-top:10px; min-height:20px;"></p>
   </form>
   
   <p onclick="window.location.href='login.html'" style="color:blue; text-decoration:underline; cursor:pointer;">
@@ -27,67 +27,59 @@
 </div>
 
 <script type="module">
-// Firebase imports
 import { auth, db } from "./firebase.js";
 import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Get elements
 const form = document.getElementById("signupForm");
 const result = document.getElementById("result");
 
-// Attach event listener DIRECTLY (no window. assignment needed)
 form.onsubmit = async function(event) {
   event.preventDefault();
   
-  // Show loading
+  // STEP 1: Get values
+  let username = document.getElementById("username").value.trim();
+  let email = document.getElementById("email").value.trim();
+  let password = document.getElementById("password").value.trim();
+  let confirm = document.getElementById("confirm").value.trim();
+  
+  // STEP 2: Simple validation
+  if (!username || !email || !password || !confirm) {
+    result.style.color = "red";
+    result.innerText = "Please fill all fields!";
+    return false;
+  }
+  
+  if (password !== confirm) {
+    result.style.color = "red";
+    result.innerText = "Passwords do not match!";
+    return false;
+  }
+  
+  if (password.length < 6) {
+    result.style.color = "red";
+    result.innerText = "Password must be 6+ characters!";
+    return false;
+  }
+  
+  // STEP 3: Show loading
   result.style.color = "blue";
-  result.innerText = "Creating account... Please wait";
+  result.innerText = "Creating account... (please wait)";
+  
+  // STEP 4: Set timeout - if nothing happens in 15 seconds, show error
+  let timeoutId = setTimeout(() => {
+    result.style.color = "red";
+    result.innerText = "Connection too slow. Check your internet and try again.";
+  }, 15000);
   
   try {
-    // Get values
-    let username = document.getElementById("username").value.trim();
-    let email = document.getElementById("email").value.trim();
-    let password = document.getElementById("password").value.trim();
-    let confirm = document.getElementById("confirm").value.trim();
-    
-    // Validation
-    if (!username || !email || !password || !confirm) {
-      result.style.color = "red";
-      result.innerText = "Please fill all fields";
-      return false;
-    }
-    
-    if (password !== confirm) {
-      result.style.color = "red";
-      result.innerText = "Passwords do not match";
-      return false;
-    }
-    
-    if (password.length < 6) {
-      result.style.color = "red";
-      result.innerText = "Password must be at least 6 characters";
-      return false;
-    }
-    
-    // Check username exists
-    result.innerText = "Checking username...";
-    const q = query(collection(db, "users"), where("username", "==", username));
-    const querySnapshot = await getDocs(q);
-    
-    if (!querySnapshot.empty) {
-      result.style.color = "red";
-      result.innerText = "Username already taken";
-      return false;
-    }
-    
-    // Create Firebase Auth user
-    result.innerText = "Creating your account...";
+    // STEP 5: Create Firebase Auth user
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     
-    // Save to Firestore
+    // STEP 6: Save to Firestore
     result.innerText = "Saving your data...";
+    
     await addDoc(collection(db, "users"), {
       uid: user.uid,
       username: username,
@@ -101,29 +93,39 @@ form.onsubmit = async function(event) {
       createdAt: Date.now()
     });
     
-    // SUCCESS!
+    // SUCCESS! Clear timeout
+    clearTimeout(timeoutId);
+    
     result.style.color = "green";
-    result.innerText = "✅ Account created! Redirecting to login...";
+    result.innerText = "✅ Account created! Redirecting...";
     
     setTimeout(() => {
       window.location.href = "login.html";
     }, 1500);
     
   } catch (error) {
+    // Clear timeout
+    clearTimeout(timeoutId);
+    
     result.style.color = "red";
     
-    let msg = error.message;
-    if (error.code === "auth/email-already-in-use") msg = "This email is already registered. Please login instead.";
-    if (error.code === "auth/invalid-email") msg = "Invalid email address";
-    if (error.code === "auth/weak-password") msg = "Password is too weak. Use at least 6 characters.";
-    if (error.code === "auth/too-many-requests") msg = "Too many attempts. Wait 10 minutes and try again.";
-    if (error.code === "auth/network-request-failed") msg = "No internet connection. Check your network.";
-    
-    result.innerText = "❌ " + msg;
-    console.error(error);
+    // Simple error messages
+    if (error.code === "auth/email-already-in-use") {
+      result.innerText = "This email is already used. Try logging in.";
+    } else if (error.code === "auth/invalid-email") {
+      result.innerText = "Invalid email address.";
+    } else if (error.code === "auth/weak-password") {
+      result.innerText = "Password too weak. Use 6+ characters.";
+    } else if (error.code === "auth/too-many-requests") {
+      result.innerText = "Too many tries. Wait 10 minutes.";
+    } else if (error.code === "auth/network-request-failed") {
+      result.innerText = "No internet! Check your connection.";
+    } else {
+      result.innerText = "Error: " + error.message;
+    }
   }
   
-  return false; // Prevent form submission
+  return false;
 };
 </script>
 
