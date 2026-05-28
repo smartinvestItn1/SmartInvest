@@ -9,7 +9,7 @@
 <body>
 
 <div class="container">
-  <button onclick="goHome()">🏠 Home</button>
+  <button onclick="window.location.href='index.html'">🏠 Home</button>
   
   <form id="signupForm">
     <h2>Create Account</h2>
@@ -17,64 +17,79 @@
     <input id="email" type="email" placeholder="Email" required><br>
     <input id="password" type="password" placeholder="Password (min 6 chars)" required><br>
     <input id="confirm" type="password" placeholder="Confirm Password" required><br>
-    <button type="submit">Sign Up</button>
-    <p id="result" class="message"></p>
+    <button type="submit" id="signupBtn">Sign Up</button>
+    <p id="result" style="color:red; font-weight:bold; margin-top:10px;"></p>
   </form>
   
-  <p onclick="goLogin()" class="link">Already have an account? Login</p>
+  <p onclick="window.location.href='login.html'" style="color:blue; text-decoration:underline; cursor:pointer;">
+    Already have an account? Login
+  </p>
 </div>
 
 <script type="module">
+// Firebase imports
 import { auth, db } from "./firebase.js";
 import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-document.getElementById("signupForm").addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const result = document.getElementById("result");
+// Get elements
+const form = document.getElementById("signupForm");
+const result = document.getElementById("result");
 
+// Attach event listener DIRECTLY (no window. assignment needed)
+form.onsubmit = async function(event) {
+  event.preventDefault();
+  
+  // Show loading
+  result.style.color = "blue";
+  result.innerText = "Creating account... Please wait";
+  
   try {
+    // Get values
     let username = document.getElementById("username").value.trim();
     let email = document.getElementById("email").value.trim();
     let password = document.getElementById("password").value.trim();
     let confirm = document.getElementById("confirm").value.trim();
-
+    
     // Validation
     if (!username || !email || !password || !confirm) {
+      result.style.color = "red";
       result.innerText = "Please fill all fields";
-      result.className = "message error";
-      return;
+      return false;
     }
-
+    
     if (password !== confirm) {
+      result.style.color = "red";
       result.innerText = "Passwords do not match";
-      result.className = "message error";
-      return;
+      return false;
     }
-
+    
     if (password.length < 6) {
+      result.style.color = "red";
       result.innerText = "Password must be at least 6 characters";
-      result.className = "message error";
-      return;
+      return false;
     }
-
-    // Check if username already exists in Firestore
+    
+    // Check username exists
+    result.innerText = "Checking username...";
     const q = query(collection(db, "users"), where("username", "==", username));
     const querySnapshot = await getDocs(q);
-
+    
     if (!querySnapshot.empty) {
+      result.style.color = "red";
       result.innerText = "Username already taken";
-      result.className = "message error";
-      return;
+      return false;
     }
-
-    // ✅ CREATE USER WITH FIREBASE AUTH (securely hashed password)
+    
+    // Create Firebase Auth user
+    result.innerText = "Creating your account...";
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
-
-    // ✅ STORE ONLY PUBLIC DATA IN FIRESTORE (NO PASSWORD!)
+    
+    // Save to Firestore
+    result.innerText = "Saving your data...";
     await addDoc(collection(db, "users"), {
-      uid: user.uid,           // Firebase Auth user ID
+      uid: user.uid,
       username: username,
       email: email,
       balance: 0,
@@ -85,32 +100,31 @@ document.getElementById("signupForm").addEventListener("submit", async (event) =
       role: "user",
       createdAt: Date.now()
     });
-
-    result.innerText = "Account created! Redirecting...";
-    result.className = "message success";
+    
+    // SUCCESS!
+    result.style.color = "green";
+    result.innerText = "✅ Account created! Redirecting to login...";
     
     setTimeout(() => {
-      window.location.replace("login.html");
-    }, 1000);
-
+      window.location.href = "login.html";
+    }, 1500);
+    
   } catch (error) {
-    console.error("Signup error:", error);
+    result.style.color = "red";
     
-    // Friendly error messages
     let msg = error.message;
-    if (error.code === "auth/email-already-in-use") msg = "Email already registered";
+    if (error.code === "auth/email-already-in-use") msg = "This email is already registered. Please login instead.";
     if (error.code === "auth/invalid-email") msg = "Invalid email address";
-    if (error.code === "auth/weak-password") msg = "Password is too weak";
+    if (error.code === "auth/weak-password") msg = "Password is too weak. Use at least 6 characters.";
+    if (error.code === "auth/too-many-requests") msg = "Too many attempts. Wait 10 minutes and try again.";
+    if (error.code === "auth/network-request-failed") msg = "No internet connection. Check your network.";
     
-    result.innerText = msg;
-    result.className = "message error";
+    result.innerText = "❌ " + msg;
+    console.error(error);
   }
-});
-
-function goHome() { window.location.href = "index.html"; }
-function goLogin() { window.location.href = "login.html"; }
-window.goHome = goHome;
-window.goLogin = goLogin;
+  
+  return false; // Prevent form submission
+};
 </script>
 
 </body>
