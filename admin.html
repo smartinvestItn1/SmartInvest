@@ -42,15 +42,39 @@
 
 <h3>💸 Withdrawals</h3>
 <div id="withdrawList"></div>
-<script type="module">
 
-import { db } from "./firebase.js";
+<script type="module">
+/////////////////////////////////////////////////////
+// AUTH PROTECTION + IMPORTS
+/////////////////////////////////////////////////////
+
+import { auth, db } from "./firebase.js";
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
   getDocs,
   doc,
   updateDoc
-} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"; // ✅ FIXED: 10.12.2 not 12.12.1
+
+// ✅ AUTH CHECK: Kick out non-logged-in or non-admin users
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.replace("login.html");
+    return;
+  }
+  
+  // Check if admin
+  const role = sessionStorage.getItem("role");
+  if (role !== "admin") {
+    alert("Access denied. Admins only.");
+    window.location.replace("dashboard.html");
+    return;
+  }
+  
+  // User is admin, load data
+  loadData();
+});
 
 /////////////////////////////////////////////////////
 // GLOBAL DATA
@@ -238,8 +262,14 @@ function setFilter(status) {
 // LOGOUT
 /////////////////////////////////////////////////////
 
-function logout() {
-  window.location.replace("login.html");
+async function logout() {
+  try {
+    await signOut(auth); // ✅ Firebase sign out
+    sessionStorage.clear(); // Clear all session data
+    window.location.replace("login.html");
+  } catch (error) {
+    console.error("Logout error:", error);
+  }
 }
 
 /////////////////////////////////////////////////////
@@ -261,7 +291,7 @@ window.rejectDeposit = rejectDeposit;
 window.approveWithdraw = approveWithdraw;
 window.rejectWithdraw = rejectWithdraw;
 
-loadData();
+// ❌ REMOVED: loadData() from here — now called inside onAuthStateChanged after auth check
 
 </script>
 
