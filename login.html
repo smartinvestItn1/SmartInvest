@@ -13,7 +13,7 @@
   
   <form id="loginForm">
     <h2>Login</h2>
-    <input id="username" placeholder="Username" required><br>
+    <input id="email" type="email" placeholder="Email" required><br>
     <input id="password" type="password" placeholder="Password" required><br><br>
     <button type="submit">Login</button>
     <p id="result" class="message"></p>
@@ -23,55 +23,50 @@
 </div>
 
 <script type="module">
-import { db } from "./firebase.js";
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { auth, db } from "./firebase.js";
+import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Attach event listener instead of inline onsubmit
 document.getElementById("loginForm").addEventListener("submit", async (event) => {
   event.preventDefault();
-  
-  console.log("Login submitted"); // Check console instead of alert
+  const result = document.getElementById("result");
 
   try {
-    let username = document.getElementById("username").value.trim().toLowerCase();
+    let email = document.getElementById("email").value.trim();
     let password = document.getElementById("password").value.trim();
-    let result = document.getElementById("result");
 
-    if (!username || !password) {
+    if (!email || !password) {
       result.innerText = "Please fill all fields";
       result.className = "message error";
       return;
     }
 
-    // Show loading state
-    result.innerText = "Checking...";
-    result.className = "message";
+    // ✅ SIGN IN WITH FIREBASE AUTH
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
 
-    const usersSnap = await getDocs(collection(db, "users"));
-    let foundUser = null;
+    // Get user data from Firestore using UID
+    const q = query(collection(db, "users"), where("uid", "==", user.uid));
+    const querySnapshot = await getDocs(q);
 
-    usersSnap.forEach((doc) => {
-      const u = doc.data();
-      if ((u.username || "").trim().toLowerCase() === username && (u.password || "").trim() === password) {
-        foundUser = u;
-      }
-    });
-
-    if (!foundUser) {
-      result.innerText = "Invalid username or password";
+    if (querySnapshot.empty) {
+      result.innerText = "User data not found";
       result.className = "message error";
       return;
     }
 
-    // Success
-    sessionStorage.setItem("loggedInUser", foundUser.username);
-    sessionStorage.setItem("role", foundUser.role || "user");
+    const userData = querySnapshot.docs[0].data();
+
+    // Save session
+    sessionStorage.setItem("loggedInUser", userData.username);
+    sessionStorage.setItem("role", userData.role || "user");
+    sessionStorage.setItem("uid", user.uid);
 
     result.innerText = "Login Successful ✔";
     result.className = "message success";
 
     setTimeout(() => {
-      if ((foundUser.role || "user") === "admin") {
+      if ((userData.role || "user") === "admin") {
         window.location.replace("admin.html");
       } else {
         window.location.replace("dashboard.html");
@@ -80,20 +75,20 @@ document.getElementById("loginForm").addEventListener("submit", async (event) =>
 
   } catch (error) {
     console.error("Login error:", error);
-    result.innerText = "Error: " + error.message;
+    
+    let msg = error.message;
+    if (error.code === "auth/user-not-found") msg = "No account found with this email";
+    if (error.code === "auth/wrong-password") msg = "Incorrect password";
+    if (error.code === "auth/invalid-email") msg = "Invalid email address";
+    if (error.code === "auth/invalid-credential") msg = "Invalid email or password";
+    
+    result.innerText = msg;
     result.className = "message error";
   }
 });
 
-// Navigation functions
-function goHome() {
-  window.location.href = "index.html";
-}
-
-function goSignup() {
-  window.location.href = "signup.html";
-}
-
+function goHome() { window.location.href = "index.html"; }
+function goSignup() { window.location.href = "signup.html"; }
 window.goHome = goHome;
 window.goSignup = goSignup;
 </script>
