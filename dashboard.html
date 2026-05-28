@@ -9,16 +9,46 @@
 
 <body>
 
-<script>
+<script type="module">
 /////////////////////////////////////////////////////
-// 🔐 AUTH GUARD (IMPROVED - MUST BE FIRST)
+// 🔐 AUTH GUARD (FIREBASE AUTH - MUST BE FIRST)
 /////////////////////////////////////////////////////
 
-const currentUser = sessionStorage.getItem("loggedInUser");
+import { auth, db } from "./firebase.js";
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-if (!currentUser) {
-  window.location.replace("login.html");
-}
+let currentUser = null;
+let userData = null;
+let userDocId = null;
+let deposits = [];
+
+// Auth check - blocks page until Firebase confirms login
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.replace("login.html");
+    return;
+  }
+  
+  // User is authenticated - load their data from Firestore
+  currentUser = sessionStorage.getItem("loggedInUser");
+  
+  // Extra safety
+  if (!currentUser) {
+    await signOut(auth);
+    window.location.replace("login.html");
+    return;
+  }
+  
+  // Load user data from Firestore
+  await loadUserData();
+  
+  // Load deposits
+  await loadDeposits();
+  
+  // Initialize UI
+  initUI();
+});
 </script>
 
 <img id="dashAvatar" class="iavatar">
@@ -52,7 +82,7 @@ if (!currentUser) {
 
   <div class="card">
     <h4>Pending Deposits</h4>
-    <h2>$<span id="pending">0</span></h2>
+    <h2>$<<span id="pending">0</span></h2>
   </div>
 
   <div class="card">
@@ -110,31 +140,49 @@ if (!currentUser) {
 <script type="module">
 
 /////////////////////////////////////////////////////
-// CURRENT USER
+// IMPORTS
+/////////////////////////////////////////////////////
+
+import { auth, db } from "./firebase.js";
+import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { collection, getDocs, query, where, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/////////////////////////////////////////////////////
+// GLOBAL DATA
 /////////////////////////////////////////////////////
 
 let currentUser = sessionStorage.getItem("loggedInUser");
+let userData = null;
+let userDocId = null;
+let deposits = [];
 
-// extra safety (prevents page flicker issues)
-if (!currentUser) {
-  window.location.replace("login.html");
+/////////////////////////////////////////////////////
+// LOAD USER DATA FROM FIRESTORE
+/////////////////////////////////////////////////////
+
+async function loadUserData() {
+  const q = query(collection(db, "users"), where("username", "==", currentUser));
+  const snap = await getDocs(q);
+  
+  if (snap.empty) {
+    sessionStorage.removeItem("loggedInUser");
+    window.location.replace("login.html");
+    return;
+  }
+  
+  const doc = snap.docs[0];
+  userData = doc.data();
+  userDocId = doc.id;
 }
 
 /////////////////////////////////////////////////////
-// DEMO DATA
+// LOAD DEPOSITS FROM FIRESTORE
 /////////////////////////////////////////////////////
 
-let users = JSON.parse(localStorage.getItem("users")) || [];
-let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
-
-let userIndex = users.findIndex(u => u.username === currentUser);
-
-if (userIndex === -1) {
-  sessionStorage.removeItem("loggedInUser");
-  window.location.replace("login.html");
+async function loadDeposits() {
+  const depSnap = await getDocs(collection(db, "deposits"));
+  deposits = depSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
-
-let user = users[userIndex];
 
 /////////////////////////////////////////////////////
 // RATES
@@ -178,9 +226,9 @@ function animateBalance(value) {
 
 function updateUI() {
 
-  document.getElementById("user").innerText = user.username;
+  document.getElementById("user").innerText = userData.username || currentUser;
 
-  let balance = user.balance || 0;
+  let balance = userData.balance || 0;
 
   animateBalance(balance);
 
@@ -191,10 +239,10 @@ function updateUI() {
     (balance / ethRate).toFixed(4);
 
   document.getElementById("planType").innerText =
-    user.plan || "None";
+    userData.plan || "None";
 
   document.getElementById("dashAvatar").src =
-    user.image || "https://via.placeholder.com/80";
+    userData.image || "https://via.placeholder.com/80";
 
   let pendingTotal = deposits
     .filter(d => d.user === currentUser && d.status === "pending")
@@ -210,7 +258,7 @@ function updateUI() {
 // INVESTMENT
 /////////////////////////////////////////////////////
 
-function goInvest(plan) {
+async function goInvest(plan) {
 
   let amount = 0;
 
@@ -218,17 +266,21 @@ function goInvest(plan) {
   if (plan === "Pro") amount = 1000;
   if (plan === "Premium") amount = 5000;
 
-  if (user.balance < amount) {
+  if ((userData.balance || 0) < amount) {
     alert("Not enough balance");
     return;
   }
 
-  user.balance -= amount;
-  user.plan = plan;
+  // Update Firestore
+  const newBalance = (userData.balance || 0) - amount;
+  await updateDoc(doc(db, "users", userDocId), {
+    balance: newBalance,
+    plan: plan
+  });
 
-  users[userIndex] = user;
-
-  localStorage.setItem("users", JSON.stringify(users));
+  // Update local data
+  userData.balance = newBalance;
+  userData.plan = plan;
 
   updateUI();
   alert("Investment successful ✔");
@@ -242,8 +294,8 @@ function updateInvestmentStatus() {
 
   let el = document.getElementById("investStatus");
 
-  if (user.plan && user.plan !== "None") {
-    el.innerText = "🟢 Active (" + user.plan + ")";
+  if (userData.plan && userData.plan !== "None") {
+    el.innerText = "🟢 Active (" + userData.plan + ")";
     el.style.color = "green";
   } else {
     el.innerText = "🔴 No Investment";
@@ -265,22 +317,32 @@ function goHistory() { window.location.href = "history.html"; }
 // LOGOUT
 /////////////////////////////////////////////////////
 
-function logout() {
+async function logout() {
 
   let overlay = document.getElementById("logoutOverlay");
   overlay.classList.add("active");
 
-  setTimeout(() => {
-    sessionStorage.removeItem("loggedInUser");
-    window.location.replace("login.html");
-  }, 1200);
+  try {
+    await signOut(auth);
+    sessionStorage.clear();
+    
+    setTimeout(() => {
+      window.location.replace("login.html");
+    }, 1200);
+  } catch (error) {
+    console.error("Logout error:", error);
+    alert("Logout failed. Please try again.");
+    overlay.classList.remove("active");
+  }
 }
 
 /////////////////////////////////////////////////////
 // INIT
 /////////////////////////////////////////////////////
 
-updateUI();
+function initUI() {
+  updateUI();
+}
 
 window.goInvest = goInvest;
 window.goDeposit = goDeposit;
@@ -292,4 +354,5 @@ window.logout = logout;
 
 </script>
 </body>
-</html>
+  </html>
+  
