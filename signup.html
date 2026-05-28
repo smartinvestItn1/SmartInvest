@@ -1,238 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
   <meta charset="UTF-8">
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Sign Up</title>
-
   <link rel="stylesheet" href="style.css">
-
 </head>
-
 <body>
 
 <div class="container">
-
   <button onclick="goHome()">🏠 Home</button>
-
-  <form onsubmit="signup(event)">
-
+  
+  <form id="signupForm">
     <h2>Create Account</h2>
-
-    <input
-      id="username"
-      placeholder="Username"
-      required
-    ><br>
-
-    <input
-      id="email"
-      type="email"
-      placeholder="Email"
-      required
-    ><br>
-
-    <input
-      id="password"
-      type="password"
-      placeholder="Password"
-      required
-    ><br>
-
-    <input
-      id="confirm"
-      type="password"
-      placeholder="Confirm Password"
-      required
-    ><br>
-
-    <button type="submit">
-      Sign Up
-    </button>
-
+    <input id="username" placeholder="Username" required><br>
+    <input id="email" type="email" placeholder="Email" required><br>
+    <input id="password" type="password" placeholder="Password (min 6 chars)" required><br>
+    <input id="confirm" type="password" placeholder="Confirm Password" required><br>
+    <button type="submit">Sign Up</button>
+    <p id="result" class="message"></p>
   </form>
-
-  <p onclick="goLogin()" class="link">
-    Already have an account? Login
-  </p>
-
+  
+  <p onclick="goLogin()" class="link">Already have an account? Login</p>
 </div>
 
-
 <script type="module">
-  alert("Signup script loaded");
+import { auth, db } from "./firebase.js";
+import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/////////////////////////////////////////////////////
-// IMPORT FIREBASE
-/////////////////////////////////////////////////////
-
-import { db } from "./firebase.js";
-
-import {
-
-  collection,
-
-  addDoc,
-
-  getDocs,
-
-  query,
-
-  where
-
-}
-
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-
-/////////////////////////////////////////////////////
-// SIGNUP
-/////////////////////////////////////////////////////
-
-async function signup(event) {
-
+document.getElementById("signupForm").addEventListener("submit", async (event) => {
   event.preventDefault();
+  const result = document.getElementById("result");
 
   try {
+    let username = document.getElementById("username").value.trim();
+    let email = document.getElementById("email").value.trim();
+    let password = document.getElementById("password").value.trim();
+    let confirm = document.getElementById("confirm").value.trim();
 
-    let username =
-      document.getElementById("username").value.trim();
-
-    let email =
-      document.getElementById("email").value.trim();
-
-    let password =
-      document.getElementById("password").value.trim();
-
-    let confirm =
-      document.getElementById("confirm").value.trim();
-
-
-    /////////////////////////////////////////////////////
-    // VALIDATION
-    /////////////////////////////////////////////////////
-
+    // Validation
     if (!username || !email || !password || !confirm) {
-
-      alert("Please fill all fields");
-
+      result.innerText = "Please fill all fields";
+      result.className = "message error";
       return;
     }
 
     if (password !== confirm) {
-
-      alert("Passwords do not match");
-
+      result.innerText = "Passwords do not match";
+      result.className = "message error";
       return;
     }
 
+    if (password.length < 6) {
+      result.innerText = "Password must be at least 6 characters";
+      result.className = "message error";
+      return;
+    }
 
-    /////////////////////////////////////////////////////
-    // CHECK IF USER EXISTS
-    /////////////////////////////////////////////////////
-
-    const q = query(
-
-      collection(db, "users"),
-
-      where("username", "==", username)
-
-    );
-
+    // Check if username already exists in Firestore
+    const q = query(collection(db, "users"), where("username", "==", username));
     const querySnapshot = await getDocs(q);
 
-
     if (!querySnapshot.empty) {
-
-      alert("User already exists");
-
+      result.innerText = "Username already taken";
+      result.className = "message error";
       return;
     }
 
+    // ✅ CREATE USER WITH FIREBASE AUTH (securely hashed password)
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
 
-    /////////////////////////////////////////////////////
-    // CREATE USER
-    /////////////////////////////////////////////////////
-
+    // ✅ STORE ONLY PUBLIC DATA IN FIRESTORE (NO PASSWORD!)
     await addDoc(collection(db, "users"), {
-
+      uid: user.uid,           // Firebase Auth user ID
       username: username,
-
       email: email,
-
-      password: password,
-
       balance: 0,
-
       pending: 0,
-
       plan: "None",
-
       wallet: "",
-
       image: "",
-
       role: "user",
-
       createdAt: Date.now()
-
     });
 
+    result.innerText = "Account created! Redirecting...";
+    result.className = "message success";
+    
+    setTimeout(() => {
+      window.location.replace("login.html");
+    }, 1000);
 
-    /////////////////////////////////////////////////////
-    // SUCCESS
-    /////////////////////////////////////////////////////
-
-    alert("Account created successfully");
-
-    window.location.replace("login.html");
-
+  } catch (error) {
+    console.error("Signup error:", error);
+    
+    // Friendly error messages
+    let msg = error.message;
+    if (error.code === "auth/email-already-in-use") msg = "Email already registered";
+    if (error.code === "auth/invalid-email") msg = "Invalid email address";
+    if (error.code === "auth/weak-password") msg = "Password is too weak";
+    
+    result.innerText = msg;
+    result.className = "message error";
   }
+});
 
-  catch (error) {
-
-    console.error(error);
-
-    alert(error.message);
-
-  }
-
-}
-
-
-/////////////////////////////////////////////////////
-// NAVIGATION
-/////////////////////////////////////////////////////
-
-function goHome() {
-
-  window.location.href = "index.html";
-
-}
-
-function goLogin() {
-
-  window.location.href = "login.html";
-
-}
-
-
-/////////////////////////////////////////////////////
-// EXPOSE FUNCTIONS
-/////////////////////////////////////////////////////
-
-window.signup = signup;
-
+function goHome() { window.location.href = "index.html"; }
+function goLogin() { window.location.href = "login.html"; }
 window.goHome = goHome;
-
 window.goLogin = goLogin;
-
 </script>
 
 </body>
-
 </html>
