@@ -1,264 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
   <meta charset="UTF-8">
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Login</title>
-
   <link rel="stylesheet" href="style.css">
-
 </head>
-
 <body>
 
 <div class="container">
-
   <button onclick="goHome()">🏠 Home</button>
-
-  <form onsubmit="login(event)">
-
+  
+  <form id="loginForm">
     <h2>Login</h2>
-
-    <input
-      id="username"
-      placeholder="Username"
-      required
-    ><br>
-
-    <input
-      id="password"
-      type="password"
-      placeholder="Password"
-      required
-    ><br><br>
-
-    <button type="submit">
-      Login
-    </button>
-
+    <input id="username" placeholder="Username" required><br>
+    <input id="password" type="password" placeholder="Password" required><br><br>
+    <button type="submit">Login</button>
     <p id="result" class="message"></p>
-
   </form>
-
-  <p onclick="goSignup()" class="link">
-    Don't have an account? Sign up
-  </p>
-
+  
+  <p onclick="goSignup()" class="link">Don't have an account? Sign up</p>
 </div>
 
-
 <script type="module">
-alert("Login script loaded");
-/////////////////////////////////////////////////////
-// IMPORT FIREBASE
-/////////////////////////////////////////////////////
-
 import { db } from "./firebase.js";
+import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import {
-
-  collection,
-
-  getDocs
-
-}
-
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-
-/////////////////////////////////////////////////////
-// LOGIN
-/////////////////////////////////////////////////////
-
-async function login(event) {
-
+// Attach event listener instead of inline onsubmit
+document.getElementById("loginForm").addEventListener("submit", async (event) => {
   event.preventDefault();
-   alert("Login button clicked");
+  
+  console.log("Login submitted"); // Check console instead of alert
 
   try {
-
-    let username =
-      document.getElementById("username")
-      .value
-      .trim()
-      .toLowerCase();
-
-    let password =
-      document.getElementById("password")
-      .value
-      .trim();
-
-    let result =
-      document.getElementById("result");
-
-
-    /////////////////////////////////////////////////////
-    // VALIDATION
-    /////////////////////////////////////////////////////
+    let username = document.getElementById("username").value.trim().toLowerCase();
+    let password = document.getElementById("password").value.trim();
+    let result = document.getElementById("result");
 
     if (!username || !password) {
-
-      result.innerText =
-        "Please fill all fields";
-
-      result.className =
-        "message error";
-
+      result.innerText = "Please fill all fields";
+      result.className = "message error";
       return;
-
     }
 
+    // Show loading state
+    result.innerText = "Checking...";
+    result.className = "message";
 
-    /////////////////////////////////////////////////////
-    // GET USERS
-    /////////////////////////////////////////////////////
-
-    const usersSnap = await getDocs(
-      collection(db, "users")
-    );
-
-
+    const usersSnap = await getDocs(collection(db, "users"));
     let foundUser = null;
 
-
     usersSnap.forEach((doc) => {
-
       const u = doc.data();
-
-
-      if (
-
-        (u.username || "")
-        .trim()
-        .toLowerCase() === username
-
-        &&
-
-        (u.password || "")
-        .trim() === password
-
-      ) {
-
+      if ((u.username || "").trim().toLowerCase() === username && (u.password || "").trim() === password) {
         foundUser = u;
-
       }
-
     });
 
-
-    /////////////////////////////////////////////////////
-    // INVALID LOGIN
-    /////////////////////////////////////////////////////
-
     if (!foundUser) {
-
-      result.innerText =
-        "Invalid username or password";
-
-      result.className =
-        "message error";
-
+      result.innerText = "Invalid username or password";
+      result.className = "message error";
       return;
-
     }
 
+    // Success
+    sessionStorage.setItem("loggedInUser", foundUser.username);
+    sessionStorage.setItem("role", foundUser.role || "user");
 
-    /////////////////////////////////////////////////////
-    // SAVE SESSION
-    /////////////////////////////////////////////////////
-
-    sessionStorage.setItem(
-      "loggedInUser",
-      foundUser.username
-    );
-
-    sessionStorage.setItem(
-      "role",
-      foundUser.role || "user"
-    );
-
-
-    /////////////////////////////////////////////////////
-    // SUCCESS
-    /////////////////////////////////////////////////////
-
-    result.innerText =
-      "Login Successful ✔";
-
-    result.className =
-      "message success";
-
+    result.innerText = "Login Successful ✔";
+    result.className = "message success";
 
     setTimeout(() => {
-
-      if (
-        (foundUser.role || "user") === "admin"
-      ) {
-
-        window.location.replace(
-          "admin.html"
-        );
-
+      if ((foundUser.role || "user") === "admin") {
+        window.location.replace("admin.html");
+      } else {
+        window.location.replace("dashboard.html");
       }
-
-      else {
-
-        window.location.replace(
-          "dashboard.html"
-        );
-
-      }
-
     }, 800);
 
+  } catch (error) {
+    console.error("Login error:", error);
+    result.innerText = "Error: " + error.message;
+    result.className = "message error";
   }
+});
 
-  catch (error) {
-
-  console.error(error);
-
-  alert(JSON.stringify(error));
-
-  }
-
-}
-
-
-/////////////////////////////////////////////////////
-// NAVIGATION
-/////////////////////////////////////////////////////
-
+// Navigation functions
 function goHome() {
-
-  window.location.href =
-    "index.html";
-
+  window.location.href = "index.html";
 }
 
 function goSignup() {
-
-  window.location.href =
-    "signup.html";
-
+  window.location.href = "signup.html";
 }
 
-
-/////////////////////////////////////////////////////
-// GLOBAL ACCESS
-/////////////////////////////////////////////////////
-
-window.login = login;
-
 window.goHome = goHome;
-
 window.goSignup = goSignup;
-
 </script>
 
 </body>
-
 </html>
