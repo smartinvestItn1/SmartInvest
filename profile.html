@@ -21,142 +21,237 @@
 
   <!-- USER INFO -->
   <p><strong>Username:</strong></p>
-  <input id="usernameInput"><br><br>
+  <input id="usernameInput" readonly><br><br>
 
   <p><strong>Email:</strong></p>
   <input id="emailInput"><br><br>
 
-  <p><strong>Balance:</strong> $<span id="balance"></span></p>
+  <p><strong>Balance:</strong> $<span id="balance">0</span></p>
+  
+  <p><strong>Plan:</strong> <span id="planDisplay">None</span></p>
 
-  <button onclick="updateProfile()">Save Changes</button>
+  <hr>
+
+  <!-- WALLET ADDRESS (NEW FEATURE!) -->
+  <h3>💼 Wallet Address</h3>
+  <p>Add your crypto wallet address for withdrawals:</p>
+  <input id="walletInput" placeholder="Enter your USDT/BTC wallet address" style="width:100%; padding:10px; margin:5px 0;"><br>
+  <button onclick="saveWallet()">💾 Save Wallet</button>
+  <p id="walletMsg" style="color:green; font-weight:bold; margin-top:5px;"></p>
 
   <hr>
 
   <!-- PASSWORD CHANGE -->
   <h3>Change Password</h3>
-  <input id="oldPassword" type="password" placeholder="Old Password"><br><br>
-  <input id="newPassword" type="password" placeholder="New Password"><br><br>
+  <input id="newPassword" type="password" placeholder="New Password (min 6 chars)"><br><br>
 
   <button onclick="changePassword()">Update Password</button>
 
   <br><br>
-  <button onclick="goDashboard()">Back</button>
+  <button onclick="goDashboard()">⬅️ Back to Dashboard</button>
   <button onclick="logout()">Logout</button>
 </div>
-<script>
 
-let currentUser = localStorage.getItem("loggedInUser");
+<script type="module">
+import { auth, db } from "./firebase.js";
+import { onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-if (!currentUser) {
-  window.location.href = "login.html";
-}
+let currentUsername = null;
+let userData = null;
 
-let users = JSON.parse(localStorage.getItem("users")) || [];
-let userIndex = users.findIndex(u => u.username === currentUser);
-
-if (userIndex === -1) {
-  window.location.href = "login.html";
-}
-
-let userData = users[userIndex];
-
-// DISPLAY
-document.getElementById("usernameInput").value = userData.username;
-document.getElementById("emailInput").value = userData.email || "";
-document.getElementById("balance").innerText = userData.balance || 0;
-
-let avatar = document.getElementById("iavatar");
-avatar.src = userData.image || "https://via.placeholder.com/90";
-
-/////////////////////////////////////////////////////
-// UPDATE PROFILE
-/////////////////////////////////////////////////////
-
-function updateProfile() {
-
-  let newUsername = document.getElementById("usernameInput").value.trim();
-  let newEmail = document.getElementById("emailInput").value.trim();
-
-  if (!newUsername || !newEmail) {
-    alert("Fill all fields");
+// Auth check + load user data
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.replace("login.html");
     return;
   }
+  
+  // Find user in Realtime Database
+  const usersSnap = await get(ref(db, 'users'));
+  usersSnap.forEach((childSnap) => {
+    const data = childSnap.val();
+    if (data.uid === user.uid) {
+      currentUsername = childSnap.key;
+      userData = data;
+      
+      // Display user info
+      document.getElementById("usernameInput").value = data.username;
+      document.getElementById("emailInput").value = data.email || "";
+      document.getElementById("balance").innerText = Number(data.balance || 0).toFixed(2);
+      document.getElementById("planDisplay").innerText = data.plan || "None";
+      
+      // Show saved wallet if exists
+      if (data.wallet) {
+        document.getElementById("walletInput").value = data.wallet;
+      }
+      
+      // Show profile image if exists
+      if (data.image) {
+        document.getElementById("iavatar").src = data.image;
+      } else {
+        document.getElementById("iavatar").src = "https://via.placeholder.com/90";
+      }
+    }
+  });
+});
 
-  users[userIndex].username = newUsername;
-  users[userIndex].email = newEmail;
+/////////////////////////////////////////////////////
+// SAVE WALLET (NEW FEATURE!)
+/////////////////////////////////////////////////////
 
-  localStorage.setItem("users", JSON.stringify(users));
-  localStorage.setItem("loggedInUser", newUsername);
+window.saveWallet = async function() {
+  const wallet = document.getElementById("walletInput").value.trim();
+  const msg = document.getElementById("walletMsg");
+  
+  if (!wallet) {
+    msg.style.color = "red";
+    msg.innerText = "Please enter a wallet address!";
+    return;
+  }
+  
+  if (!currentUsername) {
+    msg.style.color = "red";
+    msg.innerText = "Error: User not loaded yet!";
+    return;
+  }
+  
+  try {
+    msg.style.color = "blue";
+    msg.innerText = "Saving...";
+    
+    await update(ref(db, 'users/' + currentUsername), {
+      wallet: wallet
+    });
+    
+    msg.style.color = "green";
+    msg.innerText = "✅ Wallet saved successfully!";
+    
+  } catch (error) {
+    msg.style.color = "red";
+    msg.innerText = "Error: " + error.message;
+  }
+};
 
-  alert("Profile updated");
-}
+/////////////////////////////////////////////////////
+// UPDATE PROFILE (Email only - username is fixed)
+/////////////////////////////////////////////////////
+
+window.updateProfile = async function() {
+  const newEmail = document.getElementById("emailInput").value.trim();
+  const msg = document.getElementById("walletMsg"); // reuse message area
+  
+  if (!newEmail) {
+    msg.style.color = "red";
+    msg.innerText = "Please enter email!";
+    return;
+  }
+  
+  try {
+    await update(ref(db, 'users/' + currentUsername), {
+      email: newEmail
+    });
+    
+    msg.style.color = "green";
+    msg.innerText = "✅ Profile updated!";
+    
+  } catch (error) {
+    msg.style.color = "red";
+    msg.innerText = "Error: " + error.message;
+  }
+};
 
 /////////////////////////////////////////////////////
 // CHANGE PASSWORD
 /////////////////////////////////////////////////////
 
-function changePassword() {
-
-  let oldPass = document.getElementById("oldPassword").value;
-  let newPass = document.getElementById("newPassword").value;
-
-  if (!oldPass || !newPass) {
-    alert("Fill all fields");
+window.changePassword = async function() {
+  const newPass = document.getElementById("newPassword").value.trim();
+  const msg = document.getElementById("walletMsg");
+  
+  if (!newPass) {
+    msg.style.color = "red";
+    msg.innerText = "Please enter new password!";
     return;
   }
-
-  if (oldPass !== users[userIndex].password) {
-    alert("Old password incorrect");
+  
+  if (newPass.length < 6) {
+    msg.style.color = "red";
+    msg.innerText = "Password must be 6+ characters!";
     return;
   }
-
-  users[userIndex].password = newPass;
-  localStorage.setItem("users", JSON.stringify(users));
-
-  alert("Password changed");
-
-  document.getElementById("oldPassword").value = "";
-  document.getElementById("newPassword").value = "";
-}
+  
+  try {
+    const user = auth.currentUser;
+    await updatePassword(user, newPass);
+    
+    msg.style.color = "green";
+    msg.innerText = "✅ Password changed!";
+    document.getElementById("newPassword").value = "";
+    
+  } catch (error) {
+    msg.style.color = "red";
+    msg.innerText = "Error: " + error.message;
+  }
+};
 
 /////////////////////////////////////////////////////
-// IMAGE UPLOAD
+// IMAGE UPLOAD (Base64 to Realtime Database)
 /////////////////////////////////////////////////////
 
-function uploadImage(event) {
-
+window.uploadImage = async function(event) {
   let file = event.target.files[0];
   if (!file) return;
-
+  
+  // Check file size (max 500KB for Realtime Database)
+  if (file.size > 500000) {
+    alert("Image too large! Max 500KB.");
+    return;
+  }
+  
   let reader = new FileReader();
-
-  reader.onload = function(e) {
-    users[userIndex].image = e.target.result;
-    localStorage.setItem("users", JSON.stringify(users));
-    avatar.src = e.target.result;
+  
+  reader.onload = async function(e) {
+    try {
+      await update(ref(db, 'users/' + currentUsername), {
+        image: e.target.result
+      });
+      
+      document.getElementById("iavatar").src = e.target.result;
+      alert("✅ Profile picture updated!");
+      
+    } catch (error) {
+      alert("Error saving image: " + error.message);
+    }
   };
-
+  
   reader.readAsDataURL(file);
-}
+};
 
-function triggerUpload() {
+window.triggerUpload = function() {
   document.getElementById("fileInput").click();
-}
+};
 
 /////////////////////////////////////////////////////
 // NAVIGATION
 /////////////////////////////////////////////////////
 
-function goDashboard() {
+window.goDashboard = function() {
   window.location.href = "dashboard.html";
-}
+};
 
-function logout() {
-  localStorage.clear();
-  window.location.href = "login.html";
-}
+window.logout = async function() {
+  try {
+    await auth.signOut();
+    sessionStorage.clear();
+    window.location.replace("login.html");
+  } catch (error) {
+    console.error("Logout error:", error);
+  }
+};
 
 </script>
 
 </body>
 </html>
+
