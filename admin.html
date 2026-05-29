@@ -50,12 +50,7 @@
 
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {
-  collection,
-  getDocs,
-  doc,
-  updateDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"; // ✅ FIXED: 10.12.2 not 12.12.1
+import { ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 // ✅ AUTH CHECK: Kick out non-logged-in or non-admin users
 onAuthStateChanged(auth, (user) => {
@@ -89,24 +84,31 @@ let notifications = [];
 let filterStatus = "all";
 
 /////////////////////////////////////////////////////
-// LOAD DATA FROM FIREBASE
+// LOAD DATA FROM REALTIME DATABASE
 /////////////////////////////////////////////////////
 
 async function loadData() {
-
-  const usersSnap = await getDocs(collection(db, "users"));
-  users = usersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-  const depSnap = await getDocs(collection(db, "deposits"));
-  deposits = depSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-  const witSnap = await getDocs(collection(db, "withdrawals"));
-  withdrawals = witSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-  const invSnap = await getDocs(collection(db, "investments"));
-  investments = invSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-  renderAll();
+  try {
+    // Load users from Realtime Database
+    const usersSnap = await get(ref(db, 'users'));
+    if (usersSnap.exists()) {
+      users = [];
+      usersSnap.forEach((childSnap) => {
+        users.push({ username: childSnap.key, ...childSnap.val() });
+      });
+    }
+    
+    // For deposits/withdrawals/investments, check if you have them in Firestore
+    // If not, initialize as empty arrays
+    deposits = [];
+    withdrawals = [];
+    investments = [];
+    
+    renderAll();
+  } catch (error) {
+    console.error("Load error:", error);
+    alert("Error loading data: " + error.message);
+  }
 }
 
 /////////////////////////////////////////////////////
@@ -114,7 +116,6 @@ async function loadData() {
 /////////////////////////////////////////////////////
 
 function loadUsers() {
-
   let search = document.getElementById("searchUser").value.toLowerCase();
 
   let filtered = users.filter(u =>
@@ -125,119 +126,55 @@ function loadUsers() {
     filtered.map(u => `
       <div class="card">
         <p><b>${u.username}</b></p>
+        <p>Email: ${u.email || 'N/A'}</p>
         <p>Balance: $${Number(u.balance || 0).toFixed(2)}</p>
+        <p>Role: ${u.role || 'user'}</p>
       </div>
     `).join("");
 }
 
 /////////////////////////////////////////////////////
-// DEPOSITS
+// DEPOSITS (Placeholder - add Firestore if needed)
 /////////////////////////////////////////////////////
 
 function loadDeposits() {
-
-  let list = deposits.filter(d =>
-    filterStatus === "all" ? true : d.status === filterStatus
-  );
-
-  document.getElementById("depositList").innerHTML =
+  document.getElementById("depositList").innerHTML = 
+    deposits.length === 0 ? 
+    '<p>No deposits yet.</p>' :
     list.map(d => `
       <div class="card">
         <p><b>User:</b> ${d.user}</p>
         <p>Amount: $${d.amount}</p>
         <p>Status: ${d.status}</p>
-
-        ${d.status === "pending" ? `
-          <button onclick="approveDeposit('${d.id}', '${d.user}', ${d.amount})">Approve</button>
-          <button onclick="rejectDeposit('${d.id}')">Reject</button>
-        ` : ""}
       </div>
     `).join("");
 }
 
-async function approveDeposit(id, user, amount) {
-
-  const userRef = users.find(u => u.username === user);
-
-  if (!userRef) return;
-
-  await updateDoc(doc(db, "users", userRef.id), {
-    balance: Number(userRef.balance || 0) + Number(amount)
-  });
-
-  await updateDoc(doc(db, "deposits", id), {
-    status: "approved"
-  });
-
-  loadData();
-}
-
-async function rejectDeposit(id) {
-  await updateDoc(doc(db, "deposits", id), {
-    status: "rejected"
-  });
-
-  loadData();
-}
-
 /////////////////////////////////////////////////////
-// WITHDRAWALS
+// WITHDRAWALS (Placeholder - add Firestore if needed)
 /////////////////////////////////////////////////////
 
 function loadWithdrawals() {
-
-  let list = withdrawals.filter(w =>
-    filterStatus === "all" ? true : w.status === filterStatus
-  );
-
-  document.getElementById("withdrawList").innerHTML =
+  document.getElementById("withdrawList").innerHTML = 
+    withdrawals.length === 0 ? 
+    '<p>No withdrawals yet.</p>' :
     list.map(w => `
       <div class="card">
         <p><b>User:</b> ${w.user}</p>
         <p>Amount: $${w.amount}</p>
         <p>Status: ${w.status}</p>
-
-        ${w.status === "pending" ? `
-          <button onclick="approveWithdraw('${w.id}', '${w.user}', ${w.amount})">Approve</button>
-          <button onclick="rejectWithdraw('${w.id}')">Reject</button>
-        ` : ""}
       </div>
     `).join("");
 }
 
-async function approveWithdraw(id, user, amount) {
-
-  const userRef = users.find(u => u.username === user);
-
-  if (!userRef) return;
-
-  if (userRef.balance < amount) return alert("Insufficient balance");
-
-  await updateDoc(doc(db, "users", userRef.id), {
-    balance: Number(userRef.balance) - Number(amount)
-  });
-
-  await updateDoc(doc(db, "withdrawals", id), {
-    status: "approved"
-  });
-
-  loadData();
-}
-
-async function rejectWithdraw(id) {
-  await updateDoc(doc(db, "withdrawals", id), {
-    status: "rejected"
-  });
-
-  loadData();
-}
-
 /////////////////////////////////////////////////////
-// INVESTMENTS
+// INVESTMENTS (Placeholder - add Firestore if needed)
 /////////////////////////////////////////////////////
 
 function loadInvestments() {
-  document.getElementById("investList").innerHTML =
+  document.getElementById("investList").innerHTML = 
+    investments.length === 0 ? 
+    '<p>No investments yet.</p>' :
     investments.map(i => `
       <div class="card">
         <p><b>User:</b> ${i.user}</p>
@@ -264,8 +201,8 @@ function setFilter(status) {
 
 async function logout() {
   try {
-    await signOut(auth); // ✅ Firebase sign out
-    sessionStorage.clear(); // Clear all session data
+    await signOut(auth);
+    sessionStorage.clear();
     window.location.replace("login.html");
   } catch (error) {
     console.error("Logout error:", error);
@@ -286,12 +223,6 @@ function renderAll() {
 window.loadUsers = loadUsers;
 window.setFilter = setFilter;
 window.logout = logout;
-window.approveDeposit = approveDeposit;
-window.rejectDeposit = rejectDeposit;
-window.approveWithdraw = approveWithdraw;
-window.rejectWithdraw = rejectWithdraw;
-
-// ❌ REMOVED: loadData() from here — now called inside onAuthStateChanged after auth check
 
 </script>
 
