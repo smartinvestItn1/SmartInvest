@@ -9,48 +9,6 @@
 
 <body>
 
-<script type="module">
-/////////////////////////////////////////////////////
-// 🔐 AUTH GUARD (FIREBASE AUTH - MUST BE FIRST)
-/////////////////////////////////////////////////////
-
-import { auth, db } from "./firebase.js";
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-let currentUser = null;
-let userData = null;
-let userDocId = null;
-let deposits = [];
-
-// Auth check - blocks page until Firebase confirms login
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.replace("login.html");
-    return;
-  }
-  
-  // User is authenticated - load their data from Firestore
-  currentUser = sessionStorage.getItem("loggedInUser");
-  
-  // Extra safety
-  if (!currentUser) {
-    await signOut(auth);
-    window.location.replace("login.html");
-    return;
-  }
-  
-  // Load user data from Firestore
-  await loadUserData();
-  
-  // Load deposits
-  await loadDeposits();
-  
-  // Initialize UI
-  initUI();
-});
-</script>
-
 <img id="dashAvatar" class="iavatar">
 
 <div class="nav">
@@ -145,44 +103,50 @@ onAuthStateChanged(auth, async (user) => {
 
 import { auth, db } from "./firebase.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { collection, getDocs, query, where, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 /////////////////////////////////////////////////////
 // GLOBAL DATA
 /////////////////////////////////////////////////////
 
-let currentUser = sessionStorage.getItem("loggedInUser");
+let currentUsername = null;
 let userData = null;
-let userDocId = null;
-let deposits = [];
 
 /////////////////////////////////////////////////////
-// LOAD USER DATA FROM FIRESTORE
+// AUTH CHECK + LOAD DATA
 /////////////////////////////////////////////////////
 
-async function loadUserData() {
-  const q = query(collection(db, "users"), where("username", "==", currentUser));
-  const snap = await getDocs(q);
-  
-  if (snap.empty) {
-    sessionStorage.removeItem("loggedInUser");
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
     window.location.replace("login.html");
     return;
   }
   
-  const doc = snap.docs[0];
-  userData = doc.data();
-  userDocId = doc.id;
-}
-
-/////////////////////////////////////////////////////
-// LOAD DEPOSITS FROM FIRESTORE
-/////////////////////////////////////////////////////
-
-async function loadDeposits() {
-  const depSnap = await getDocs(collection(db, "deposits"));
-  deposits = depSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-}
+  // Find user in Realtime Database
+  const usersSnap = await get(ref(db, 'users'));
+  usersSnap.forEach((childSnap) => {
+    const data = childSnap.val();
+    if (data.uid === user.uid) {
+      currentUsername = childSnap.key;
+      userData = data;
+    }
+  });
+  
+  if (!userData) {
+    sessionStorage.clear();
+    window.location.replace("login.html");
+    return;
+  }
+  
+  // Save to session
+  sessionStorage.setItem("loggedInUser", userData.username);
+  sessionStorage.setItem("role", userData.role || "user");
+  
+  // Update UI
+  updateUI();
+});
 
 /////////////////////////////////////////////////////
 // RATES
@@ -198,25 +162,18 @@ let ethRate = 3500;
 let balanceInterval;
 
 function animateBalance(value) {
-
   clearInterval(balanceInterval);
-
   let start = 0;
   let end = value;
   let step = end / 50;
 
   balanceInterval = setInterval(() => {
-
     start += step;
-
     if (start >= end) {
       start = end;
       clearInterval(balanceInterval);
     }
-
-    document.getElementById("balance").innerText =
-      start.toFixed(2);
-
+    document.getElementById("balance").innerText = start.toFixed(2);
   }, 16);
 }
 
@@ -225,32 +182,19 @@ function animateBalance(value) {
 /////////////////////////////////////////////////////
 
 function updateUI() {
-
-  document.getElementById("user").innerText = userData.username || currentUser;
-
+  document.getElementById("user").innerText = userData.username || "User";
+  
   let balance = userData.balance || 0;
-
   animateBalance(balance);
-
-  document.getElementById("btc").innerText =
-    (balance / btcRate).toFixed(6);
-
-  document.getElementById("eth").innerText =
-    (balance / ethRate).toFixed(4);
-
-  document.getElementById("planType").innerText =
-    userData.plan || "None";
-
-  document.getElementById("dashAvatar").src =
-    userData.image || "https://via.placeholder.com/80";
-
-  let pendingTotal = deposits
-    .filter(d => d.user === currentUser && d.status === "pending")
-    .reduce((sum, d) => sum + d.amount, 0);
-
-  document.getElementById("pending").innerText =
-    pendingTotal || 0;
-
+  
+  document.getElementById("btc").innerText = (balance / btcRate).toFixed(6);
+  document.getElementById("eth").innerText = (balance / ethRate).toFixed(4);
+  document.getElementById("planType").innerText = userData.plan || "None";
+  document.getElementById("dashAvatar").src = userData.image || "https://via.placeholder.com/80";
+  
+  // Pending deposits (placeholder for now)
+  document.getElementById("pending").innerText = "0";
+  
   updateInvestmentStatus();
 }
 
@@ -259,9 +203,7 @@ function updateUI() {
 /////////////////////////////////////////////////////
 
 async function goInvest(plan) {
-
   let amount = 0;
-
   if (plan === "Starter") amount = 100;
   if (plan === "Pro") amount = 1000;
   if (plan === "Premium") amount = 5000;
@@ -271,9 +213,9 @@ async function goInvest(plan) {
     return;
   }
 
-  // Update Firestore
+  // Update Realtime Database
   const newBalance = (userData.balance || 0) - amount;
-  await updateDoc(doc(db, "users", userDocId), {
+  await update(ref(db, 'users/' + currentUsername), {
     balance: newBalance,
     plan: plan
   });
@@ -291,9 +233,7 @@ async function goInvest(plan) {
 /////////////////////////////////////////////////////
 
 function updateInvestmentStatus() {
-
   let el = document.getElementById("investStatus");
-
   if (userData.plan && userData.plan !== "None") {
     el.innerText = "🟢 Active (" + userData.plan + ")";
     el.style.color = "green";
@@ -318,7 +258,6 @@ function goHistory() { window.location.href = "history.html"; }
 /////////////////////////////////////////////////////
 
 async function logout() {
-
   let overlay = document.getElementById("logoutOverlay");
   overlay.classList.add("active");
 
@@ -339,10 +278,6 @@ async function logout() {
 /////////////////////////////////////////////////////
 // INIT
 /////////////////////////////////////////////////////
-
-function initUI() {
-  updateUI();
-}
 
 window.goInvest = goInvest;
 window.goDeposit = goDeposit;
