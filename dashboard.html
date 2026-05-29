@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard</title>
 <link rel="stylesheet" href="style.css">
+
+<!-- Prevent back button after logout -->
+<script>
+  if (window.history && window.history.pushState) {
+    window.history.pushState(null, null, window.location.href);
+    window.onpopstate = function() {
+      window.history.pushState(null, null, window.location.href);
+    };
+  }
+</script>
 </head>
 
 <body>
@@ -104,6 +114,7 @@
 import { auth, db } from "./firebase.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 /////////////////////////////////////////////////////
 // GLOBAL DATA
@@ -116,15 +127,12 @@ let userData = null;
 // AUTH CHECK + LOAD DATA
 /////////////////////////////////////////////////////
 
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.replace("login.html");
     return;
   }
   
-  // Find user in Realtime Database
   const usersSnap = await get(ref(db, 'users'));
   usersSnap.forEach((childSnap) => {
     const data = childSnap.val();
@@ -140,11 +148,9 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
   
-  // Save to session
   sessionStorage.setItem("loggedInUser", userData.username);
   sessionStorage.setItem("role", userData.role || "user");
   
-  // Update UI
   updateUI();
 });
 
@@ -192,7 +198,6 @@ function updateUI() {
   document.getElementById("planType").innerText = userData.plan || "None";
   document.getElementById("dashAvatar").src = userData.image || "https://via.placeholder.com/80";
   
-  // Pending deposits (placeholder for now)
   document.getElementById("pending").innerText = "0";
   
   updateInvestmentStatus();
@@ -213,14 +218,12 @@ async function goInvest(plan) {
     return;
   }
 
-  // Update Realtime Database
   const newBalance = (userData.balance || 0) - amount;
   await update(ref(db, 'users/' + currentUsername), {
     balance: newBalance,
     plan: plan
   });
 
-  // Update local data
   userData.balance = newBalance;
   userData.plan = plan;
 
@@ -244,14 +247,14 @@ function updateInvestmentStatus() {
 }
 
 /////////////////////////////////////////////////////
-// NAVIGATION
+// NAVIGATION (ALL USE REPLACE!)
 /////////////////////////////////////////////////////
 
-function goDeposit() { window.location.href = "deposit.html"; }
-function goWithdraw() { window.location.href = "withdraw.html"; }
-function goHome() { window.location.href = "index.html"; }
-function goProfile() { window.location.href = "profile.html"; }
-function goHistory() { window.location.href = "history.html"; }
+function goDeposit() { window.location.replace("deposit.html"); }
+function goWithdraw() { window.location.replace("withdraw.html"); }
+function goHome() { window.location.replace("index.html"); }
+function goProfile() { window.location.replace("profile.html"); }
+function goHistory() { window.location.replace("history.html"); }
 
 /////////////////////////////////////////////////////
 // LOGOUT
@@ -290,4 +293,4 @@ window.logout = logout;
 </script>
 </body>
   </html>
-  
+                  
