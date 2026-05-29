@@ -50,7 +50,7 @@
 
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 // ✅ AUTH CHECK: Kick out non-logged-in or non-admin users
 onAuthStateChanged(auth, (user) => {
@@ -98,8 +98,7 @@ async function loadData() {
       });
     }
     
-    // For deposits/withdrawals/investments, check if you have them in Firestore
-    // If not, initialize as empty arrays
+    // For deposits/withdrawals/investments - placeholder for now
     deposits = [];
     withdrawals = [];
     investments = [];
@@ -112,7 +111,7 @@ async function loadData() {
 }
 
 /////////////////////////////////////////////////////
-// USERS
+// USERS (WITH WALLET DISPLAY!)
 /////////////////////////////////////////////////////
 
 function loadUsers() {
@@ -124,24 +123,26 @@ function loadUsers() {
 
   document.getElementById("usersList").innerHTML =
     filtered.map(u => `
-      <div class="card">
-        <p><b>${u.username}</b></p>
-        <p>Email: ${u.email || 'N/A'}</p>
-        <p>Balance: $${Number(u.balance || 0).toFixed(2)}</p>
-        <p>Role: ${u.role || 'user'}</p>
+      <div class="card" style="margin-bottom:15px; padding:15px; border:1px solid #ddd; border-radius:8px;">
+        <p><b>👤 ${u.username}</b></p>
+        <p>📧 Email: ${u.email || 'N/A'}</p>
+        <p>💰 Balance: $${Number(u.balance || 0).toFixed(2)}</p>
+        <p>🏷️ Role: ${u.role || 'user'}</p>
+        <p>💼 Wallet: ${u.wallet ? '<span style="color:green; font-weight:bold;">' + u.wallet + '</span>' : '<span style="color:red;">❌ Not set</span>'}</p>
+        <p>📅 Joined: ${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'N/A'}</p>
       </div>
     `).join("");
 }
 
 /////////////////////////////////////////////////////
-// DEPOSITS (Placeholder - add Firestore if needed)
+// DEPOSITS
 /////////////////////////////////////////////////////
 
 function loadDeposits() {
   document.getElementById("depositList").innerHTML = 
     deposits.length === 0 ? 
     '<p>No deposits yet.</p>' :
-    list.map(d => `
+    deposits.map(d => `
       <div class="card">
         <p><b>User:</b> ${d.user}</p>
         <p>Amount: $${d.amount}</p>
@@ -151,14 +152,14 @@ function loadDeposits() {
 }
 
 /////////////////////////////////////////////////////
-// WITHDRAWALS (Placeholder - add Firestore if needed)
+// WITHDRAWALS
 /////////////////////////////////////////////////////
 
 function loadWithdrawals() {
   document.getElementById("withdrawList").innerHTML = 
     withdrawals.length === 0 ? 
     '<p>No withdrawals yet.</p>' :
-    list.map(w => `
+    withdrawals.map(w => `
       <div class="card">
         <p><b>User:</b> ${w.user}</p>
         <p>Amount: $${w.amount}</p>
@@ -168,7 +169,7 @@ function loadWithdrawals() {
 }
 
 /////////////////////////////////////////////////////
-// INVESTMENTS (Placeholder - add Firestore if needed)
+// INVESTMENTS
 /////////////////////////////////////////////////////
 
 function loadInvestments() {
