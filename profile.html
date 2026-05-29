@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profile</title>
   <link rel="stylesheet" href="style.css">
+  
+  <!-- Prevent back button after logout -->
+  <script>
+    if (window.history && window.history.pushState) {
+      window.history.pushState(null, null, window.location.href);
+      window.onpopstate = function() {
+        window.history.pushState(null, null, window.location.href);
+      };
+    }
+  </script>
 </head>
 
 <body>
@@ -32,7 +42,7 @@
 
   <hr>
 
-  <!-- WALLET ADDRESS (NEW FEATURE!) -->
+  <!-- WALLET ADDRESS -->
   <h3>💼 Wallet Address</h3>
   <p>Add your crypto wallet address for withdrawals:</p>
   <input id="walletInput" placeholder="Enter your USDT/BTC wallet address" style="width:100%; padding:10px; margin:5px 0;"><br>
@@ -67,7 +77,6 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
   
-  // Find user in Realtime Database
   const usersSnap = await get(ref(db, 'users'));
   usersSnap.forEach((childSnap) => {
     const data = childSnap.val();
@@ -75,18 +84,15 @@ onAuthStateChanged(auth, async (user) => {
       currentUsername = childSnap.key;
       userData = data;
       
-      // Display user info
       document.getElementById("usernameInput").value = data.username;
       document.getElementById("emailInput").value = data.email || "";
       document.getElementById("balance").innerText = Number(data.balance || 0).toFixed(2);
       document.getElementById("planDisplay").innerText = data.plan || "None";
       
-      // Show saved wallet if exists
       if (data.wallet) {
         document.getElementById("walletInput").value = data.wallet;
       }
       
-      // Show profile image if exists
       if (data.image) {
         document.getElementById("iavatar").src = data.image;
       } else {
@@ -97,7 +103,7 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 /////////////////////////////////////////////////////
-// SAVE WALLET (NEW FEATURE!)
+// SAVE WALLET
 /////////////////////////////////////////////////////
 
 window.saveWallet = async function() {
@@ -134,12 +140,12 @@ window.saveWallet = async function() {
 };
 
 /////////////////////////////////////////////////////
-// UPDATE PROFILE (Email only - username is fixed)
+// UPDATE PROFILE
 /////////////////////////////////////////////////////
 
 window.updateProfile = async function() {
   const newEmail = document.getElementById("emailInput").value.trim();
-  const msg = document.getElementById("walletMsg"); // reuse message area
+  const msg = document.getElementById("walletMsg");
   
   if (!newEmail) {
     msg.style.color = "red";
@@ -196,14 +202,13 @@ window.changePassword = async function() {
 };
 
 /////////////////////////////////////////////////////
-// IMAGE UPLOAD (Base64 to Realtime Database)
+// IMAGE UPLOAD
 /////////////////////////////////////////////////////
 
 window.uploadImage = async function(event) {
   let file = event.target.files[0];
   if (!file) return;
   
-  // Check file size (max 500KB for Realtime Database)
   if (file.size > 500000) {
     alert("Image too large! Max 500KB.");
     return;
@@ -233,11 +238,11 @@ window.triggerUpload = function() {
 };
 
 /////////////////////////////////////////////////////
-// NAVIGATION
+// NAVIGATION (ALL USE REPLACE!)
 /////////////////////////////////////////////////////
 
 window.goDashboard = function() {
-  window.location.href = "dashboard.html";
+  window.location.replace("dashboard.html");
 };
 
 window.logout = async function() {
@@ -254,4 +259,3 @@ window.logout = async function() {
 
 </body>
 </html>
-
