@@ -151,7 +151,7 @@ onAuthStateChanged(auth, async (user) => {
   sessionStorage.setItem("loggedInUser", userData.username);
   sessionStorage.setItem("role", userData.role || "user");
   
-  updateUI();
+  await updateUI();
 });
 
 /////////////////////////////////////////////////////
@@ -184,10 +184,10 @@ function animateBalance(value) {
 }
 
 /////////////////////////////////////////////////////
-// UI UPDATE
+// UI UPDATE (WITH REAL PENDING DEPOSITS!)
 /////////////////////////////////////////////////////
 
-function updateUI() {
+async function updateUI() {
   document.getElementById("user").innerText = userData.username || "User";
   
   let balance = userData.balance || 0;
@@ -198,7 +198,23 @@ function updateUI() {
   document.getElementById("planType").innerText = userData.plan || "None";
   document.getElementById("dashAvatar").src = userData.image || "https://via.placeholder.com/80";
   
-  document.getElementById("pending").innerText = "0";
+  // ✅ FIXED: Load real pending deposits from Realtime Database
+  try {
+    const depSnap = await get(ref(db, 'deposits'));
+    let pendingTotal = 0;
+    if (depSnap.exists()) {
+      depSnap.forEach((childSnap) => {
+        const deposit = childSnap.val();
+        if (deposit.user === currentUsername && deposit.status === "pending") {
+          pendingTotal += Number(deposit.amount || 0);
+        }
+      });
+    }
+    document.getElementById("pending").innerText = pendingTotal.toFixed(2);
+  } catch (err) {
+    console.error("Error loading pending:", err);
+    document.getElementById("pending").innerText = "0";
+  }
   
   updateInvestmentStatus();
 }
@@ -227,7 +243,7 @@ async function goInvest(plan) {
   userData.balance = newBalance;
   userData.plan = plan;
 
-  updateUI();
+  await updateUI();
   alert("Investment successful ✔");
 }
 
@@ -293,4 +309,4 @@ window.logout = logout;
 </script>
 </body>
   </html>
-                  
+  
