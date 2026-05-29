@@ -15,7 +15,7 @@
     <h2>Login</h2>
     <input id="email" type="email" placeholder="Email" required><br>
     <input id="password" type="password" placeholder="Password" required><br><br>
-    <button type="submit" id="loginBtn">Login</button>
+    <button type="submit">Login</button>
     <p id="result" style="color:red; font-weight:bold; margin-top:10px;"></p>
   </form>
   
@@ -27,75 +27,83 @@
 <script type="module">
 import { auth, db } from "./firebase.js";
 import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-const form = document.getElementById("loginForm");
-const result = document.getElementById("result");
-
-form.onsubmit = async function(event) {
+document.getElementById("loginForm").onsubmit = async function(event) {
   event.preventDefault();
   
+  let email = document.getElementById("email").value.trim();
+  let password = document.getElementById("password").value.trim();
+  let result = document.getElementById("result");
+  
+  if (!email || !password) {
+    result.innerText = "Please fill all fields!";
+    return false;
+  }
+  
   result.style.color = "blue";
-  result.innerText = "Logging in... Please wait";
+  result.innerText = "Logging in...";
   
   try {
-    let email = document.getElementById("email").value.trim();
-    let password = document.getElementById("password").value.trim();
-    
-    if (!email || !password) {
-      result.style.color = "red";
-      result.innerText = "Please fill all fields";
-      return false;
-    }
-    
     // Sign in with Firebase Auth
-    result.innerText = "Checking your credentials...";
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     
-    // Get user data from Firestore
-    result.innerText = "Loading your account...";
-    const q = query(collection(db, "users"), where("uid", "==", user.uid));
-    const querySnapshot = await getDocs(q);
+    // Find user in Realtime Database by UID
+    const usersSnapshot = await get(ref(db, 'users'));
     
-    if (querySnapshot.empty) {
+    if (!usersSnapshot.exists()) {
+      result.style.color = "red";
+      result.innerText = "No users found in database.";
+      return false;
+    }
+    
+    let foundUser = null;
+    usersSnapshot.forEach((childSnapshot) => {
+      const userData = childSnapshot.val();
+      if (userData.uid === user.uid) {
+        foundUser = userData;
+      }
+    });
+    
+    if (!foundUser) {
       result.style.color = "red";
       result.innerText = "Account data not found. Please contact support.";
       return false;
     }
     
-    const userData = querySnapshot.docs[0].data();
-    
     // Save session
-    sessionStorage.setItem("loggedInUser", userData.username);
-    sessionStorage.setItem("role", userData.role || "user");
+    sessionStorage.setItem("loggedInUser", foundUser.username);
+    sessionStorage.setItem("role", foundUser.role || "user");
     sessionStorage.setItem("uid", user.uid);
     
-    // Success
     result.style.color = "green";
     result.innerText = "✅ Login successful! Redirecting...";
     
     setTimeout(() => {
-      if ((userData.role || "user") === "admin") {
+      if ((foundUser.role || "user") === "admin") {
         window.location.href = "admin.html";
       } else {
         window.location.href = "dashboard.html";
       }
-    }, 1000);
+    }, 1500);
     
   } catch (error) {
     result.style.color = "red";
     
-    let msg = error.message;
-    if (error.code === "auth/user-not-found") msg = "No account found with this email. Please sign up first.";
-    if (error.code === "auth/wrong-password") msg = "Incorrect password. Please try again.";
-    if (error.code === "auth/invalid-email") msg = "Invalid email address.";
-    if (error.code === "auth/invalid-credential") msg = "Invalid email or password.";
-    if (error.code === "auth/too-many-requests") msg = "Too many failed attempts. Wait 10 minutes.";
-    if (error.code === "auth/network-request-failed") msg = "No internet connection.";
-    
-    result.innerText = "❌ " + msg;
-    console.error(error);
+    if (error.code === "auth/user-not-found") {
+      result.innerText = "No account found. Please sign up.";
+    } else if (error.code === "auth/wrong-password") {
+      result.innerText = "Wrong password.";
+    } else if (error.code === "auth/invalid-email") {
+      result.innerText = "Invalid email.";
+    } else if (error.code === "auth/too-many-requests") {
+      result.innerText = "Too many tries. Wait 10 minutes.";
+    } else if (error.code === "auth/invalid-credential") {
+      result.innerText = "Wrong email or password.";
+    } else {
+      result.innerText = "Error: " + error.message;
+    }
   }
   
   return false;
