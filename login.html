@@ -5,11 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
   <link rel="stylesheet" href="style.css">
+<script type="module" src="auth-guard.js"></script>
+  <!-- Prevent back button after logout -->
+  <script>
+    if (window.history && window.history.pushState) {
+      window.history.pushState(null, null, window.location.href);
+      window.onpopstate = function() {
+        window.history.pushState(null, null, window.location.href);
+      };
+    }
+  </script>
 </head>
 <body>
 
 <div class="container">
-  <button onclick="window.location.href='index.html'">🏠 Home</button>
+  <button onclick="goHome()">🏠 Home</button>
   
   <form id="loginForm">
     <h2>Login</h2>
@@ -19,7 +29,7 @@
     <p id="result" style="color:red; font-weight:bold; margin-top:10px;"></p>
   </form>
   
-  <p onclick="window.location.href='signup.html'" style="color:blue; text-decoration:underline; cursor:pointer;">
+  <p onclick="goSignup()" style="color:blue; text-decoration:underline; cursor:pointer;">
     Don't have an account? Sign up
   </p>
 </div>
@@ -45,11 +55,9 @@ document.getElementById("loginForm").onsubmit = async function(event) {
   result.innerText = "Logging in...";
   
   try {
-    // Sign in with Firebase Auth
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     
-    // Find user in Realtime Database by UID
     const usersSnapshot = await get(ref(db, 'users'));
     
     if (!usersSnapshot.exists()) {
@@ -72,7 +80,6 @@ document.getElementById("loginForm").onsubmit = async function(event) {
       return false;
     }
     
-    // Save session
     sessionStorage.setItem("loggedInUser", foundUser.username);
     sessionStorage.setItem("role", foundUser.role || "user");
     sessionStorage.setItem("uid", user.uid);
@@ -82,9 +89,9 @@ document.getElementById("loginForm").onsubmit = async function(event) {
     
     setTimeout(() => {
       if ((foundUser.role || "user") === "admin") {
-        window.location.href = "admin.html";
+        window.location.replace("admin.html");
       } else {
-        window.location.href = "dashboard.html";
+        window.location.replace("dashboard.html");
       }
     }, 1500);
     
@@ -108,7 +115,13 @@ document.getElementById("loginForm").onsubmit = async function(event) {
   
   return false;
 };
+
+function goHome() { window.location.replace("index.html"); }
+function goSignup() { window.location.replace("signup.html"); }
+window.goHome = goHome;
+window.goSignup = goSignup;
 </script>
 
 </body>
 </html>
+
