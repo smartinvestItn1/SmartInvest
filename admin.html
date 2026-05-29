@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Panel</title>
   <link rel="stylesheet" href="style.css">
+  
+  <!-- Prevent back button after logout -->
+  <script>
+    if (window.history && window.history.pushState) {
+      window.history.pushState(null, null, window.location.href);
+      window.onpopstate = function() {
+        window.history.pushState(null, null, window.location.href);
+      };
+    }
+  </script>
 </head>
 
 <body>
@@ -59,7 +69,6 @@ onAuthStateChanged(auth, (user) => {
     return;
   }
   
-  // Check if admin
   const role = sessionStorage.getItem("role");
   if (role !== "admin") {
     alert("Access denied. Admins only.");
@@ -67,7 +76,6 @@ onAuthStateChanged(auth, (user) => {
     return;
   }
   
-  // User is admin, load data
   loadData();
 });
 
@@ -89,7 +97,6 @@ let filterStatus = "all";
 
 async function loadData() {
   try {
-    // Load users from Realtime Database
     const usersSnap = await get(ref(db, 'users'));
     if (usersSnap.exists()) {
       users = [];
@@ -98,7 +105,6 @@ async function loadData() {
       });
     }
     
-    // For deposits/withdrawals/investments - placeholder for now
     deposits = [];
     withdrawals = [];
     investments = [];
@@ -128,7 +134,7 @@ function loadUsers() {
         <p>📧 Email: ${u.email || 'N/A'}</p>
         <p>💰 Balance: $${Number(u.balance || 0).toFixed(2)}</p>
         <p>🏷️ Role: ${u.role || 'user'}</p>
-        <p>💼 Wallet: ${u.wallet ? '<span style="color:green; font-weight:bold;">' + u.wallet + '</span>' : '<span style="color:red;">❌ Not set</span>'}</p>
+        <p>💼 Wallet: ${u.wallet ? '<span style="color:green; font-weight:bold; word-break:break-all;">' + u.wallet + '</span>' : '<span style="color:red;">❌ Not set</span>'}</p>
         <p>📅 Joined: ${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'N/A'}</p>
       </div>
     `).join("");
@@ -197,7 +203,7 @@ function setFilter(status) {
 }
 
 /////////////////////////////////////////////////////
-// LOGOUT
+// LOGOUT (USES REPLACE!)
 /////////////////////////////////////////////////////
 
 async function logout() {
