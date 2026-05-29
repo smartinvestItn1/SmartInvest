@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Withdraw</title>
   <link rel="stylesheet" href="style.css">
+  
+  <!-- Prevent back button after logout -->
+  <script>
+    if (window.history && window.history.pushState) {
+      window.history.pushState(null, null, window.location.href);
+      window.onpopstate = function() {
+        window.history.pushState(null, null, window.location.href);
+      };
+    }
+  </script>
 </head>
 
 <body>
@@ -19,85 +29,102 @@
   <button onclick="submitWithdraw()">Submit Withdrawal</button>
 
   <button onclick="goBack()" class="back-btn">Back</button>
+  
+  <p id="result" style="color:green; font-weight:bold; margin-top:10px;"></p>
 
 </div>
 
 <script type="module">
 
-import { db } from "./firebase.js";
-import {
-  collection,
-  addDoc,
-  doc,
-  updateDoc,
-  getDocs
-} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { auth, db } from "./firebase.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { ref, push, update, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 /////////////////////////////////////////////////////
-// GET USER
+// AUTH CHECK
 /////////////////////////////////////////////////////
 
-let user = sessionStorage.getItem("loggedInUser");
+let currentUser = null;
+let currentUsername = null;
 
-if (!user) {
-  window.location.href = "login.html";
-}
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.replace("login.html");
+    return;
+  }
+  
+  currentUsername = sessionStorage.getItem("loggedInUser");
+  if (!currentUsername) {
+    window.location.replace("login.html");
+    return;
+  }
+  
+  // Load user's saved wallet if exists
+  const userSnap = await get(ref(db, 'users/' + currentUsername));
+  if (userSnap.exists() && userSnap.val().wallet) {
+    document.getElementById("wallet").value = userSnap.val().wallet;
+  }
+});
 
 /////////////////////////////////////////////////////
-// SUBMIT WITHDRAWAL (FIREBASE)
+// SUBMIT WITHDRAWAL (REALTIME DATABASE)
 /////////////////////////////////////////////////////
 
 async function submitWithdraw() {
+  const result = document.getElementById("result");
+
+  if (!currentUsername) {
+    result.style.color = "red";
+    result.innerText = "Please login first!";
+    return;
+  }
 
   let wallet = document.getElementById("wallet").value.trim();
   let amount = Number(document.getElementById("amount").value);
 
   if (!wallet || !amount || amount <= 0) {
-    alert("Enter valid details");
+    result.style.color = "red";
+    result.innerText = "Enter valid details!";
     return;
   }
 
   try {
+    result.style.color = "blue";
+    result.innerText = "Submitting...";
 
-    // Save withdrawal request
-    await addDoc(collection(db, "withdrawals"), {
-      user: user,
+    // Save withdrawal request to Realtime Database
+    await push(ref(db, 'withdrawals'), {
+      user: currentUsername,
       wallet: wallet,
       amount: amount,
       status: "pending",
       time: Date.now()
     });
 
-    // Save wallet to user profile (update user document)
-    const usersSnap = await getDocs(collection(db, "users"));
-
-    usersSnap.forEach(async (u) => {
-      if (u.data().username === user) {
-
-        await updateDoc(doc(db, "users", u.id), {
-          wallet: wallet
-        });
-
-      }
+    // Also save wallet to user profile in Realtime Database
+    await update(ref(db, 'users/' + currentUsername), {
+      wallet: wallet
     });
 
-    alert("Withdrawal submitted and pending approval");
-
+    result.style.color = "green";
+    result.innerText = "✅ Withdrawal submitted! Pending approval.";
+    
     document.getElementById("wallet").value = "";
     document.getElementById("amount").value = "";
 
   } catch (err) {
-    console.log(err);
-    alert("Error submitting withdrawal");
+    result.style.color = "red";
+    result.innerText = "Error: " + err.message;
+    console.error(err);
   }
 }
 
 /////////////////////////////////////////////////////
-// NAVIGATION
+// NAVIGATION (USES REPLACE!)
 /////////////////////////////////////////////////////
 
 function goBack() {
-  window.location.href = "dashboard.html";
+  window.location.replace("dashboard.html");
 }
 
 window.submitWithdraw = submitWithdraw;
