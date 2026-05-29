@@ -15,6 +15,16 @@
     };
   }
 </script>
+
+<style>
+#investStatus {
+  cursor: pointer;
+  text-decoration: underline;
+}
+#investStatus:hover {
+  opacity: 0.8;
+}
+</style>
 </head>
 
 <body>
@@ -113,7 +123,7 @@
 
 import { auth, db } from "./firebase.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { ref, get, update, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 /////////////////////////////////////////////////////
@@ -198,7 +208,7 @@ async function updateUI() {
   document.getElementById("planType").innerText = userData.plan || "None";
   document.getElementById("dashAvatar").src = userData.image || "https://via.placeholder.com/80";
   
-  // ✅ FIXED: Load real pending deposits from Realtime Database
+  // Load real pending deposits from Realtime Database
   try {
     const depSnap = await get(ref(db, 'deposits'));
     let pendingTotal = 0;
@@ -220,14 +230,27 @@ async function updateUI() {
 }
 
 /////////////////////////////////////////////////////
-// INVESTMENT
+// INVESTMENT (WITH HISTORY!)
 /////////////////////////////////////////////////////
 
 async function goInvest(plan) {
   let amount = 0;
-  if (plan === "Starter") amount = 100;
-  if (plan === "Pro") amount = 1000;
-  if (plan === "Premium") amount = 5000;
+  let profitPercent = 0;
+  let hours = 0;
+  
+  if (plan === "Starter") {
+    amount = 100;
+    profitPercent = 0.10;
+    hours = 48;
+  } else if (plan === "Pro") {
+    amount = 1000;
+    profitPercent = 0.20;
+    hours = 96;
+  } else if (plan === "Premium") {
+    amount = 5000;
+    profitPercent = 0.40;
+    hours = 120;
+  }
 
   if ((userData.balance || 0) < amount) {
     alert("Not enough balance");
@@ -235,17 +258,93 @@ async function goInvest(plan) {
   }
 
   const newBalance = (userData.balance || 0) - amount;
+  const investTime = Date.now();
+  
+  // Save investment to user profile
   await update(ref(db, 'users/' + currentUsername), {
     balance: newBalance,
-    plan: plan
+    plan: plan,
+    investTime: investTime,
+    investAmount: amount
+  });
+
+  // ✅ SAVE TO INVESTMENT HISTORY!
+  await push(ref(db, 'investments'), {
+    user: currentUsername,
+    plan: plan,
+    amount: amount,
+    profitPercent: profitPercent,
+    hours: hours,
+    status: "active",
+    investTime: investTime,
+    claimTime: null
   });
 
   userData.balance = newBalance;
   userData.plan = plan;
+  userData.investTime = investTime;
+  userData.investAmount = amount;
 
   await updateUI();
-  alert("Investment successful ✔");
+  alert(`Investment successful! ✔\n\nPlan: ${plan}\nAmount: $${amount}\nProfit: ${(profitPercent * 100)}%\nDuration: ${hours} hours\n\nClick "Investment Status" to claim profit when ready!`);
 }
+
+/////////////////////////////////////////////////////
+// CHECK AND CLAIM PROFIT
+/////////////////////////////////////////////////////
+
+async function checkProfit() {
+  if (!userData.plan || userData.plan === "None") {
+    alert("You have no active investment.");
+    return;
+  }
+  
+  const plans = {
+    "Starter": { amount: 100, profit: 0.10, hours: 48 },
+    "Pro": { amount: 1000, profit: 0.20, hours: 96 },
+    "Premium": { amount: 5000, profit: 0.40, hours: 120 }
+  };
+  
+  const plan = plans[userData.plan];
+  if (!plan) return;
+  
+  const investTime = userData.investTime || 0;
+  const now = Date.now();
+  const hoursPassed = (now - investTime) / (1000 * 60 * 60);
+  
+  if (hoursPassed >= plan.hours) {
+    // Profit is ready!
+    const profitAmount = plan.amount * plan.profit;
+    const totalReturn = plan.amount + profitAmount;
+    
+    if (confirm(`🎉 Your ${userData.plan} investment is complete!\n\nInvested: $${plan.amount}\nProfit: $${profitAmount.toFixed(2)}\nTotal Return: $${totalReturn.toFixed(2)}\n\nClaim now?`)) {
+      // Add profit to balance
+      const newBalance = (userData.balance || 0) + totalReturn;
+      
+      await update(ref(db, 'users/' + currentUsername), {
+        balance: newBalance,
+        plan: "None",
+        investTime: null,
+        investAmount: null
+      });
+      
+      userData.balance = newBalance;
+      userData.plan = "None";
+      userData.investTime = null;
+      userData.investAmount = null;
+      
+      await updateUI();
+      alert("✅ Profit claimed successfully!");
+    }
+  } else {
+    const hoursLeft = Math.ceil(plan.hours - hoursPassed);
+    const profitAmount = plan.amount * plan.profit;
+    alert(`⏳ Investment still running...\n\nPlan: ${userData.plan}\nInvested: $${plan.amount}\nExpected Profit: $${profitAmount.toFixed(2)}\nTime left: ${hoursLeft} hours\n\nCome back later to claim profit!`);
+  }
+}
+
+// Add click handler to investment status
+document.getElementById("investStatus").onclick = checkProfit;
 
 /////////////////////////////////////////////////////
 // STATUS
@@ -254,7 +353,7 @@ async function goInvest(plan) {
 function updateInvestmentStatus() {
   let el = document.getElementById("investStatus");
   if (userData.plan && userData.plan !== "None") {
-    el.innerText = "🟢 Active (" + userData.plan + ")";
+    el.innerText = "🟢 Active (" + userData.plan + ") - Click to check";
     el.style.color = "green";
   } else {
     el.innerText = "🔴 No Investment";
@@ -309,4 +408,4 @@ window.logout = logout;
 </script>
 </body>
   </html>
-  
+
