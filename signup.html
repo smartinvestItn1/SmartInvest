@@ -5,11 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign Up</title>
   <link rel="stylesheet" href="style.css">
+  
+  <!-- Prevent back button after logout -->
+  <script>
+    if (window.history && window.history.pushState) {
+      window.history.pushState(null, null, window.location.href);
+      window.onpopstate = function() {
+        window.history.pushState(null, null, window.location.href);
+      };
+    }
+  </script>
 </head>
 <body>
 
 <div class="container">
-  <button onclick="window.location.href='index.html'">🏠 Home</button>
+  <button onclick="goHome()">🏠 Home</button>
   
   <form id="signupForm">
     <h2>Create Account</h2>
@@ -21,7 +31,7 @@
     <p id="result" style="color:red; font-weight:bold; margin-top:10px;"></p>
   </form>
   
-  <p onclick="window.location.href='login.html'" style="color:blue; text-decoration:underline; cursor:pointer;">
+  <p onclick="goLogin()" style="color:blue; text-decoration:underline; cursor:pointer;">
     Already have an account? Login
   </p>
 </div>
@@ -59,7 +69,6 @@ document.getElementById("signupForm").onsubmit = async function(event) {
   result.innerText = "Creating account...";
   
   try {
-    // Check if username exists
     const userSnapshot = await get(ref(db, 'users/' + username));
     if (userSnapshot.exists()) {
       result.style.color = "red";
@@ -67,13 +76,11 @@ document.getElementById("signupForm").onsubmit = async function(event) {
       return false;
     }
     
-    // Create Firebase Auth user
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     
     result.innerText = "Saving your data...";
     
-    // ✅ FIXED: Only ONE set() with admin check!
     await set(ref(db, 'users/' + username), {
       uid: user.uid,
       username: username,
@@ -83,7 +90,7 @@ document.getElementById("signupForm").onsubmit = async function(event) {
       plan: "None",
       wallet: "",
       image: "",
-      role: username === "admin" ? "admin" : "user", // ✅ Auto admin!
+      role: username === "admin" ? "admin" : "user",
       createdAt: Date.now()
     });
     
@@ -91,7 +98,7 @@ document.getElementById("signupForm").onsubmit = async function(event) {
     result.innerText = "✅ Account created! Redirecting...";
     
     setTimeout(() => {
-      window.location.href = "login.html";
+      window.location.replace("login.html");
     }, 1300);
     
   } catch (error) {
@@ -112,6 +119,11 @@ document.getElementById("signupForm").onsubmit = async function(event) {
   
   return false;
 };
+
+function goHome() { window.location.replace("index.html"); }
+function goLogin() { window.location.replace("login.html"); }
+window.goHome = goHome;
+window.goLogin = goLogin;
 </script>
 
 </body>
