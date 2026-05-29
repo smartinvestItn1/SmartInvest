@@ -60,9 +60,9 @@
 
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { ref, get, update, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// ✅ AUTH CHECK: Kick out non-logged-in or non-admin users
+// ✅ AUTH CHECK
 onAuthStateChanged(auth, (user) => {
   if (!user) {
     window.location.replace("login.html");
@@ -87,7 +87,6 @@ let users = [];
 let deposits = [];
 let withdrawals = [];
 let investments = [];
-let notifications = [];
 
 let filterStatus = "all";
 
@@ -97,16 +96,33 @@ let filterStatus = "all";
 
 async function loadData() {
   try {
+    // Load users
     const usersSnap = await get(ref(db, 'users'));
+    users = [];
     if (usersSnap.exists()) {
-      users = [];
       usersSnap.forEach((childSnap) => {
         users.push({ username: childSnap.key, ...childSnap.val() });
       });
     }
     
+    // Load deposits
+    const depSnap = await get(ref(db, 'deposits'));
     deposits = [];
+    if (depSnap.exists()) {
+      depSnap.forEach((childSnap) => {
+        deposits.push({ id: childSnap.key, ...childSnap.val() });
+      });
+    }
+    
+    // Load withdrawals
+    const witSnap = await get(ref(db, 'withdrawals'));
     withdrawals = [];
+    if (witSnap.exists()) {
+      witSnap.forEach((childSnap) => {
+        withdrawals.push({ id: childSnap.key, ...childSnap.val() });
+      });
+    }
+    
     investments = [];
     
     renderAll();
@@ -117,15 +133,12 @@ async function loadData() {
 }
 
 /////////////////////////////////////////////////////
-// USERS (WITH WALLET DISPLAY!)
+// USERS (WITH WALLET)
 /////////////////////////////////////////////////////
 
 function loadUsers() {
   let search = document.getElementById("searchUser").value.toLowerCase();
-
-  let filtered = users.filter(u =>
-    (u.username || "").toLowerCase().includes(search)
-  );
+  let filtered = users.filter(u => (u.username || "").toLowerCase().includes(search));
 
   document.getElementById("usersList").innerHTML =
     filtered.map(u => `
@@ -135,44 +148,175 @@ function loadUsers() {
         <p>💰 Balance: $${Number(u.balance || 0).toFixed(2)}</p>
         <p>🏷️ Role: ${u.role || 'user'}</p>
         <p>💼 Wallet: ${u.wallet ? '<span style="color:green; font-weight:bold; word-break:break-all;">' + u.wallet + '</span>' : '<span style="color:red;">❌ Not set</span>'}</p>
-        <p>📅 Joined: ${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'N/A'}</p>
       </div>
     `).join("");
 }
 
 /////////////////////////////////////////////////////
-// DEPOSITS
+// DEPOSITS (WITH APPROVE/REJECT BUTTONS!)
 /////////////////////////////////////////////////////
 
 function loadDeposits() {
-  document.getElementById("depositList").innerHTML = 
-    deposits.length === 0 ? 
-    '<p>No deposits yet.</p>' :
-    deposits.map(d => `
-      <div class="card">
-        <p><b>User:</b> ${d.user}</p>
-        <p>Amount: $${d.amount}</p>
-        <p>Status: ${d.status}</p>
+  let list = deposits.filter(d => filterStatus === "all" ? true : d.status === filterStatus);
+
+  document.getElementById("depositList").innerHTML =
+    list.length === 0 ? '<p>No deposits found.</p>' :
+    list.map(d => `
+      <div class="card" style="margin-bottom:15px; padding:15px; border:1px solid #ddd; border-radius:8px;">
+        <p><b>👤 User:</b> ${d.user}</p>
+        <p><b>💰 Amount:</b> $${d.amount}</p>
+        <p><b>🪙 Coin:</b> ${d.coin}</p>
+        <p><b>📊 Status:</b> <span style="color:${d.status === 'approved' ? 'green' : d.status === 'rejected' ? 'red' : 'orange'}; font-weight:bold;">${d.status.toUpperCase()}</span></p>
+        <p><b>📅 Time:</b> ${new Date(d.time).toLocaleString()}</p>
+        
+        ${d.status === "pending" ? `
+          <button onclick="approveDeposit('${d.id}', '${d.user}', ${d.amount})" style="background:green; color:white; padding:8px 15px; margin-right:10px; border:none; border-radius:5px;">✅ Approve</button>
+          <button onclick="rejectDeposit('${d.id}')" style="background:red; color:white; padding:8px 15px; border:none; border-radius:5px;">❌ Reject</button>
+        ` : ""}
       </div>
     `).join("");
 }
 
 /////////////////////////////////////////////////////
-// WITHDRAWALS
+// APPROVE DEPOSIT (ADDS TO USER BALANCE!)
+/////////////////////////////////////////////////////
+
+window.approveDeposit = async function(depositId, username, amount) {
+  if (!confirm(`Approve deposit of $${amount} for ${username}?`)) return;
+  
+  try {
+    // 1. Update deposit status to "approved"
+    await update(ref(db, 'deposits/' + depositId), {
+      status: "approved"
+    });
+    
+    // 2. Add amount to user's balance
+    const userSnap = await get(ref(db, 'users/' + username));
+    if (userSnap.exists()) {
+      let currentBalance = userSnap.val().balance || 0;
+      let newBalance = currentBalance + Number(amount);
+      
+      await update(ref(db, 'users/' + username), {
+        balance: newBalance
+      });
+    }
+    
+    alert(`✅ Deposit approved! $${amount} added to ${username}'s balance.`);
+    loadData(); // Refresh data
+    
+  } catch (error) {
+    alert("Error approving deposit: " + error.message);
+    console.error(error);
+  }
+};
+
+/////////////////////////////////////////////////////
+// REJECT DEPOSIT
+/////////////////////////////////////////////////////
+
+window.rejectDeposit = async function(depositId) {
+  if (!confirm("Reject this deposit?")) return;
+  
+  try {
+    await update(ref(db, 'deposits/' + depositId), {
+      status: "rejected"
+    });
+    
+    alert("❌ Deposit rejected.");
+    loadData(); // Refresh data
+    
+  } catch (error) {
+    alert("Error rejecting deposit: " + error.message);
+    console.error(error);
+  }
+};
+
+/////////////////////////////////////////////////////
+// WITHDRAWALS (WITH APPROVE/REJECT)
 /////////////////////////////////////////////////////
 
 function loadWithdrawals() {
-  document.getElementById("withdrawList").innerHTML = 
-    withdrawals.length === 0 ? 
-    '<p>No withdrawals yet.</p>' :
-    withdrawals.map(w => `
-      <div class="card">
-        <p><b>User:</b> ${w.user}</p>
-        <p>Amount: $${w.amount}</p>
-        <p>Status: ${w.status}</p>
+  let list = withdrawals.filter(w => filterStatus === "all" ? true : w.status === filterStatus);
+
+  document.getElementById("withdrawList").innerHTML =
+    list.length === 0 ? '<p>No withdrawals found.</p>' :
+    list.map(w => `
+      <div class="card" style="margin-bottom:15px; padding:15px; border:1px solid #ddd; border-radius:8px;">
+        <p><b>👤 User:</b> ${w.user}</p>
+        <p><b>💰 Amount:</b> $${w.amount}</p>
+        <p><b>💼 Wallet:</b> ${w.wallet}</p>
+        <p><b>📊 Status:</b> <span style="color:${w.status === 'approved' ? 'green' : w.status === 'rejected' ? 'red' : 'orange'}; font-weight:bold;">${w.status.toUpperCase()}</span></p>
+        <p><b>📅 Time:</b> ${new Date(w.time).toLocaleString()}</p>
+        
+        ${w.status === "pending" ? `
+          <button onclick="approveWithdraw('${w.id}', '${w.user}', ${w.amount})" style="background:green; color:white; padding:8px 15px; margin-right:10px; border:none; border-radius:5px;">✅ Approve</button>
+          <button onclick="rejectWithdraw('${w.id}')" style="background:red; color:white; padding:8px 15px; border:none; border-radius:5px;">❌ Reject</button>
+        ` : ""}
       </div>
     `).join("");
 }
+
+/////////////////////////////////////////////////////
+// APPROVE WITHDRAWAL (DEDUCTS FROM BALANCE)
+/////////////////////////////////////////////////////
+
+window.approveWithdraw = async function(withdrawId, username, amount) {
+  if (!confirm(`Approve withdrawal of $${amount} for ${username}?`)) return;
+  
+  try {
+    // Check user balance first
+    const userSnap = await get(ref(db, 'users/' + username));
+    if (!userSnap.exists()) {
+      alert("User not found!");
+      return;
+    }
+    
+    let currentBalance = userSnap.val().balance || 0;
+    if (currentBalance < amount) {
+      alert("❌ Insufficient balance! User doesn't have enough funds.");
+      return;
+    }
+    
+    // 1. Update withdrawal status to "approved"
+    await update(ref(db, 'withdrawals/' + withdrawId), {
+      status: "approved"
+    });
+    
+    // 2. Deduct amount from user's balance
+    let newBalance = currentBalance - Number(amount);
+    await update(ref(db, 'users/' + username), {
+      balance: newBalance
+    });
+    
+    alert(`✅ Withdrawal approved! $${amount} deducted from ${username}'s balance.`);
+    loadData(); // Refresh data
+    
+  } catch (error) {
+    alert("Error approving withdrawal: " + error.message);
+    console.error(error);
+  }
+};
+
+/////////////////////////////////////////////////////
+// REJECT WITHDRAWAL
+/////////////////////////////////////////////////////
+
+window.rejectWithdraw = async function(withdrawId) {
+  if (!confirm("Reject this withdrawal?")) return;
+  
+  try {
+    await update(ref(db, 'withdrawals/' + withdrawId), {
+      status: "rejected"
+    });
+    
+    alert("❌ Withdrawal rejected.");
+    loadData(); // Refresh data
+    
+  } catch (error) {
+    alert("Error rejecting withdrawal: " + error.message);
+    console.error(error);
+  }
+};
 
 /////////////////////////////////////////////////////
 // INVESTMENTS
@@ -203,7 +347,7 @@ function setFilter(status) {
 }
 
 /////////////////////////////////////////////////////
-// LOGOUT (USES REPLACE!)
+// LOGOUT
 /////////////////////////////////////////////////////
 
 async function logout() {
@@ -227,7 +371,6 @@ function renderAll() {
   loadWithdrawals();
 }
 
-window.loadUsers = loadUsers;
 window.setFilter = setFilter;
 window.logout = logout;
 
