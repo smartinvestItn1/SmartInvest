@@ -1,78 +1,119 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>History</title>
   <link rel="stylesheet" href="style.css">
+  
+  <!-- Prevent back button after logout -->
+  <script>
+    if (window.history && window.history.pushState) {
+      window.history.pushState(null, null, window.location.href);
+      window.onpopstate = function() {
+        window.history.pushState(null, null, window.location.href);
+      };
+    }
+  </script>
 </head>
 
 <body>
 
 <div class="container">
   <h2>Transaction History</h2>
-  <div id="historyList"></div>
+  <div id="historyList">Loading...</div>
   <button onclick="goBack()">Back</button>
 </div>
 
 <script type="module">
 
-import { db } from "./firebase.js";
-import {
-  collection,
-  getDocs
-} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { auth, db } from "./firebase.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 /////////////////////////////////////////////////////
-// CURRENT USER
+// AUTH CHECK
 /////////////////////////////////////////////////////
 
-let user = sessionStorage.getItem("loggedInUser");
+let currentUsername = null;
 
-if (!user) {
-  window.location.href = "login.html";
-}
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.replace("login.html");
+    return;
+  }
+  
+  currentUsername = sessionStorage.getItem("loggedInUser");
+  if (!currentUsername) {
+    window.location.replace("login.html");
+    return;
+  }
+  
+  // Load history after auth confirmed
+  loadHistory();
+});
 
 /////////////////////////////////////////////////////
-// LOAD HISTORY FROM FIREBASE
+// LOAD HISTORY FROM REALTIME DATABASE
 /////////////////////////////////////////////////////
 
 async function loadHistory() {
-
-  const depSnap = await getDocs(collection(db, "deposits"));
-  const witSnap = await getDocs(collection(db, "withdrawals"));
-
-  let deposits = depSnap.docs.map(d => d.data());
-  let withdrawals = witSnap.docs.map(d => d.data());
-
-  let history = [];
-
-  // convert deposits
-  deposits.forEach(d => {
-    if (d.user === user) {
-      history.push({
-        type: "deposit",
-        status: d.status,
-        amount: d.amount,
-        time: d.time
+  const list = document.getElementById("historyList");
+  
+  try {
+    list.innerText = "Loading history...";
+    
+    // Get deposits
+    const depSnap = await get(ref(db, 'deposits'));
+    let deposits = [];
+    if (depSnap.exists()) {
+      depSnap.forEach((childSnap) => {
+        deposits.push(childSnap.val());
       });
     }
-  });
-
-  // convert withdrawals
-  withdrawals.forEach(w => {
-    if (w.user === user) {
-      history.push({
-        type: "withdrawal",
-        status: w.status,
-        amount: w.amount,
-        time: w.time,
-        wallet: w.wallet
+    
+    // Get withdrawals
+    const witSnap = await get(ref(db, 'withdrawals'));
+    let withdrawals = [];
+    if (witSnap.exists()) {
+      witSnap.forEach((childSnap) => {
+        withdrawals.push(childSnap.val());
       });
     }
-  });
-
-  render(history);
+    
+    let history = [];
+    
+    // Add deposits
+    deposits.forEach(d => {
+      if (d.user === currentUsername) {
+        history.push({
+          type: "deposit",
+          status: d.status,
+          amount: d.amount,
+          time: d.time
+        });
+      }
+    });
+    
+    // Add withdrawals
+    withdrawals.forEach(w => {
+      if (w.user === currentUsername) {
+        history.push({
+          type: "withdrawal",
+          status: w.status,
+          amount: w.amount,
+          time: w.time,
+          wallet: w.wallet
+        });
+      }
+    });
+    
+    render(history);
+    
+  } catch (err) {
+    list.innerHTML = "<p style='color:red'>Error loading history</p>";
+    console.error(err);
+  }
 }
 
 /////////////////////////////////////////////////////
@@ -80,7 +121,6 @@ async function loadHistory() {
 /////////////////////////////////////////////////////
 
 function render(history) {
-
   let list = document.getElementById("historyList");
   list.innerHTML = "";
 
@@ -89,25 +129,27 @@ function render(history) {
     return;
   }
 
-  history.reverse().forEach(item => {
+  // Sort by time (newest first)
+  history.sort((a, b) => b.time - a.time);
 
+  history.forEach(item => {
     let div = document.createElement("div");
     div.classList.add("card");
+    div.style.marginBottom = "10px";
+    div.style.padding = "15px";
+    div.style.border = "1px solid #ddd";
+    div.style.borderRadius = "8px";
 
-    let color =
-      item.type === "deposit" ? "green" :
-      item.type === "withdrawal" ? "red" : "black";
+    let color = item.type === "deposit" ? "green" : "red";
+    let icon = item.type === "deposit" ? "⬇️" : "⬆️";
 
     div.innerHTML = `
-      <h4 style="color:${color}">
-        ${item.type.toUpperCase()} - ${item.status.toUpperCase()}
+      <h4 style="color:${color}; margin:0 0 10px 0;">
+        ${icon} ${item.type.toUpperCase()} - ${item.status.toUpperCase()}
       </h4>
-
-      <p><b>Amount:</b> ${item.amount || 0} USDT</p>
-
-      ${item.wallet ? `<p><b>Wallet:</b> ${item.wallet}</p>` : ""}
-
-      <p><small>${new Date(item.time).toLocaleString()}</small></p>
+      <p style="margin:5px 0;"><b>Amount:</b> $${item.amount || 0}</p>
+      ${item.wallet ? `<p style="margin:5px 0;"><b>Wallet:</b> ${item.wallet}</p>` : ""}
+      <p style="margin:5px 0; color:#666;"><small>${new Date(item.time).toLocaleString()}</small></p>
     `;
 
     list.appendChild(div);
@@ -115,18 +157,16 @@ function render(history) {
 }
 
 /////////////////////////////////////////////////////
-// NAVIGATION
+// NAVIGATION (USES REPLACE!)
 /////////////////////////////////////////////////////
 
 function goBack() {
-  window.location.href = "dashboard.html";
+  window.location.replace("dashboard.html");
 }
 
 window.goBack = goBack;
 
-loadHistory();
-
 </script>
-<script type="module" src="firebase.js"></script>
+
 </body>
 </html>
