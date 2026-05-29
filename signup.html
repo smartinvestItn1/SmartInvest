@@ -92,7 +92,7 @@ document.getElementById("signupForm").onsubmit = async function(event) {
     
     setTimeout(() => {
       window.location.href = "login.html";
-    }, 1500);
+    }, 1300);
     
   } catch (error) {
     result.style.color = "red";
@@ -112,6 +112,20 @@ document.getElementById("signupForm").onsubmit = async function(event) {
   
   return false;
 };
+  // In signup.html, when saving to database:
+await set(ref(db, 'users/' + username), {
+  uid: user.uid,
+  username: username,
+  email: email,
+  balance: 0,
+  pending: 0,
+  plan: "None",
+  wallet: "",
+  image: "",
+  role: username === "admin" ? "admin" : "user", // Auto admin!
+  createdAt: Date.now()
+});
+      
 </script>
 
 </body>
