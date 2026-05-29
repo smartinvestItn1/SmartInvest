@@ -81,6 +81,15 @@ async function loadHistory() {
       });
     }
     
+    // ✅ GET INVESTMENTS!
+    const invSnap = await get(ref(db, 'investments'));
+    let investments = [];
+    if (invSnap.exists()) {
+      invSnap.forEach((childSnap) => {
+        investments.push(childSnap.val());
+      });
+    }
+    
     let history = [];
     
     // Add deposits
@@ -108,6 +117,21 @@ async function loadHistory() {
       }
     });
     
+    // ✅ ADD INVESTMENTS TO HISTORY!
+    investments.forEach(i => {
+      if (i.user === currentUsername) {
+        history.push({
+          type: "investment",
+          status: i.status,
+          amount: i.amount,
+          time: i.investTime,
+          plan: i.plan,
+          profit: (i.amount * i.profitPercent).toFixed(2),
+          hours: i.hours
+        });
+      }
+    });
+    
     render(history);
     
   } catch (err) {
@@ -117,7 +141,7 @@ async function loadHistory() {
 }
 
 /////////////////////////////////////////////////////
-// RENDER UI
+// RENDER UI (WITH INVESTMENTS!)
 /////////////////////////////////////////////////////
 
 function render(history) {
@@ -140,8 +164,27 @@ function render(history) {
     div.style.border = "1px solid #ddd";
     div.style.borderRadius = "8px";
 
-    let color = item.type === "deposit" ? "green" : "red";
-    let icon = item.type === "deposit" ? "⬇️" : "⬆️";
+    // ✅ COLORS FOR ALL TYPES
+    let color = 
+      item.type === "deposit" ? "green" :
+      item.type === "withdrawal" ? "red" :
+      item.type === "investment" ? "blue" : "black";
+
+    // ✅ ICONS FOR ALL TYPES
+    let icon = 
+      item.type === "deposit" ? "⬇️" :
+      item.type === "withdrawal" ? "⬆️" :
+      item.type === "investment" ? "📈" : "💰";
+
+    // ✅ EXTRA INFO FOR INVESTMENTS
+    let extraInfo = "";
+    if (item.type === "investment") {
+      extraInfo = `
+        <p style="margin:5px 0;"><b>Plan:</b> ${item.plan}</p>
+        <p style="margin:5px 0;"><b>Expected Profit:</b> $${item.profit}</p>
+        <p style="margin:5px 0;"><b>Duration:</b> ${item.hours} hours</p>
+      `;
+    }
 
     div.innerHTML = `
       <h4 style="color:${color}; margin:0 0 10px 0;">
@@ -149,6 +192,7 @@ function render(history) {
       </h4>
       <p style="margin:5px 0;"><b>Amount:</b> $${item.amount || 0}</p>
       ${item.wallet ? `<p style="margin:5px 0;"><b>Wallet:</b> ${item.wallet}</p>` : ""}
+      ${extraInfo}
       <p style="margin:5px 0; color:#666;"><small>${new Date(item.time).toLocaleString()}</small></p>
     `;
 
