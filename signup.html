@@ -73,7 +73,7 @@ document.getElementById("signupForm").onsubmit = async function(event) {
     
     result.innerText = "Saving your data...";
     
-    // Save to Realtime Database
+    // ✅ FIXED: Only ONE set() with admin check!
     await set(ref(db, 'users/' + username), {
       uid: user.uid,
       username: username,
@@ -83,7 +83,7 @@ document.getElementById("signupForm").onsubmit = async function(event) {
       plan: "None",
       wallet: "",
       image: "",
-      role: "user",
+      role: username === "admin" ? "admin" : "user", // ✅ Auto admin!
       createdAt: Date.now()
     });
     
@@ -112,20 +112,6 @@ document.getElementById("signupForm").onsubmit = async function(event) {
   
   return false;
 };
-  // In signup.html, when saving to database:
-await set(ref(db, 'users/' + username), {
-  uid: user.uid,
-  username: username,
-  email: email,
-  balance: 0,
-  pending: 0,
-  plan: "None",
-  wallet: "",
-  image: "",
-  role: username === "admin" ? "admin" : "user", // Auto admin!
-  createdAt: Date.now()
-});
-      
 </script>
 
 </body>
