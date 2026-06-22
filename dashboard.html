@@ -125,63 +125,53 @@ body {
 /* ===== INVEST STATUS ===== */
   #investStatus{
   cursor:pointer;
-  text-decoration:underline;
-  color:#aaa;
-  transition:0.3s ease;
-}
+  text-decoration:none;
+  border-bottom: 1px dashed rgba(255,255,255,0.2);
+  }
 
-/* ===== GOOD (GREEN ACTIVE) ===== */
+/* ===== GREEN (INVESTMENT ACTIVE) ===== */
 #investStatus.good{
   color:#00c851;
-  text-shadow:0 0 10px rgba(0,200,81,.6);
-  animation:glowGreen 1.6s infinite;
+  font-weight:bold;
+  text-shadow:
+    0 0 8px rgba(0,200,81,.8),
+    0 0 20px rgba(0,200,81,.6);
+  animation:greenGlow 1.5s infinite;
 }
 
-/* ===== BAD (RED BLOCKED) ===== */
+/* ===== RED (NO INVESTMENT) ===== */
 #investStatus.bad{
   color:#ff4444;
-  text-shadow:0 0 10px rgba(255,68,68,.6);
-  animation:glowRed 1.2s infinite;
+  font-weight:bold;
+  text-shadow:
+    0 0 8px rgba(255,68,68,.8),
+    0 0 20px rgba(255,68,68,.6);
+  animation:redGlow 1.5s infinite;
 }
 
-/* ===== NORMAL BLACK DIM STATE ===== */
-#investStatus.dim{
-  color:#555;
-  text-shadow:none;
-  opacity:0.6;
-}
-
-/* GREEN PULSE */
-@keyframes glowGreen{
-  0%{
+/* ===== GREEN PULSE ===== */
+@keyframes greenGlow{
+  0%,100%{
     opacity:1;
-    text-shadow:0 0 5px rgba(0,200,81,.4);
+    text-shadow:0 0 8px rgba(0,200,81,.6);
   }
   50%{
-    opacity:0.5;
-    text-shadow:0 0 18px rgba(0,200,81,1);
-  }
-  100%{
-    opacity:1;
-    text-shadow:0 0 5px rgba(0,200,81,.4);
+    opacity:0.6;
+    text-shadow:0 0 25px rgba(0,200,81,1);
   }
 }
 
-/* RED PULSE */
-@keyframes glowRed{
-  0%{
+/* ===== RED PULSE ===== */
+@keyframes redGlow{
+  0%,100%{
     opacity:1;
-    text-shadow:0 0 5px rgba(255,68,68,.4);
+    text-shadow:0 0 8px rgba(255,68,68,.6);
   }
   50%{
-    opacity:0.5;
-    text-shadow:0 0 18px rgba(255,68,68,1);
+    opacity:0.6;
+    text-shadow:0 0 25px rgba(255,68,68,1);
   }
-  100%{
-    opacity:1;
-    text-shadow:0 0 5px rgba(255,68,68,.4);
   }
-}
 
 /* ===== GRID ===== */
 .grid {
@@ -1015,18 +1005,17 @@ document.getElementById("investStatus").onclick = checkProfit;
 function updateInvestmentStatus() {
   let el = document.getElementById("investStatus");
 
-  if (!el) return;
+  // reset both states first
+  el.classList.remove("good", "bad");
 
   if (userData.plan && userData.plan !== "None") {
-    el.innerText = `🟢 Active (${userData.plan}) - Click to check`;
-    el.classList.add("plan-active");
-    el.classList.remove("plan-inactive");
+    el.innerText = `🟢 Active (${userData.plan})`;
+    el.classList.add("good");   // 🟢 GREEN GLOW
   } else {
     el.innerText = "🔴 No Investment";
-    el.classList.add("plan-inactive");
-    el.classList.remove("plan-active");
+    el.classList.add("bad");    // 🔴 RED GLOW
   }
-    }
+}
 function goDeposit() { window.location.href = "deposit.html"; }
 function goWithdraw() { window.location.href = "withdraw.html"; }
 function goTransfer() { window.location.href = "transfer.html"; }
