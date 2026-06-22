@@ -5,6 +5,276 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SmartInvest</title>
   <link rel="stylesheet" href="style.css">
+  
+  <style>
+    /* DARK THEME */
+    body {
+      background: #0f0f1a;
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    
+    /* MENU BUTTON */
+    .menuBtn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1000;
+      background: #1a1a2e;
+      border: 1px solid #2a2a4e;
+      color: white;
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 20px;
+      transition: 0.3s;
+    }
+    
+    .menuBtn:hover {
+      background: #2a2a4e;
+    }
+    
+    /* SIDEBAR */
+    .sideBar {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 250px;
+      height: 100%;
+      background: #1a1a2e;
+      border-right: 1px solid #2a2a4e;
+      padding: 80px 20px 20px 20px;
+      transition: 0.3s;
+      z-index: 999;
+    }
+    
+    .sideBar.active {
+      left: 0;
+    }
+    
+    .sideBar h3 {
+      color: #ffbb33;
+      margin-bottom: 20px;
+    }
+    
+    .sideBar button {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      margin-bottom: 10px;
+      background: #0f3460;
+      border: 1px solid #2a2a4e;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    
+    .sideBar button:hover {
+      background: #33b5e5;
+    }
+    
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 80px 20px 60px 20px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%);
+    }
+    
+    .hero .avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin-bottom: 20px;
+      border: 3px solid #ffbb33;
+    }
+    
+    .hero h1 {
+      font-size: 42px;
+      margin: 0;
+      background: linear-gradient(135deg, #ffbb33, #ff8800);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .hero p {
+      color: #888;
+      font-size: 18px;
+      margin: 15px 0 30px 0;
+    }
+    
+    .btn {
+      padding: 15px 30px;
+      border-radius: 12px;
+      border: none;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 5px;
+      transition: 0.3s;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #00c851, #00b248);
+      color: white;
+    }
+    
+    .btn-secondary {
+      background: transparent;
+      border: 2px solid #ffbb33;
+      color: #ffbb33;
+    }
+    
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    }
+    
+    /* SECTIONS */
+    .section {
+      padding: 60px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .section h2 {
+      text-align: center;
+      color: white;
+      font-size: 32px;
+      margin-bottom: 40px;
+    }
+    
+    /* CARDS */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    
+    .card {
+      background: #1a1a2e;
+      border-radius: 16px;
+      padding: 30px;
+      border: 1px solid #2a2a4e;
+      text-align: center;
+      transition: 0.3s;
+    }
+    
+    .card:hover {
+      border-color: #ffbb33;
+      transform: translateY(-5px);
+    }
+    
+    .card h3 {
+      color: #ffbb33;
+      margin: 0 0 15px 0;
+      font-size: 20px;
+    }
+    
+    .card p {
+      color: #888;
+      margin: 0;
+      line-height: 1.6;
+    }
+    
+    /* PLANS - WITH ANIMATIONS ADDED BACK! */
+    .plan {
+      background: #1a1a2e;
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 20px;
+      border: 1px solid #2a2a4e;
+      cursor: pointer;
+      transition: 0.3s;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(50px);
+    }
+    
+    /* ANIMATION CLASSES - ADDED BACK! */
+    .plan.show {
+      opacity: 1;
+      transform: translateY(0);
+      transition: all 0.6s ease;
+    }
+    
+    #plansSection.animate .plan:nth-child(1) {
+      transition-delay: 0s;
+    }
+    #plansSection.animate .plan:nth-child(2) {
+      transition-delay: 0.2s;
+    }
+    #plansSection.animate .plan:nth-child(3) {
+      transition-delay: 0.4s;
+    }
+    
+    .plan:hover {
+      border-color: #00c851;
+      transform: scale(1.02);
+    }
+    
+    .plan h3 {
+      color: #00c851;
+      margin: 0 0 10px 0;
+    }
+    
+    .plan p {
+      color: #888;
+      margin: 5px 0;
+    }
+    
+    /* CRYPTO WIDGET */
+    iframe {
+      border-radius: 16px;
+      margin: 20px auto;
+      display: block;
+      max-width: 95%;
+    }
+    
+    /* FOOTER */
+    .footer {
+      background: #1a1a2e;
+      border-top: 1px solid #2a2a4e;
+      padding: 60px 20px;
+      text-align: center;
+    }
+    
+    .footer-logo {
+      color: #ffbb33;
+      font-size: 28px;
+      margin: 0 0 20px 0;
+    }
+    
+    .footer-text {
+      color: #888;
+      max-width: 600px;
+      margin: 0 auto 30px auto;
+      line-height: 1.6;
+    }
+    
+    .footer-links {
+      margin-bottom: 30px;
+    }
+    
+    .footer-links a {
+      color: #aaa;
+      text-decoration: none;
+      margin: 0 15px;
+      transition: 0.3s;
+    }
+    
+    .footer-links a:hover {
+      color: #ffbb33;
+    }
+    
+    .footer-copy {
+      color: #666;
+      font-size: 14px;
+    }
+  </style>
 </head>
 
 <body>
@@ -110,7 +380,6 @@
 
     <div class="footer-links">
       <a href="index.html">Home</a>
-      <a href="login.html">Invest</a>
       <a href="contact.html">Support</a>
       <a href="terms.html">Terms</a>
     </div>
@@ -121,12 +390,11 @@
 
   </div>
 </footer>
-</div>
 
 <script>
 
 /////////////////////////////////////////////////////
-// NAVIGATION (FIXED - NO DUPLICATES)
+// NAVIGATION - EXACTLY AS YOU HAD IT
 /////////////////////////////////////////////////////
 
 function goLogin(plan = null) {
@@ -145,7 +413,7 @@ function goContact() {
 }
 
 /////////////////////////////////////////////////////
-// SIDEBAR
+// SIDEBAR - EXACTLY AS YOU HAD IT
 /////////////////////////////////////////////////////
 
 function toggleSidebar() {
@@ -153,7 +421,7 @@ function toggleSidebar() {
 }
 
 /////////////////////////////////////////////////////
-// SCROLL ANIMATION
+// SCROLL ANIMATION - EXACTLY AS YOU HAD IT
 /////////////////////////////////////////////////////
 
 window.addEventListener("scroll", function () {
@@ -167,6 +435,7 @@ window.addEventListener("scroll", function () {
     section.classList.remove("animate");
   }
 });
+
 function repeatPlansAnimation() {
   let plans = document.querySelectorAll(".plan");
 
@@ -186,8 +455,11 @@ function repeatPlansAnimation() {
 // repeat every 8 seconds
 setInterval(repeatPlansAnimation, 8000);
 
+// Initial call
+repeatPlansAnimation();
+
 /////////////////////////////////////////////////////
-// LIVE FEED SYSTEM
+// LIVE FEED SYSTEM - EXACTLY AS YOU HAD IT
 /////////////////////////////////////////////////////
 const names = [
   "Hugo","Samuel","Emmanuel","Mohamad","Zainab","Kelvin","Grace",
@@ -229,14 +501,15 @@ function showLiveProfit() {
     ${country.flag} ${name} earned $${amount} (${plan}) ⏰ ${time}
   `;
 
-  // 🎯 FLOAT RANDOM POSITION
   div.style.position = "fixed";
   div.style.left = Math.random() * 80 + "vw";
   div.style.top = Math.random() * 80 + "vh";
-  div.style.background = "white";
+  div.style.background = "#1a1a2e";
+  div.style.color = "white";
   div.style.padding = "10px";
   div.style.borderRadius = "10px";
-  div.style.boxShadow = "0 2px 10px rgba(0,0,0,0.2)";
+  div.style.border = "1px solid #2a2a4e";
+  div.style.boxShadow = "0 2px 10px rgba(0,0,0,0.5)";
   div.style.zIndex = "9999";
   div.style.fontSize = "12px";
   div.style.transition = "all 1s ease";
@@ -253,7 +526,8 @@ function showLiveProfit() {
 }
 
 setInterval(showLiveProfit, 2500);
-</script>
 
+</script>
 </body>
 </html>
+  
