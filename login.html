@@ -29,114 +29,104 @@
       align-items: center;
       justify-content: center;
     }
-    
-    .login-container {
-      width: 100%;
-      max-width: 420px;
-      padding: 20px;
-    }
-    
-    .login-card {
-      background: #1a1a2e;
-      border-radius: 20px;
-      padding: 40px;
-      border: 1px solid #2a2a4e;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-    }
-    
-    .home-btn {
-      background: transparent;
-      border: 1px solid #2a2a4e;
-      color: #aaa;
-      padding: 10px 20px;
-      border-radius: 10px;
-      cursor: pointer;
-      margin-bottom: 20px;
-      font-size: 14px;
-      transition: 0.3s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .home-btn:hover {
-      background: #2a2a4e;
-      color: white;
-    }
-    
-    .login-header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    
-    .login-header h2 {
-      color: #ffbb33;
-      margin: 0;
-      font-size: 28px;
-    }
-    
-    .login-header p {
-      color: #888;
-      margin: 10px 0 0 0;
-      font-size: 14px;
-    }
-    
-    .form-group {
-      margin-bottom: 20px;
-    }
-    
-    .form-group label {
-      display: block;
-      color: #888;
-      font-size: 12px;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    
-    .form-group input {
-      width: 100%;
-      padding: 15px;
-      border-radius: 12px;
-      border: 1px solid #333;
-      background: #0f3460;
-      color: white;
-      font-size: 16px;
-      box-sizing: border-box;
-      transition: 0.3s;
-    }
-    
-    .form-group input:focus {
-      outline: none;
-      border-color: #ffbb33;
-    }
-    
-    .form-group input::placeholder {
-      color: #666;
-    }
-    
-    .login-btn {
-      width: 100%;
-      padding: 18px;
-      border-radius: 12px;
-      border: none;
-      background: linear-gradient(135deg, #00c851, #00b248);
-      color: white;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.3s;
-      margin-top: 10px;
-    }
-    
-    .login-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 20px rgba(0, 200, 81, 0.3);
-    }
-    
-    .login-btn:active {
-      transform: translateY(0);
-    }
+    .login-card{
+  background: linear-gradient(145deg,#1a1a2e,#151525);
+  border-radius:24px;
+  padding:40px;
+  border:1px solid #2a2a4e;
+  box-shadow:
+    0 15px 40px rgba(0,0,0,.45),
+    inset 0 1px 1px rgba(255,255,255,.05);
+  backdrop-filter: blur(10px);
+}
+
+.home-btn{
+  background:#1a1a2e;
+  border:1px solid #2a2a4e;
+  color:#aaa;
+  padding:12px 20px;
+  border-radius:12px;
+  cursor:pointer;
+  margin-bottom:20px;
+  font-size:14px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  transition:.3s ease;
+}
+
+.home-btn:hover{
+  color:#fff;
+  transform:translateY(-2px);
+  box-shadow:0 0 15px rgba(255,255,255,.08);
+}
+
+.login-header{
+  text-align:center;
+  margin-bottom:30px;
+}
+
+.login-header h2{
+  color:#ffbb33;
+  margin:0;
+  font-size:30px;
+  font-weight:700;
+}
+
+.login-header p{
+  color:#888;
+  margin:10px 0 0;
+  font-size:14px;
+}
+
+.form-group input{
+  width:100%;
+  padding:15px 16px;
+  border-radius:14px;
+  border:1px solid #2a2a4e;
+  background:#0f3460;
+  color:#fff;
+  font-size:16px;
+  box-sizing:border-box;
+  transition:.3s ease;
+}
+
+.form-group input:focus{
+  outline:none;
+  border-color:#33b5e5;
+  box-shadow:0 0 15px rgba(51,181,229,.25);
+}
+
+.form-group input::placeholder{
+  color:#666;
+}
+
+.login-btn{
+  width:100%;
+  padding:18px;
+  border-radius:14px;
+  border:none;
+  background:linear-gradient(135deg,#00c851,#00b248);
+  color:#fff;
+  font-size:18px;
+  font-weight:700;
+  cursor:pointer;
+  margin-top:10px;
+  transition:.3s ease;
+
+  box-shadow:
+    0 10px 25px rgba(0,200,81,.25);
+}
+
+.login-btn:hover{
+  transform:translateY(-3px);
+  box-shadow:
+    0 15px 35px rgba(0,200,81,.4);
+}
+
+.login-btn:active{
+  transform:scale(.98);
+}
     
     #result {
       text-align: center;
