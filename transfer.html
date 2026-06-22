@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transfer</title>
+  <link rel="stylesheet" href="style.css">
+  
+  <script>
+    if (window.history && window.history.pushState) {
+      window.history.pushState(null, null, window.location.href);
+      window.onpopstate = function() {
+        window.history.pushState(null, null, window.location.href);
+      };
+    }
+  </script>
+  
+  <style>
+    body {
+      background: #0f0f1a;
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .transfer-container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .back-btn {
+      background: #1a1a2e;
+      border: 1px solid #2a2a4e;
+      color: #aaa;
+      padding: 12px 24px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+    
+    .back-btn:hover {
+      background: #2a2a4e;
+      color: white;
+    }
+    
+    .transfer-card {
+      background: #1a1a2e;
+      border-radius: 16px;
+      padding: 30px;
+      border: 1px solid #2a2a4e;
+    }
+    
+    .transfer-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .transfer-header h2 {
+      color: #33b5e5;
+      margin: 0;
+      font-size: 24px;
+    }
+    
+    .transfer-header p {
+      color: #888;
+      margin: 8px 0 0 0;
+      font-size: 14px;
+    }
+    
+    .balance-display {
+      background: #0f3460;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 25px;
+      border: 1px solid #2a2a4e;
+    }
+    
+    .balance-display h3 {
+      color: #888;
+      margin: 0 0 10px 0;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+    
+    .balance-display p {
+      color: #00c851;
+      margin: 0;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    
+    .form-group {
+      margin-bottom: 25px;
+    }
+    
+    .form-group label {
+      display: block;
+      color: #888;
+      font-size: 12px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 15px;
+      border-radius: 12px;
+      border: 1px solid #333;
+      background: #0f3460;
+      color: white;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: #33b5e5;
+    }
+    
+    .form-input::placeholder {
+      color: #666;
+    }
+    
+    .submit-btn {
+      width: 100%;
+      padding: 18px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #33b5e5, #2a9fd6);
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    
+    .submit-btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .submit-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    
+    #result {
+      text-align: center;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 20px;
+      font-weight: bold;
+      display: none;
+    }
+    
+    #result.show {
+      display: block;
+    }
+    
+    #result.success {
+      background: rgba(0, 200, 81, 0.2);
+      color: #00c851;
+      border: 1px solid #00c851;
+    }
+    
+    #result.error {
+      background: rgba(255, 68, 68, 0.2);
+      color: #ff4444;
+      border: 1px solid #ff4444;
+    }
+    
+    .info-box {
+      background: rgba(51, 181, 229, 0.1);
+      border: 1px solid #33b5e5;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 25px;
+    }
+    
+    .info-box p {
+      margin: 0;
+      color: #33b5e5;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="transfer-container">
+
+  <button class="back-btn" onclick="goBack()">⬅ Back to Dashboard</button>
+
+  <div class="transfer-card">
+    
+    <div class="transfer-header">
+      <h2>💸 Transfer</h2>
+      <p>Send money to another user</p>
+    </div>
+    
+    <div class="balance-display">
+      <h3>Your Balance</h3>
+      <p>$<span id="userBalance">0.00</span></p>
+    </div>
+    
+    <div class="info-box">
+      <p>ℹ️ Enter the recipient's Account ID and amount to transfer. Transfers are instant and cannot be reversed.</p>
+    </div>
+
+    <div class="form-group">
+      <label>Recipient Account ID</label>
+      <input id="recipientId" class="form-input" type="text" placeholder="e.g., eP240198">
+    </div>
+
+    <div class="form-group">
+      <label>Amount (USD)</label>
+      <input id="transferAmount" class="form-input" type="number" placeholder="Enter amount">
+    </div>
+
+    <button class="submit-btn" onclick="submitTransfer()">Send Money</button>
+    
+    <p id="result"></p>
+
+  </div>
+
+</div>
+
+<script type="module">
+
+import { auth, db } from "./firebase.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { ref, get, update, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+let currentUsername = null;
+let userData = null;
+let userBalance = 0;
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+  
+  currentUsername = sessionStorage.getItem("loggedInUser");
+  if (!currentUsername) {
+    window.location.href = "login.html";
+    return;
+  }
+  
+  const userSnap = await get(ref(db, 'users/' + currentUsername));
+  if (userSnap.exists()) {
+    userData = userSnap.val();
+    userBalance = userData.balance || 0;
+    document.getElementById("userBalance").innerText = userBalance.toFixed(2);
+  }
+});
+
+async function submitTransfer() {
+  let recipientId = document.getElementById("recipientId").value.trim();
+  let amount = Number(document.getElementById("transferAmount").value);
+  let result = document.getElementById("result");
+  
+  if (!recipientId) {
+    result.className = "show error";
+    result.innerText = "❌ Enter recipient Account ID";
+    return;
+  }
+  
+  if (!amount || amount <= 0) {
+    result.className = "show error";
+    result.innerText = "❌ Enter valid amount";
+    return;
+  }
+  
+  if (amount > userBalance) {
+    result.className = "show error";
+    result.innerText = `❌ Insufficient balance! You have $${userBalance.toFixed(2)}`;
+    return;
+  }
+  
+  if (recipientId === (userData.accountId || "")) {
+    result.className = "show error";
+    result.innerText = "❌ Cannot transfer to yourself";
+    return;
+  }
+  
+  try {
+    result.className = "show success";
+    result.innerText = "⏳ Processing transfer...";
+    
+    // Find recipient by account ID
+    const usersSnap = await get(ref(db, 'users'));
+    let recipientUsername = null;
+    let recipientData = null;
+    
+    usersSnap.forEach((childSnap) => {
+      let data = childSnap.val();
+      if (data.accountId === recipientId) {
+        recipientUsername = childSnap.key;
+        recipientData = data;
+      }
+    });
+    
+    if (!recipientUsername) {
+      result.className = "show error";
+      result.innerText = "❌ Account ID not found";
+      return;
+    }
+    
+    if (!confirm(`Send $${amount} to ${recipientData.username || recipientId}?\n\nThis cannot be undone.`)) {
+      result.style.display = "none";
+      return;
+    }
+    
+    // Perform transfer
+    let senderNewBalance = userBalance - amount;
+    let recipientNewBalance = (recipientData.balance || 0) + amount;
+    
+    let updates = {};
+    updates['users/' + currentUsername + '/balance'] = senderNewBalance;
+    updates['users/' + recipientUsername + '/balance'] = recipientNewBalance;
+    
+    // Save transfer record
+    let transferRecord = {
+      from: currentUsername,
+      to: recipientUsername,
+      fromAccountId: userData.accountId || "",
+      toAccountId: recipientId,
+      amount: amount,
+      timestamp: Date.now(),
+      status: "completed"
+    };
+    
+    let transferRef = push(ref(db, 'transfers'));
+    updates['transfers/' + transferRef.key] = transferRecord;
+    
+    await update(ref(db), updates);
+    
+    // Update local
+    userBalance = senderNewBalance;
+    document.getElementById("userBalance").innerText = userBalance.toFixed(2);
+    document.getElementById("recipientId").value = "";
+    document.getElementById("transferAmount").value = "";
+    
+    result.className = "show success";
+    result.innerText = `✅ Transfer successful! $${amount} sent to ${recipientData.username || recipientId}`;
+    
+  } catch (error) {
+    result.className = "show error";
+    result.innerText = "❌ Error: " + error.message;
+  }
+}
+
+function goBack() {
+  window.location.href = "dashboard.html";
+}
+
+window.goBack = goBack;
+window.submitTransfer = submitTransfer;
+
+</script>
+
+</body>
+</html>
