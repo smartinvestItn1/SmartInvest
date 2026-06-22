@@ -6,7 +6,6 @@
   <title>Withdraw</title>
   <link rel="stylesheet" href="style.css">
   
-  <!-- Prevent back button after logout -->
   <script>
     if (window.history && window.history.pushState) {
       window.history.pushState(null, null, window.location.href);
@@ -15,22 +14,228 @@
       };
     }
   </script>
+  
+  <style>
+    body {
+      background: #0f0f1a;
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .withdraw-container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .back-btn {
+      background: #1a1a2e;
+      border: 1px solid #2a2a4e;
+      color: #aaa;
+      padding: 12px 24px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+    
+    .back-btn:hover {
+      background: #2a2a4e;
+      color: white;
+    }
+    
+    .withdraw-card {
+      background: #1a1a2e;
+      border-radius: 16px;
+      padding: 30px;
+      border: 1px solid #2a2a4e;
+    }
+    
+    .withdraw-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .withdraw-header h2 {
+      color: #ff4444;
+      margin: 0;
+      font-size: 24px;
+    }
+    
+    .withdraw-header p {
+      color: #888;
+      margin: 8px 0 0 0;
+      font-size: 14px;
+    }
+    
+    .balance-display {
+      background: #0f3460;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 25px;
+      border: 1px solid #2a2a4e;
+    }
+    
+    .balance-display h3 {
+      color: #888;
+      margin: 0 0 10px 0;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+    
+    .balance-display p {
+      color: #00c851;
+      margin: 0;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    
+    .form-group {
+      margin-bottom: 25px;
+    }
+    
+    .form-group label {
+      display: block;
+      color: #888;
+      font-size: 12px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 15px;
+      border-radius: 12px;
+      border: 1px solid #333;
+      background: #0f3460;
+      color: white;
+      font-size: 16px;
+      box-sizing: border-box;
+      transition: 0.3s;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: #ff4444;
+    }
+    
+    .form-input::placeholder {
+      color: #666;
+    }
+    
+    .info-box {
+      background: rgba(255, 187, 51, 0.1);
+      border: 1px solid #ffbb33;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 25px;
+    }
+    
+    .info-box p {
+      margin: 0;
+      color: #ffbb33;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    
+    .submit-btn {
+      width: 100%;
+      padding: 18px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #ff4444, #cc0000);
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    
+    .submit-btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .submit-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    #result {
+      text-align: center;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 20px;
+      font-weight: bold;
+      display: none;
+    }
+    
+    #result.show {
+      display: block;
+    }
+    
+    #result.success {
+      background: rgba(0, 200, 81, 0.2);
+      color: #00c851;
+      border: 1px solid #00c851;
+    }
+    
+    #result.error {
+      background: rgba(255, 68, 68, 0.2);
+      color: #ff4444;
+      border: 1px solid #ff4444;
+    }
+    
+    #result.loading {
+      background: rgba(51, 181, 229, 0.2);
+      color: #33b5e5;
+      border: 1px solid #33b5e5;
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="withdraw-container">
 
-  <h2>Withdraw Funds</h2>
+  <button class="back-btn" onclick="goBack()">⬅ Back to Dashboard</button>
 
-  <input id="wallet" placeholder="Enter wallet address">
-  <input id="amount" placeholder="Enter amount">
+  <div class="withdraw-card">
+    
+    <div class="withdraw-header">
+      <h2>🏧 Withdraw Funds</h2>
+      <p>Request withdrawal to your crypto wallet</p>
+    </div>
+    
+    <div class="balance-display">
+      <h3>Your Balance</h3>
+      <p>$<span id="userBalance">0.00</span></p>
+    </div>
+    
+    <div class="info-box">
+      <p>⚠️ Minimum withdrawal: $100. Withdrawals require admin approval. Make sure your wallet address is correct.</p>
+    </div>
 
-  <button onclick="submitWithdraw()">Submit Withdrawal</button>
+    <div class="form-group">
+      <label>Wallet Address</label>
+      <input id="wallet" class="form-input" placeholder="Enter your crypto wallet address">
+    </div>
 
-  <button onclick="goBack()" class="back-btn">Back</button>
-  
-  <p id="result" style="color:green; font-weight:bold; margin-top:10px;"></p>
+    <div class="form-group">
+      <label>Amount (USDT)</label>
+      <input id="amount" class="form-input" type="number" placeholder="Min $100">
+    </div>
+
+    <button class="submit-btn" id="withdrawBtn" onclick="submitWithdraw()">Submit Withdrawal</button>
+    
+    <p id="result"></p>
+
+  </div>
 
 </div>
 
@@ -40,42 +245,52 @@ import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { ref, push, update, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-/////////////////////////////////////////////////////
-// AUTH CHECK
-/////////////////////////////////////////////////////
-
 let currentUser = null;
 let currentUsername = null;
+let userBalance = 0;
+let adminFlags = { canWithdraw: true, blockReason: "" };
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    window.location.replace("login.html");
+    window.location.href = "login.html";
     return;
   }
   
   currentUsername = sessionStorage.getItem("loggedInUser");
   if (!currentUsername) {
-    window.location.replace("login.html");
+    window.location.href = "login.html";
     return;
   }
   
-  // Load user's saved wallet if exists
   const userSnap = await get(ref(db, 'users/' + currentUsername));
-  if (userSnap.exists() && userSnap.val().wallet) {
-    document.getElementById("wallet").value = userSnap.val().wallet;
+  if (userSnap.exists()) {
+    let data = userSnap.val();
+    userBalance = data.balance || 0;
+    adminFlags = data.adminFlags || { canWithdraw: true, blockReason: "" };
+    
+    document.getElementById("userBalance").innerText = userBalance.toFixed(2);
+    
+    if (data.wallet) {
+      document.getElementById("wallet").value = data.wallet;
+    }
+    
+    if (adminFlags.canWithdraw === false) {
+      document.getElementById("withdrawBtn").disabled = true;
+      document.getElementById("withdrawBtn").title = adminFlags.blockReason || "Withdrawal disabled by admin";
+      
+      let result = document.getElementById("result");
+      result.className = "show error";
+      result.innerText = "❌ " + (adminFlags.blockReason || "Withdrawal disabled by admin");
+    }
   }
 });
-
-/////////////////////////////////////////////////////
-// SUBMIT WITHDRAWAL (REALTIME DATABASE)
-/////////////////////////////////////////////////////
 
 async function submitWithdraw() {
   const result = document.getElementById("result");
 
   if (!currentUsername) {
-    result.style.color = "red";
-    result.innerText = "Please login first!";
+    result.className = "show error";
+    result.innerText = "❌ Please login first!";
     return;
   }
 
@@ -83,54 +298,67 @@ async function submitWithdraw() {
   let amount = Number(document.getElementById("amount").value);
 
   if (!wallet || !amount || amount <= 0) {
-    result.style.color = "red";
-    result.innerText = "Enter valid details!";
+    result.className = "show error";
+    result.innerText = "❌ Enter valid wallet and amount!";
+    return;
+  }
+  
+  // MINIMUM WITHDRAWAL IS NOW $100
+  if (amount < 100) {
+    result.className = "show error";
+    result.innerText = "❌ Minimum withdrawal is $100";
+    return;
+  }
+  
+  if (amount > userBalance) {
+    result.className = "show error";
+    result.innerText = "❌ Insufficient balance! You have $" + userBalance.toFixed(2);
+    return;
+  }
+  
+  if (adminFlags.canWithdraw === false) {
+    result.className = "show error";
+    result.innerText = "❌ " + (adminFlags.blockReason || "Withdrawal disabled by admin");
     return;
   }
 
   try {
-    result.style.color = "blue";
-    result.innerText = "Submitting...";
+    result.className = "show loading";
+    result.innerText = "⏳ Submitting withdrawal...";
 
-    // Save withdrawal request to Realtime Database
     await push(ref(db, 'withdrawals'), {
       user: currentUsername,
       wallet: wallet,
       amount: amount,
       status: "pending",
+      type: "withdraw",
       time: Date.now()
     });
 
-    // Also save wallet to user profile in Realtime Database
     await update(ref(db, 'users/' + currentUsername), {
       wallet: wallet
     });
 
-    result.style.color = "green";
-    result.innerText = "✅ Withdrawal submitted! Pending approval.";
+    result.className = "show success";
+    result.innerText = "✅ Withdrawal submitted! Waiting for admin approval.";
     
-    document.getElementById("wallet").value = "";
     document.getElementById("amount").value = "";
 
   } catch (err) {
-    result.style.color = "red";
-    result.innerText = "Error: " + err.message;
+    result.className = "show error";
+    result.innerText = "❌ Error: " + err.message;
     console.error(err);
   }
 }
 
-/////////////////////////////////////////////////////
-// NAVIGATION (USES REPLACE!)
-/////////////////////////////////////////////////////
-
 function goBack() {
-  window.location.replace("dashboard.html");
+  window.location.href = "dashboard.html";
 }
 
 window.submitWithdraw = submitWithdraw;
 window.goBack = goBack;
 
 </script>
-
 </body>
 </html>
+  
