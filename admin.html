@@ -47,24 +47,38 @@
       color: #888;
       margin: 10px 0 0 0;
     }
-    
-    .logout-btn {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #ff4444;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: 0.3s;
-    }
-    
-    .logout-btn:hover {
-      background: #cc0000;
-    }
+
+    .logout-btn{
+  position:fixed;
+  top:20px;
+  right:20px;
+  background:#ff4444;
+  color:#fff;
+  border:none;
+  padding:12px 24px;
+  border-radius:14px;
+  cursor:pointer;
+  font-weight:700;
+  letter-spacing:.5px;
+
+  box-shadow:
+    0 8px 20px rgba(255,68,68,.35),
+    inset 0 1px 1px rgba(255,255,255,.12);
+
+  transition:all .3s ease;
+}
+
+.logout-btn:hover{
+  background:#ff4444;
+  transform:translateY(-3px);
+  box-shadow:
+    0 14px 30px rgba(255,68,68,.45),
+    0 0 15px rgba(255,68,68,.25);
+}
+
+.logout-btn:active{
+  transform:scale(.97);
+}
     
     .section-card {
       background: #1a1a2e;
@@ -98,28 +112,34 @@
       outline: none;
       border-color: #ffbb33;
     }
-    
-    .filter-tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    
-    .filter-tab {
-      background: #0f3460;
-      border: 1px solid #2a2a4e;
-      color: #aaa;
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    
-    .filter-tab:hover, .filter-tab.active {
-      background: #33b5e5;
-      color: white;
-    }
+    .filter-tab{
+  background:#0f3460;
+  border:1px solid #2a2a4e;
+  color:#aaa;
+  padding:10px 20px;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:600;
+
+  transition:all .3s ease;
+
+  box-shadow:
+    0 4px 12px rgba(0,0,0,.25),
+    inset 0 1px 1px rgba(255,255,255,.05);
+}
+
+.filter-tab:hover{
+  transform:translateY(-2px);
+}
+
+.filter-tab.active{
+  background:#33b5e5;
+  color:#fff;
+
+  box-shadow:
+    0 0 15px rgba(51,181,229,.4),
+    0 8px 20px rgba(51,181,229,.25);
+}
     
     .user-card {
       background: #0f0f1a;
@@ -153,28 +173,45 @@
       flex-wrap: wrap;
     }
     
-    .toggle-btn {
-      padding: 10px 20px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-      transition: 0.3s;
-    }
-    
-    .toggle-btn.enabled {
-      background: #00c851;
-      color: white;
-    }
-    
-    .toggle-btn.disabled {
-      background: #ff4444;
-      color: white;
-    }
-    
-    .toggle-btn:hover {
-      transform: scale(1.05);
-    }
+    .toggle-btn{
+  padding:10px 20px;
+  border-radius:12px;
+  border:none;
+  cursor:pointer;
+  font-weight:700;
+
+  transition:all .3s ease;
+
+  box-shadow:
+    0 6px 16px rgba(0,0,0,.3),
+    inset 0 1px 1px rgba(255,255,255,.08);
+}
+
+.toggle-btn:hover{
+  transform:translateY(-3px);
+}
+
+.toggle-btn:active{
+  transform:scale(.97);
+}
+
+.toggle-btn.enabled{
+  background:#00c851;
+  color:#fff;
+
+  box-shadow:
+    0 0 15px rgba(0,200,81,.35),
+    0 8px 20px rgba(0,200,81,.25);
+}
+
+.toggle-btn.disabled{
+  background:#ff4444;
+  color:#fff;
+
+  box-shadow:
+    0 0 15px rgba(255,68,68,.35),
+    0 8px 20px rgba(255,68,68,.25);
+}
     
     .deposit-card, .withdraw-card {
       background: #0f0f1a;
@@ -210,30 +247,43 @@
       color: #ff4444;
       border: 1px solid #ff4444;
     }
+    .action-btn{
+  padding:10px 20px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:700;
+  margin-right:10px;
+
+  transition:all .3s ease;
+}
+
+.action-btn:hover{
+  transform:translateY(-3px);
+}
+
+.action-btn:active{
+  transform:scale(.97);
+}
+
+.approve-btn{
+  background:#00c851;
+  color:#fff;
+
+  box-shadow:
+    0 0 18px rgba(0,200,81,.35),
+    0 8px 20px rgba(0,200,81,.25);
+}
+
+.reject-btn{
+  background:#ff4444;
+  color:#fff;
+
+  box-shadow:
+    0 0 18px rgba(255,68,68,.35),
+    0 8px 20px rgba(255,68,68,.25);
+}
     
-    .action-btn {
-      padding: 10px 20px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-      margin-right: 10px;
-      transition: 0.3s;
-    }
-    
-    .approve-btn {
-      background: #00c851;
-      color: white;
-    }
-    
-    .reject-btn {
-      background: #ff4444;
-      color: white;
-    }
-    
-    .action-btn:hover {
-      transform: translateY(-2px);
-    }
     
     .no-data {
       text-align: center;
