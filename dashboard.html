@@ -123,10 +123,64 @@ body {
 }
 
 /* ===== INVEST STATUS ===== */
-#investStatus {
-  cursor: pointer;
-  text-decoration: underline;
-  color: #33b5e5;
+  #investStatus{
+  cursor:pointer;
+  text-decoration:underline;
+  color:#aaa;
+  transition:0.3s ease;
+}
+
+/* ===== GOOD (GREEN ACTIVE) ===== */
+#investStatus.good{
+  color:#00c851;
+  text-shadow:0 0 10px rgba(0,200,81,.6);
+  animation:glowGreen 1.6s infinite;
+}
+
+/* ===== BAD (RED BLOCKED) ===== */
+#investStatus.bad{
+  color:#ff4444;
+  text-shadow:0 0 10px rgba(255,68,68,.6);
+  animation:glowRed 1.2s infinite;
+}
+
+/* ===== NORMAL BLACK DIM STATE ===== */
+#investStatus.dim{
+  color:#555;
+  text-shadow:none;
+  opacity:0.6;
+}
+
+/* GREEN PULSE */
+@keyframes glowGreen{
+  0%{
+    opacity:1;
+    text-shadow:0 0 5px rgba(0,200,81,.4);
+  }
+  50%{
+    opacity:0.5;
+    text-shadow:0 0 18px rgba(0,200,81,1);
+  }
+  100%{
+    opacity:1;
+    text-shadow:0 0 5px rgba(0,200,81,.4);
+  }
+}
+
+/* RED PULSE */
+@keyframes glowRed{
+  0%{
+    opacity:1;
+    text-shadow:0 0 5px rgba(255,68,68,.4);
+  }
+  50%{
+    opacity:0.5;
+    text-shadow:0 0 18px rgba(255,68,68,1);
+  }
+  100%{
+    opacity:1;
+    text-shadow:0 0 5px rgba(255,68,68,.4);
+  }
 }
 
 /* ===== GRID ===== */
@@ -961,17 +1015,18 @@ document.getElementById("investStatus").onclick = checkProfit;
 function updateInvestmentStatus() {
   let el = document.getElementById("investStatus");
 
+  if (!el) return;
+
   if (userData.plan && userData.plan !== "None") {
     el.innerText = `🟢 Active (${userData.plan}) - Click to check`;
-    el.classList.remove("plan-inactive");
     el.classList.add("plan-active");
+    el.classList.remove("plan-inactive");
   } else {
     el.innerText = "🔴 No Investment";
-    el.classList.remove("plan-active");
     el.classList.add("plan-inactive");
+    el.classList.remove("plan-active");
   }
-}
-
+    }
 function goDeposit() { window.location.href = "deposit.html"; }
 function goWithdraw() { window.location.href = "withdraw.html"; }
 function goTransfer() { window.location.href = "transfer.html"; }
@@ -1008,7 +1063,7 @@ setInterval(() => {
 }, 2000);
 
 function goSupport() {
-  window.location.href = "support.html";
+  window.location.href = "contact.html";
 }
 window.goSupport = goSupport;
 window.goDeposit = goDeposit;
