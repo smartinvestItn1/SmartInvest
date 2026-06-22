@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard</title>
-<link rel="stylesheet" href="style.css">
-
 <script>
   if (window.history && window.history.pushState) {
     window.history.pushState(null, null, window.location.href);
@@ -24,15 +22,19 @@ body {
   padding: 0;
 }
 
+/* ===== HEADER ===== */
 .logo-container {
   text-align: center;
-  padding: 20px 0;
-}
-.logo-container img {
-  width: 140px;
-  height: auto;
+  padding: 18px 0;
 }
 
+.logo-container img {
+  width: 130px;
+  height: auto;
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.08));
+}
+
+/* ===== NAV ===== */
 .nav {
   display: flex;
   justify-content: center;
@@ -40,276 +42,337 @@ body {
   padding: 10px;
   flex-wrap: wrap;
 }
+.deposit-btn {
+  background: linear-gradient(135deg, #00c851, #00b248);
+}
+
+.withdraw-btn {
+  background: linear-gradient(135deg, #ff4444, #cc0000);
+}
+
+.transfer-btn {
+  background: linear-gradient(135deg, #33b5e5, #2a9fd6);
+}
+
+.invest-btn {
+  background: linear-gradient(135deg, #ffbb33, #ff8800);
+  color: black;
+}
 .nav button {
   background: #1a1a2e;
   border: 1px solid #2a2a4e;
   color: #aaa;
-  padding: 10px 20px;
-  border-radius: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: 0.3s;
-}
-.nav button:hover {
-  background: #2a2a4e;
-  color: white;
+  transition: 0.25s ease;
 }
 
+.nav button:hover {
+  background: #23233a;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* ===== TEXT ===== */
 .welcome {
   text-align: center;
-  color: white;
-  margin: 10px 0 5px 0;
+  margin: 10px 0 5px;
 }
+
 .sub {
   text-align: center;
   color: #888;
-  margin: 0 0 20px 0;
+  margin-bottom: 20px;
 }
 
+/* ===== STATUS BANNER ===== */
 .status-banner {
-  padding: 15px;
-  border-radius: 12px;
+  padding: 14px;
+  border-radius: 14px;
   margin: 15px auto;
   text-align: center;
   font-weight: bold;
-  max-width: 500px;
+  max-width: 520px;
   display: none;
+  backdrop-filter: blur(10px);
 }
+
+.status-banner.warning,
+.status-banner.success,
 .status-banner.blocked {
-  background: rgba(255, 68, 68, 0.2);
-  color: #ff4444;
-  border: 1px solid #ff4444;
-  display: block;
-}
-.status-banner.warning {
-  background: rgba(255, 187, 51, 0.2);
-  color: #ffbb33;
-  border: 1px solid #ffbb33;
-  display: block;
-}
-.status-banner.success {
-  background: rgba(0, 200, 81, 0.2);
-  color: #00c851;
-  border: 1px solid #00c851;
   display: block;
 }
 
+.status-banner.warning {
+  background: rgba(255, 187, 51, 0.12);
+  color: #ffbb33;
+  border: 1px solid rgba(255, 187, 51, 0.4);
+}
+
+.status-banner.success {
+  background: rgba(0, 200, 81, 0.12);
+  color: #00c851;
+  border: 1px solid rgba(0, 200, 81, 0.4);
+}
+
+.status-banner.blocked {
+  background: rgba(255, 68, 68, 0.12);
+  color: #ff4444;
+  border: 1px solid rgba(255, 68, 68, 0.4);
+}
+
+/* ===== INVEST STATUS ===== */
 #investStatus {
   cursor: pointer;
   text-decoration: underline;
   color: #33b5e5;
 }
 
+/* ===== GRID ===== */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
-  max-width: 800px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  max-width: 900px;
   margin: 20px auto;
-  padding: 0 20px;
+  padding: 0 16px;
 }
 
+/* ===== MAIN CARDS ===== */
 .card {
-  background: #1a1a2e;
-  border-radius: 16px;
-  padding: 25px;
+  background: linear-gradient(145deg, #1a1a2e, #151525);
   border: 1px solid #2a2a4e;
+  border-radius: 18px;
+  padding: 22px;
   text-align: center;
+  transition: 0.25s ease;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.35);
 }
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.55);
+}
+
 .card.highlight {
   border-color: #00c851;
 }
-.card h4 {
-  color: #888;
-  margin: 0 0 10px 0;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-.card h2 {
-  color: white;
-  margin: 0;
-  font-size: 28px;
-}
-.card p {
-  color: #ffbb33;
-  margin: 8px 0 0 0;
-  font-size: 14px;
+
+/* ===== PENDING BOX ===== */
+.pending-grid {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 0 16px;
 }
 
-.pending-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-  max-width: 800px;
-  margin: 20px auto;
-  padding: 0 20px;
-}
 .pending-box {
-  background: #1a1a2e;
-  border-radius: 16px;
-  padding: 25px;
+  flex: 1;
+  padding: 16px;
+  border-radius: 14px;
   text-align: center;
+  background: linear-gradient(145deg, #1a1a2e, #151525);
   border: 1px solid #2a2a4e;
 }
-.pending-box.deposit {
-  border-color: #00c851;
-}
-.pending-box.withdraw {
-  border-color: #ff4444;
-}
-.pending-box h4 {
-  color: #888;
-  margin: 0 0 10px 0;
-  font-size: 12px;
-  text-transform: uppercase;
-}
-.pending-box h2 {
-  margin: 0;
-  font-size: 24px;
-}
-.pending-box.deposit h2 {
-  color: #00c851;
-}
-.pending-box.withdraw h2 {
-  color: #ff4444;
-}
-
+/* ===== QUICK ACTIONS ===== */
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-  max-width: 500px;
-  margin: 20px auto;
-  padding: 0 20px;
+  gap: 14px;
+  max-width: 520px;
+  margin: 25px auto;
+  padding: 0 16px;
 }
+
 .action-btn {
-  padding: 25px;
+  padding: 22px;
   border-radius: 16px;
   border: none;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
   cursor: pointer;
-  transition: 0.3s;
+  transition: 0.25s ease;
   color: white;
 }
+
 .action-btn:hover {
-  transform: translateY(-3px);
-}
-.action-btn:active {
-  transform: translateY(0);
-}
-.action-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: none;
-}
-.deposit-btn {
-  background: linear-gradient(135deg, #00c851, #00b248);
-}
-.withdraw-btn {
-  background: linear-gradient(135deg, #ff4444, #cc0000);
-}
-.transfer-btn {
-  background: linear-gradient(135deg, #33b5e5, #2a9fd6);
-}
-.invest-btn {
-  background: linear-gradient(135deg, #ffbb33, #ff8800);
-  color: black;
+  transform: translateY(-4px);
 }
 
+/* ===== PLANS SCROLL CONTAINER ===== */
 .plans-display {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-  max-width: 800px;
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 25px 16px;
+  max-width: 900px;
   margin: 20px auto;
-  padding: 0 20px;
-}
-.plan-card {
-  background: #1a1a2e;
-  border-radius: 16px;
-  padding: 25px;
-  text-align: center;
-  border: 1px solid #2a2a4e;
-}
-.plan-card h3 {
-  color: #ffbb33;
-  margin: 0 0 10px 0;
-}
-.plan-card p {
-  color: #888;
-  margin: 5px 0;
-  font-size: 14px;
+  scrollbar-width: none;
 }
 
+.plans-display::-webkit-scrollbar {
+  display: none;
+}
+
+/* ===== PLAN CARD ===== */
+/* ===== PLAN CARD (BOLD / SOLID PREMIUM) ===== */
+.plan-card {
+  flex: 0 0 240px;
+  scroll-snap-align: center;
+
+  background: linear-gradient(145deg, #141427, #0f0f1f);
+  border: 2px solid #2f2f55;
+
+  border-radius: 18px;
+  padding: 22px;
+  text-align: center;
+
+  transition: all 0.35s ease;
+
+  cursor: grab;
+
+  /* stronger presence */
+  opacity: 0.75;
+  transform: scale(0.92);
+
+  /* deeper shadow = more “solid object” feel */
+  box-shadow: 
+    0 12px 30px rgba(0,0,0,0.6),
+    inset 0 0 0 1px rgba(255,255,255,0.03);
+}
+
+/* ACTIVE CENTER CARD (VERY STRONG FOCUS) */
+.plan-card.active {
+  transform: scale(1.12);
+  opacity: 1;
+
+  border: 2px solid #ffbb33;
+
+  box-shadow:
+    0 18px 45px rgba(0,0,0,0.75),
+    0 0 25px rgba(255, 187, 51, 0.25),
+    inset 0 0 0 1px rgba(255,255,255,0.05);
+
+  filter: brightness(1.15);
+}
+
+/* HOVER (SLIGHT LIFT, NOT FLOATY) */
+.plan-card:hover {
+  transform: scale(1.08);
+  opacity: 1;
+  box-shadow:
+    0 16px 38px rgba(0,0,0,0.7);
+}
+
+/* ===== BOX ===== */
 .box {
   background: #1a1a2e;
-  border-radius: 16px;
-  padding: 25px;
-  max-width: 500px;
+  border-radius: 18px;
+  padding: 22px;
+  max-width: 520px;
   margin: 20px auto;
   border: 1px solid #2a2a4e;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
 }
 
-.logout-overlay {
+/* ===== SUPPORT BUTTON ===== */
+.support-float {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.9);
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-.logout-overlay.active {
-  display: flex;
-}
-.loader {
-  width: 50px;
-  height: 50px;
-  border: 4px solid #333;
-  border-top-color: #00c851;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-@keyframes spin {
-  to { transform: rotate(360deg); }
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #000;
+  border: 1px solid #222;
+  padding: 12px 18px;
+  border-radius: 50px;
+  cursor: pointer;
+  z-index: 999;
+  animation: bounce 2s infinite;
 }
 
-.iavatar {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  display: block;
-  margin: 10px auto;
-  border: 2px solid #2a2a4e;
+.support-text {
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  animation: blinkText 1.6s infinite;
 }
 
-h2 {
-  text-align: center;
+@keyframes blinkText {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 
+@keyframes bounce {
+  0%,100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-6px); }
+}
 .id-box {
-  background: #1a1a2e;
-  border-radius: 12px;
-  padding: 15px 20px;
-  max-width: 500px;
-  margin: 15px auto;
+  background: linear-gradient(145deg, #1a1a2e, #151525);
+  border-radius: 18px;
+  padding: 18px 20px;
+  max-width: 520px;
+  margin: 20px auto;
   border: 1px solid #2a2a4e;
-  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.45);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
 }
+
+/* subtle glowing top line */
+.id-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 20%;
+  width: 60%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #33b5e5, transparent);
+  opacity: 0.6;
+}
+
+/* text layout improvement */
 .id-box p {
-  color: #888;
-  margin: 5px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #aaa;
+  margin: 10px 0;
   font-size: 13px;
+  letter-spacing: 0.3px;
 }
+
+/* label styling */
+.id-box p strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* value styling */
 .id-box span {
   color: #33b5e5;
-  font-family: monospace;
-  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  padding: 4px 10px;
+  background: rgba(51, 181, 229, 0.08);
+  border: 1px solid rgba(51, 181, 229, 0.25);
+  border-radius: 8px;
+  letter-spacing: 1px;
+}
+
+/* hover HD effect */
+.id-box:hover {
+  transform: translateY(-3px);
+  transition: 0.3s ease;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+}
+h2{
+  text-align: center;
+  color: gold;
 }
 </style>
 </head>
@@ -408,7 +471,9 @@ h2 {
   <p>✔ Account active</p>
   <p>📈 Investment running</p>
 </div>
-
+<div class="support-float" onclick="goSupport()">
+  <div class="support-text" id="supportText">💬 Contact Support</div>
+</div>
 <div id="logoutOverlay" class="logout-overlay">
   <div class="loader"></div>
   <p>Logging out...</p>
@@ -425,7 +490,7 @@ let currentUsername = null;
 let userData = null;
 let adminFlags = { canInvest: true, canWithdraw: true, blockReason: "" };
 
-const MIN_BALANCE = 1000;
+const MIN_INVEST_BALANCE = 100;
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -529,15 +594,24 @@ async function canInvest() {
   const balance = userData.balance || 0;
 
   if (adminFlags.canInvest === false) {
-    return { allowed: false, reason: adminFlags.blockReason || "Investing disabled by admin." };
+    return {
+      allowed: false,
+      reason: adminFlags.blockReason || "Investing disabled by admin."
+    };
   }
 
-  if (balance < MIN_BALANCE) {
-    return { allowed: false, reason: `Need $${MIN_BALANCE} to invest. Current: $${balance.toFixed(2)}` };
+  if (balance < MIN_INVEST_BALANCE) {
+    return {
+      allowed: false,
+      reason: `Need $${MIN_INVEST_BALANCE} to invest. Current: $${balance.toFixed(2)}`
+    };
   }
 
   if (userData.plan && userData.plan !== "None") {
-    return { allowed: false, reason: "Complete your current investment first." };
+    return {
+      allowed: false,
+      reason: "Complete your current investment first."
+    };
   }
 
   return { allowed: true };
@@ -548,12 +622,7 @@ async function canWithdraw() {
 
   if (adminFlags.canWithdraw === false) {
     return { allowed: false, reason: adminFlags.blockReason || "Withdrawal disabled by admin." };
-  }
-
-  if (balance < MIN_BALANCE) {
-    return { allowed: false, reason: `Need $${MIN_BALANCE} to withdraw. Current: $${balance.toFixed(2)}` };
-  }
-
+}
   return { allowed: true };
 }
 
@@ -584,10 +653,10 @@ async function updateButtonStates() {
   if (adminFlags.canInvest === false || adminFlags.canWithdraw === false) {
     banner.className = "status-banner warning";
     banner.innerText = `🔒 ADMIN: ${adminFlags.blockReason || "Contact support"}`;
-  } else if (balance < MIN_BALANCE) {
-    banner.className = "status-banner warning";
-    banner.innerText = `⏳ Deposit $${MIN_BALANCE - balance} more to unlock invest/withdraw`;
-  } else {
+  } else if (balance < MIN_INVEST_BALANCE) {
+  banner.className = "status-banner warning";
+  banner.innerText = `⏳ Deposit $${(MIN_INVEST_BALANCE - balance).toFixed(2)} more to unlock investing`;
+} else {
     banner.className = "status-banner success";
     banner.innerText = `✅ Account Active: You can invest and withdraw`;
   }
@@ -689,12 +758,15 @@ document.getElementById("investStatus").onclick = checkProfit;
 
 function updateInvestmentStatus() {
   let el = document.getElementById("investStatus");
+
   if (userData.plan && userData.plan !== "None") {
     el.innerText = "🟢 Active (" + userData.plan + ") - Click to check";
     el.style.color = "#00c851";
+    el.style.animation = "glowPulse 1.5s infinite";
   } else {
     el.innerText = "🔴 No Investment";
     el.style.color = "#ff4444";
+    el.style.animation = "none";
   }
 }
 
@@ -723,7 +795,44 @@ async function logout() {
     overlay.classList.remove("active");
   }
 }
+const supportText = document.getElementById("supportText");
 
+setInterval(() => {
+  if (supportText.innerText.includes("Contact")) {
+    supportText.innerText = "💬 Chat with Us";
+  } else {
+    supportText.innerText = "💬 Contact Support";
+  }
+}, 2000);
+
+function goSupport() {
+  window.location.href = "support.html";
+}
+const planContainer = document.querySelector(".plans-display");
+
+if (planContainer) {
+
+  let direction = 1;
+
+  setInterval(() => {
+
+    planContainer.scrollLeft += direction;
+
+    if (
+      planContainer.scrollLeft >=
+      planContainer.scrollWidth - planContainer.clientWidth
+    ) {
+      direction = -1; // move left
+    }
+
+    if (planContainer.scrollLeft <= 0) {
+      direction = 1; // move right
+    }
+
+  }, 20);
+
+}
+window.goSupport = goSupport;
 window.goDeposit = goDeposit;
 window.goWithdraw = goWithdraw;
 window.goTransfer = goTransfer;
@@ -732,7 +841,6 @@ window.goHome = goHome;
 window.goProfile = goProfile;
 window.goHistory = goHistory;
 window.logout = logout;
-
 </script>
 </body> 
 </html>
