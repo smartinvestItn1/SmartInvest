@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invest</title>
+  <link rel="stylesheet" href="style.css">
+  
+  <script>
+    if (window.history && window.history.pushState) {
+      window.history.pushState(null, null, window.location.href);
+      window.onpopstate = function() {
+        window.history.pushState(null, null, window.location.href);
+      };
+    }
+  </script>
+  
+  <style>
+    body {
+      background: #0f0f1a;
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .invest-container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .back-btn {
+      background: #1a1a2e;
+      border: 1px solid #2a2a4e;
+      color: #aaa;
+      padding: 12px 24px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+    
+    .back-btn:hover {
+      background: #2a2a4e;
+      color: white;
+    }
+    
+    .invest-card {
+      background: #1a1a2e;
+      border-radius: 16px;
+      padding: 30px;
+      border: 1px solid #2a2a4e;
+    }
+    
+    .invest-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .invest-header h2 {
+      color: #ffbb33;
+      margin: 0;
+      font-size: 24px;
+    }
+    
+    .invest-header p {
+      color: #888;
+      margin: 8px 0 0 0;
+      font-size: 14px;
+    }
+    
+    .balance-display {
+      background: #0f3460;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 25px;
+      border: 1px solid #2a2a4e;
+    }
+    
+    .balance-display h3 {
+      color: #888;
+      margin: 0 0 10px 0;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+    
+    .balance-display p {
+      color: #00c851;
+      margin: 0;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    
+    .form-group {
+      margin-bottom: 25px;
+    }
+    
+    .form-group label {
+      display: block;
+      color: #888;
+      font-size: 12px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .amount-input {
+      width: 100%;
+      padding: 15px;
+      border-radius: 12px;
+      border: 1px solid #333;
+      background: #0f3460;
+      color: white;
+      font-size: 18px;
+      box-sizing: border-box;
+      text-align: center;
+      font-weight: bold;
+    }
+    
+    .amount-input:focus {
+      outline: none;
+      border-color: #ffbb33;
+    }
+    
+    .amount-input::placeholder {
+      color: #666;
+    }
+    
+    .plan-info {
+      background: rgba(255, 187, 51, 0.1);
+      border: 1px solid #ffbb33;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    
+    .plan-info.show {
+      display: block;
+    }
+    
+    .plan-info h4 {
+      color: #ffbb33;
+      margin: 0 0 10px 0;
+    }
+    
+    .plan-info p {
+      color: #aaa;
+      margin: 5px 0;
+      font-size: 14px;
+    }
+    
+    .error-box {
+      background: rgba(255, 68, 68, 0.1);
+      border: 1px solid #ff4444;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    
+    .error-box.show {
+      display: block;
+    }
+    
+    .error-box p {
+      color: #ff4444;
+      margin: 0;
+      font-size: 14px;
+    }
+    
+    .submit-btn {
+      width: 100%;
+      padding: 18px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #ffbb33, #ff8800);
+      color: black;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    
+    .submit-btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .submit-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    #result {
+      text-align: center;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 20px;
+      font-weight: bold;
+      display: none;
+    }
+    
+    #result.show {
+      display: block;
+    }
+    
+    #result.success {
+      background: rgba(0, 200, 81, 0.2);
+      color: #00c851;
+      border: 1px solid #00c851;
+    }
+    
+    #result.error {
+      background: rgba(255, 68, 68, 0.2);
+      color: #ff4444;
+      border: 1px solid #ff4444;
+    }
+    
+    .plans-legend {
+      margin-top: 25px;
+      padding-top: 25px;
+      border-top: 1px solid #2a2a4e;
+    }
+    
+    .plans-legend h4 {
+      color: #888;
+      margin: 0 0 15px 0;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+    
+    .plan-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #2a2a4e;
+      font-size: 14px;
+    }
+    
+    .plan-item span:first-child {
+      color: #aaa;
+    }
+    
+    .plan-item span:last-child {
+      color: #ffbb33;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="invest-container">
+
+  <button class="back-btn" onclick="goBack()">⬅ Back to Dashboard</button>
+
+  <div class="invest-card">
+    
+    <div class="invest-header">
+      <h2>📈 Invest</h2>
+      <p>Enter amount to see available plans</p>
+    </div>
+    
+    <div class="balance-display">
+      <h3>Your Balance</h3>
+      <p>$<span id="userBalance">0.00</span></p>
+    </div>
+
+    <div class="form-group">
+      <label>Investment Amount (USD)</label>
+      <input id="investAmount" class="amount-input" type="number" placeholder="Min $100" oninput="checkPlan()">
+    </div>
+    
+    <div id="planInfo" class="plan-info">
+      <h4 id="planName">Select amount</h4>
+      <p id="planDetails">Enter amount to see plan details</p>
+    </div>
+    
+    <div id="errorBox" class="error-box">
+      <p id="errorText"></p>
+    </div>
+
+    <button class="submit-btn" id="investBtn" onclick="submitInvest()" disabled>Invest Now</button>
+    
+    <p id="result"></p>
+
+    <div class="plans-legend">
+      <h4>Available Plans</h4>
+      <div class="plan-item">
+        <span>Starter</span>
+        <span>$100 - $999 | 10% profit | 48h</span>
+      </div>
+      <div class="plan-item">
+        <span>Pro</span>
+        <span>$1,000 - $4,999 | 20% profit | 96h</span>
+      </div>
+      <div class="plan-item">
+        <span>Premium</span>
+        <span>$5,000+ | 40% profit | 120h</span>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script type="module">
+
+import { auth, db } from "./firebase.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { ref, get, update, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+let currentUsername = null;
+let userData = null;
+let userBalance = 0;
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+  
+  currentUsername = sessionStorage.getItem("loggedInUser");
+  if (!currentUsername) {
+    window.location.href = "login.html";
+    return;
+  }
+  
+  // Load user data
+  const userSnap = await get(ref(db, 'users/' + currentUsername));
+  if (userSnap.exists()) {
+    userData = userSnap.val();
+    userBalance = userData.balance || 0;
+    document.getElementById("userBalance").innerText = userBalance.toFixed(2);
+  }
+});
+
+function checkPlan() {
+  let amount = Number(document.getElementById("investAmount").value);
+  let planInfo = document.getElementById("planInfo");
+  let planName = document.getElementById("planName");
+  let planDetails = document.getElementById("planDetails");
+  let errorBox = document.getElementById("errorBox");
+  let errorText = document.getElementById("errorText");
+  let investBtn = document.getElementById("investBtn");
+  
+  // Reset
+  planInfo.classList.remove("show");
+  errorBox.classList.remove("show");
+  investBtn.disabled = true;
+  
+  if (!amount || amount <= 0) {
+    planName.innerText = "Enter amount";
+    planDetails.innerText = "Minimum investment is $100";
+    return;
+  }
+  
+  // Check minimum
+  if (amount < 100) {
+    errorBox.classList.add("show");
+    errorText.innerText = "❌ Minimum investment is $100";
+    return;
+  }
+  
+  // Check balance
+  if (amount > userBalance) {
+    errorBox.classList.add("show");
+    errorText.innerText = `❌ Insufficient balance! You have $${userBalance.toFixed(2)}, need $${amount.toFixed(2)}`;
+    return;
+  }
+  
+  // Determine plan
+  let plan = {};
+  if (amount >= 100 && amount <= 999) {
+    plan = { name: "Starter", profit: 0.10, hours: 48, min: 100, max: 999 };
+  } else if (amount >= 1000 && amount <= 4999) {
+    plan = { name: "Pro", profit: 0.20, hours: 96, min: 1000, max: 4999 };
+  } else if (amount >= 5000) {
+    plan = { name: "Premium", profit: 0.40, hours: 120, min: 5000, max: "Unlimited" };
+  }
+  
+  // Show plan info
+  planInfo.classList.add("show");
+  planName.innerText = `✅ ${plan.name} Plan Selected`;
+  planDetails.innerText = `Invest $${amount} → Profit $${(amount * plan.profit).toFixed(2)} (${plan.profit * 100}%) in ${plan.hours} hours`;
+  
+  // Enable button
+  investBtn.disabled = false;
+}
+
+async function submitInvest() {
+  let amount = Number(document.getElementById("investAmount").value);
+  let result = document.getElementById("result");
+  
+  if (!amount || amount < 100) {
+    result.className = "show error";
+    result.innerText = "Minimum investment is $100";
+    return;
+  }
+  
+  if (amount > userBalance) {
+    result.className = "show error";
+    result.innerText = "Insufficient balance!";
+    return;
+  }
+  
+  // Determine plan
+  let plan = {};
+  let profitPercent = 0;
+  let hours = 0;
+  
+  if (amount >= 100 && amount <= 999) {
+    plan = "Starter";
+    profitPercent = 0.10;
+    hours = 48;
+  } else if (amount >= 1000 && amount <= 4999) {
+    plan = "Pro";
+    profitPercent = 0.20;
+    hours = 96;
+  } else if (amount >= 5000) {
+    plan = "Premium";
+    profitPercent = 0.40;
+    hours = 120;
+  }
+  
+  if (!confirm(`Confirm investment:\n\nPlan: ${plan}\nAmount: $${amount}\nProfit: ${(profitPercent * 100)}%\nDuration: ${hours} hours\n\nProceed?`)) {
+    return;
+  }
+  
+  try {
+    result.className = "show success";
+    result.innerText = "⏳ Processing investment...";
+    
+    let newBalance = userBalance - amount;
+    let investTime = Date.now();
+    
+    // Update user
+    await update(ref(db, 'users/' + currentUsername), {
+      balance: newBalance,
+      plan: plan,
+      investTime: investTime,
+      investAmount: amount
+    });
+    
+    // Save to investments
+    await push(ref(db, 'investments'), {
+      user: currentUsername,
+      plan: plan,
+      amount: amount,
+      profitPercent: profitPercent,
+      hours: hours,
+      status: "active",
+      investTime: investTime,
+      claimTime: null
+    });
+    
+    result.className = "show success";
+    result.innerText = `✅ Investment successful! $${amount} invested in ${plan} plan.`;
+    
+    // Update display
+    userBalance = newBalance;
+    document.getElementById("userBalance").innerText = userBalance.toFixed(2);
+    document.getElementById("investAmount").value = "";
+    document.getElementById("planInfo").classList.remove("show");
+    document.getElementById("investBtn").disabled = true;
+    
+  } catch (error) {
+    result.className = "show error";
+    result.innerText = "❌ Error: " + error.message;
+  }
+}
+
+function goBack() {
+  window.location.href = "dashboard.html";
+}
+
+window.goBack = goBack;
+window.checkPlan = checkPlan;
+window.submitInvest = submitInvest;
+
+</script>
+
+</body>
+</html>
