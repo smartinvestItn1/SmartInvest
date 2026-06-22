@@ -15,51 +15,300 @@
       };
     }
   </script>
+  
+  <style>
+    body {
+      background: #0f0f1a;
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .profile-container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .profile-card {
+      background: #1a1a2e;
+      border-radius: 20px;
+      padding: 30px;
+      border: 1px solid #2a2a4e;
+      margin-bottom: 20px;
+    }
+    
+    .profile-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .profile-header h2 {
+      color: #33b5e5;
+      margin: 0;
+      font-size: 24px;
+    }
+    
+    .avatar-wrapper {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 20px auto;
+    }
+    
+    .iavatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 3px solid #ffbb33;
+      object-fit: cover;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    
+    .iavatar:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255, 187, 51, 0.3);
+    }
+    
+    .avatar-edit {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      background: #ffbb33;
+      color: black;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      border: 2px solid #1a1a2e;
+    }
+    
+    .section-title {
+      color: #ffbb33;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 25px 0 15px 0;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #2a2a4e;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      color: #888;
+      font-size: 12px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 15px;
+      border-radius: 12px;
+      border: 1px solid #333;
+      background: #0f3460;
+      color: white;
+      font-size: 16px;
+      box-sizing: border-box;
+      transition: 0.3s;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: #33b5e5;
+    }
+    
+    .form-input[readonly] {
+      background: #0f0f1a;
+      color: #666;
+      cursor: not-allowed;
+    }
+    
+    .form-input::placeholder {
+      color: #666;
+    }
+    
+    .info-display {
+      background: #0f3460;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 15px;
+      border: 1px solid #2a2a4e;
+    }
+    
+    .info-display p {
+      margin: 0;
+      color: white;
+      font-size: 18px;
+    }
+    
+    .info-display span {
+      color: #ffbb33;
+      font-weight: bold;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border-radius: 10px;
+      border: none;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #00c851, #00b248);
+      color: white;
+    }
+    
+    .btn-secondary {
+      background: #1a1a2e;
+      border: 1px solid #2a2a4e;
+      color: #aaa;
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, #ff4444, #cc0000);
+      color: white;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    #walletMsg {
+      text-align: center;
+      padding: 12px;
+      border-radius: 10px;
+      margin-top: 15px;
+      font-weight: bold;
+      display: none;
+    }
+    
+    #walletMsg.show {
+      display: block;
+    }
+    
+    #walletMsg.success {
+      background: rgba(0, 200, 81, 0.2);
+      color: #00c851;
+      border: 1px solid #00c851;
+    }
+    
+    #walletMsg.error {
+      background: rgba(255, 68, 68, 0.2);
+      color: #ff4444;
+      border: 1px solid #ff4444;
+    }
+    
+    #walletMsg.loading {
+      background: rgba(51, 181, 229, 0.2);
+      color: #33b5e5;
+      border: 1px solid #33b5e5;
+    }
+    
+    .nav-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="container">
-  <h2>My Profile</h2>
+<div class="profile-container">
 
-  <!-- Profile Picture -->
-  <img id="iavatar" class="iavatar" src="" onclick="triggerUpload()">
+  <!-- PROFILE CARD -->
+  <div class="profile-card">
+    
+    <div class="profile-header">
+      <h2>👤 My Profile</h2>
+    </div>
+    
+    <!-- AVATAR -->
+    <div class="avatar-wrapper">
+      <img id="iavatar" class="iavatar" src="" onclick="triggerUpload()">
+      <div class="avatar-edit" onclick="triggerUpload()">📷</div>
+    </div>
+    
+    <input type="file" id="fileInput" style="display:none" onchange="uploadImage(event)">
 
-  <input type="file" id="fileInput" style="display:none" onchange="uploadImage(event)">
+    <!-- USER INFO -->
+    <div class="section-title">Account Information</div>
+    
+    <div class="form-group">
+      <label>Username</label>
+      <input id="usernameInput" class="form-input" readonly>
+    </div>
+    
+    <div class="form-group">
+      <label>Email Address</label>
+      <input id="emailInput" class="form-input">
+    </div>
+    
+    <div class="info-display">
+      <p>💰 Balance: <span>$<span id="balance">0</span></span></p>
+    </div>
+    
+    <div class="info-display">
+      <p>📈 Plan: <span id="planDisplay">None</span></p>
+    </div>
 
-  <br><br>
+  </div>
 
-  <!-- USER INFO -->
-  <p><strong>Username:</strong></p>
-  <input id="usernameInput" readonly><br><br>
+  <!-- WALLET CARD -->
+  <div class="profile-card">
+    
+    <div class="section-title">💼 Wallet Address</div>
+    
+    <p style="color:#888; font-size:14px; margin-bottom:15px;">Add your crypto wallet address for withdrawals:</p>
+    
+    <div class="form-group">
+      <input id="walletInput" class="form-input" placeholder="Enter your USDT/BTC wallet address">
+    </div>
+    
+    <button class="btn btn-primary" onclick="saveWallet()">💾 Save Wallet</button>
+    
+    <p id="walletMsg"></p>
 
-  <p><strong>Email:</strong></p>
-  <input id="emailInput"><br><br>
+  </div>
 
-  <p><strong>Balance:</strong> $<span id="balance">0</span></p>
-  
-  <p><strong>Plan:</strong> <span id="planDisplay">None</span></p>
+  <!-- SECURITY CARD -->
+  <div class="profile-card">
+    
+    <div class="section-title">🔐 Security</div>
+    
+    <div class="form-group">
+      <label>New Password</label>
+      <input id="newPassword" class="form-input" type="password" placeholder="New Password (min 6 chars)">
+    </div>
+    
+    <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
 
-  <hr>
+  </div>
 
-  <!-- WALLET ADDRESS -->
-  <h3>💼 Wallet Address</h3>
-  <p>Add your crypto wallet address for withdrawals:</p>
-  <input id="walletInput" placeholder="Enter your USDT/BTC wallet address" style="width:100%; padding:10px; margin:5px 0;"><br>
-  <button onclick="saveWallet()">💾 Save Wallet</button>
-  <p id="walletMsg" style="color:green; font-weight:bold; margin-top:5px;"></p>
+  <!-- NAVIGATION -->
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goDashboard()">⬅️ Back to Dashboard</button>
+    <button class="btn btn-danger" onclick="logout()">🚪 Logout</button>
+  </div>
 
-  <hr>
-
-  <!-- PASSWORD CHANGE -->
-  <h3>Change Password</h3>
-  <input id="newPassword" type="password" placeholder="New Password (min 6 chars)"><br><br>
-
-  <button onclick="changePassword()">Update Password</button>
-
-  <br><br>
-  <button onclick="goDashboard()">⬅️ Back to Dashboard</button>
-  <button onclick="logout()">Logout</button>
 </div>
 
 <script type="module">
@@ -73,7 +322,7 @@ let userData = null;
 // Auth check + load user data
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    window.location.replace("login.html");
+    window.location.href = "login.html";
     return;
   }
   
@@ -111,31 +360,31 @@ window.saveWallet = async function() {
   const msg = document.getElementById("walletMsg");
   
   if (!wallet) {
-    msg.style.color = "red";
-    msg.innerText = "Please enter a wallet address!";
+    msg.className = "show error";
+    msg.innerText = "❌ Please enter a wallet address!";
     return;
   }
   
   if (!currentUsername) {
-    msg.style.color = "red";
-    msg.innerText = "Error: User not loaded yet!";
+    msg.className = "show error";
+    msg.innerText = "❌ Error: User not loaded yet!";
     return;
   }
   
   try {
-    msg.style.color = "blue";
-    msg.innerText = "Saving...";
+    msg.className = "show loading";
+    msg.innerText = "⏳ Saving...";
     
     await update(ref(db, 'users/' + currentUsername), {
       wallet: wallet
     });
     
-    msg.style.color = "green";
+    msg.className = "show success";
     msg.innerText = "✅ Wallet saved successfully!";
     
   } catch (error) {
-    msg.style.color = "red";
-    msg.innerText = "Error: " + error.message;
+    msg.className = "show error";
+    msg.innerText = "❌ Error: " + error.message;
   }
 };
 
@@ -148,8 +397,8 @@ window.updateProfile = async function() {
   const msg = document.getElementById("walletMsg");
   
   if (!newEmail) {
-    msg.style.color = "red";
-    msg.innerText = "Please enter email!";
+    msg.className = "show error";
+    msg.innerText = "❌ Please enter email!";
     return;
   }
   
@@ -158,12 +407,12 @@ window.updateProfile = async function() {
       email: newEmail
     });
     
-    msg.style.color = "green";
+    msg.className = "show success";
     msg.innerText = "✅ Profile updated!";
     
   } catch (error) {
-    msg.style.color = "red";
-    msg.innerText = "Error: " + error.message;
+    msg.className = "show error";
+    msg.innerText = "❌ Error: " + error.message;
   }
 };
 
@@ -176,14 +425,14 @@ window.changePassword = async function() {
   const msg = document.getElementById("walletMsg");
   
   if (!newPass) {
-    msg.style.color = "red";
-    msg.innerText = "Please enter new password!";
+    msg.className = "show error";
+    msg.innerText = "❌ Please enter new password!";
     return;
   }
   
   if (newPass.length < 6) {
-    msg.style.color = "red";
-    msg.innerText = "Password must be 6+ characters!";
+    msg.className = "show error";
+    msg.innerText = "❌ Password must be 6+ characters!";
     return;
   }
   
@@ -191,13 +440,13 @@ window.changePassword = async function() {
     const user = auth.currentUser;
     await updatePassword(user, newPass);
     
-    msg.style.color = "green";
+    msg.className = "show success";
     msg.innerText = "✅ Password changed!";
     document.getElementById("newPassword").value = "";
     
   } catch (error) {
-    msg.style.color = "red";
-    msg.innerText = "Error: " + error.message;
+    msg.className = "show error";
+    msg.innerText = "❌ Error: " + error.message;
   }
 };
 
@@ -210,7 +459,7 @@ window.uploadImage = async function(event) {
   if (!file) return;
   
   if (file.size > 500000) {
-    alert("Image too large! Max 500KB.");
+    alert("❌ Image too large! Max 500KB.");
     return;
   }
   
@@ -226,7 +475,7 @@ window.uploadImage = async function(event) {
       alert("✅ Profile picture updated!");
       
     } catch (error) {
-      alert("Error saving image: " + error.message);
+      alert("❌ Error saving image: " + error.message);
     }
   };
   
@@ -238,24 +487,24 @@ window.triggerUpload = function() {
 };
 
 /////////////////////////////////////////////////////
-// NAVIGATION (ALL USE REPLACE!)
+// NAVIGATION
 /////////////////////////////////////////////////////
 
 window.goDashboard = function() {
-  window.location.replace("dashboard.html");
+  window.location.href = "dashboard.html";
 };
 
 window.logout = async function() {
   try {
     await auth.signOut();
     sessionStorage.clear();
-    window.location.replace("login.html");
+    window.location.href = "login.html";
   } catch (error) {
     console.error("Logout error:", error);
   }
 };
 
 </script>
-
 </body>
 </html>
+  
