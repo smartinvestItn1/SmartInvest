@@ -15,14 +15,190 @@
       };
     }
   </script>
+  
+  <style>
+    /* SAME DARK THEME */
+    body {
+      background: #0f0f1a;
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .history-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .back-btn {
+      background: #1a1a2e;
+      border: 1px solid #2a2a4e;
+      color: #aaa;
+      padding: 12px 24px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+    
+    .back-btn:hover {
+      background: #2a2a4e;
+      color: white;
+    }
+    
+    .history-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .history-header h2 {
+      color: #33b5e5;
+      margin: 0;
+      font-size: 24px;
+    }
+    
+    .history-header p {
+      color: #888;
+      margin: 8px 0 0 0;
+      font-size: 14px;
+    }
+    
+    .history-card {
+      background: #1a1a2e;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 15px;
+      border: 1px solid #2a2a4e;
+      transition: 0.3s;
+    }
+    
+    .history-card:hover {
+      border-color: #444;
+      transform: translateX(5px);
+    }
+    
+    .history-card h4 {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    /* Type colors */
+    .history-card.deposit h4 {
+      color: #00c851;
+    }
+    .history-card.withdrawal h4 {
+      color: #ff4444;
+    }
+    .history-card.investment h4 {
+      color: #ffbb33;
+    }
+    .history-card.transfer h4 {
+      color: #33b5e5;
+    }
+    
+    .history-card p {
+      margin: 5px 0;
+      color: #aaa;
+      font-size: 14px;
+    }
+    
+    .history-card .amount {
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    
+    .history-card .time {
+      color: #666;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    
+    .status-badge.pending {
+      background: rgba(255, 187, 51, 0.2);
+      color: #ffbb33;
+      border: 1px solid #ffbb33;
+    }
+    
+    .status-badge.completed {
+      background: rgba(0, 200, 81, 0.2);
+      color: #00c851;
+      border: 1px solid #00c851;
+    }
+    
+    .status-badge.active {
+      background: rgba(51, 181, 229, 0.2);
+      color: #33b5e5;
+      border: 1px solid #33b5e5;
+    }
+    
+    .no-history {
+      text-align: center;
+      color: #666;
+      padding: 40px;
+    }
+    
+    .filter-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .filter-tab {
+      background: #1a1a2e;
+      border: 1px solid #2a2a4e;
+      color: #aaa;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    
+    .filter-tab:hover, .filter-tab.active {
+      background: #2a2a4e;
+      color: white;
+      border-color: #444;
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="container">
-  <h2>Transaction History</h2>
+<div class="history-container">
+
+  <button class="back-btn" onclick="goBack()">⬅ Back to Dashboard</button>
+
+  <div class="history-header">
+    <h2>📋 Transaction History</h2>
+    <p>All your deposits, withdrawals, transfers & investments</p>
+  </div>
+  
+  <div class="filter-tabs">
+    <button class="filter-tab active" onclick="filterHistory('all')">All</button>
+    <button class="filter-tab" onclick="filterHistory('deposit')">Deposits</button>
+    <button class="filter-tab" onclick="filterHistory('withdrawal')">Withdrawals</button>
+    <button class="filter-tab" onclick="filterHistory('transfer')">Transfers</button>
+    <button class="filter-tab" onclick="filterHistory('investment')">Investments</button>
+  </div>
+
   <div id="historyList">Loading...</div>
-  <button onclick="goBack()">Back</button>
+
 </div>
 
 <script type="module">
@@ -32,10 +208,11 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/f
 import { ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 /////////////////////////////////////////////////////
-// AUTH CHECK
+// AUTH CHECK - EXACTLY AS YOU HAD IT
 /////////////////////////////////////////////////////
 
 let currentUsername = null;
+let allHistory = [];
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -49,12 +226,11 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
   
-  // Load history after auth confirmed
   loadHistory();
 });
 
 /////////////////////////////////////////////////////
-// LOAD HISTORY FROM REALTIME DATABASE
+// LOAD HISTORY - EXACTLY AS YOU HAD IT + TRANSFERS ADDED
 /////////////////////////////////////////////////////
 
 async function loadHistory() {
@@ -81,12 +257,21 @@ async function loadHistory() {
       });
     }
     
-    // ✅ GET INVESTMENTS!
+    // Get investments
     const invSnap = await get(ref(db, 'investments'));
     let investments = [];
     if (invSnap.exists()) {
       invSnap.forEach((childSnap) => {
         investments.push(childSnap.val());
+      });
+    }
+    
+    // ✅ GET TRANSFERS (NEW!)
+    const transSnap = await get(ref(db, 'transfers'));
+    let transfers = [];
+    if (transSnap.exists()) {
+      transSnap.forEach((childSnap) => {
+        transfers.push(childSnap.val());
       });
     }
     
@@ -99,7 +284,8 @@ async function loadHistory() {
           type: "deposit",
           status: d.status,
           amount: d.amount,
-          time: d.time
+          time: d.time,
+          coin: d.coin
         });
       }
     });
@@ -117,7 +303,7 @@ async function loadHistory() {
       }
     });
     
-    // ✅ ADD INVESTMENTS TO HISTORY!
+    // Add investments
     investments.forEach(i => {
       if (i.user === currentUsername) {
         history.push({
@@ -132,16 +318,51 @@ async function loadHistory() {
       }
     });
     
+    // ✅ ADD TRANSFERS TO HISTORY (NEW!)
+    transfers.forEach(t => {
+      if (t.from === currentUsername || t.to === currentUsername) {
+        history.push({
+          type: "transfer",
+          status: t.status || "completed",
+          amount: t.amount,
+          time: t.timestamp || t.time,
+          from: t.from,
+          to: t.to,
+          direction: t.from === currentUsername ? "sent" : "received"
+        });
+      }
+    });
+    
+    allHistory = history;
     render(history);
     
   } catch (err) {
-    list.innerHTML = "<p style='color:red'>Error loading history</p>";
+    list.innerHTML = "<p class='no-history'>Error loading history</p>";
     console.error(err);
   }
 }
 
 /////////////////////////////////////////////////////
-// RENDER UI (WITH INVESTMENTS!)
+// FILTER HISTORY (NEW FEATURE!)
+/////////////////////////////////////////////////////
+
+function filterHistory(type) {
+  // Update active tab
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  event.target.classList.add('active');
+  
+  if (type === 'all') {
+    render(allHistory);
+  } else {
+    const filtered = allHistory.filter(item => item.type === type);
+    render(filtered);
+  }
+}
+
+/////////////////////////////////////////////////////
+// RENDER - SAME LOGIC, NEW DARK DESIGN
 /////////////////////////////////////////////////////
 
 function render(history) {
@@ -149,7 +370,7 @@ function render(history) {
   list.innerHTML = "";
 
   if (history.length === 0) {
-    list.innerHTML = "<p>No history yet</p>";
+    list.innerHTML = "<p class='no-history'>No history yet</p>";
     return;
   }
 
@@ -158,42 +379,52 @@ function render(history) {
 
   history.forEach(item => {
     let div = document.createElement("div");
-    div.classList.add("card");
-    div.style.marginBottom = "10px";
-    div.style.padding = "15px";
-    div.style.border = "1px solid #ddd";
-    div.style.borderRadius = "8px";
+    div.classList.add("history-card", item.type);
 
-    // ✅ COLORS FOR ALL TYPES
-    let color = 
-      item.type === "deposit" ? "green" :
-      item.type === "withdrawal" ? "red" :
-      item.type === "investment" ? "blue" : "black";
+    // Icons for each type
+    let icon = {
+      deposit: "⬇️",
+      withdrawal: "⬆️",
+      investment: "📈",
+      transfer: "💸"
+    }[item.type] || "💰";
 
-    // ✅ ICONS FOR ALL TYPES
-    let icon = 
-      item.type === "deposit" ? "⬇️" :
-      item.type === "withdrawal" ? "⬆️" :
-      item.type === "investment" ? "📈" : "💰";
+    // Status badge class
+    let statusClass = item.status === "pending" ? "pending" : 
+                      item.status === "active" ? "active" : "completed";
 
-    // ✅ EXTRA INFO FOR INVESTMENTS
-    let extraInfo = "";
+    // Build content based on type
+    let extraContent = "";
+    
+    if (item.type === "deposit" && item.coin) {
+      extraContent = `<p>Coin: ${item.coin}</p>`;
+    }
+    
+    if (item.type === "withdrawal" && item.wallet) {
+      extraContent = `<p>Wallet: ${item.wallet.substring(0, 15)}...</p>`;
+    }
+    
     if (item.type === "investment") {
-      extraInfo = `
-        <p style="margin:5px 0;"><b>Plan:</b> ${item.plan}</p>
-        <p style="margin:5px 0;"><b>Expected Profit:</b> $${item.profit}</p>
-        <p style="margin:5px 0;"><b>Duration:</b> ${item.hours} hours</p>
+      extraContent = `
+        <p>Plan: ${item.plan}</p>
+        <p>Expected Profit: $${item.profit}</p>
+        <p>Duration: ${item.hours} hours</p>
+      `;
+    }
+    
+    if (item.type === "transfer") {
+      extraContent = `
+        <p>Direction: ${item.direction === "sent" ? "📤 Sent" : "📥 Received"}</p>
+        <p>${item.direction === "sent" ? "To" : "From"}: ${item.direction === "sent" ? item.to : item.from}</p>
       `;
     }
 
     div.innerHTML = `
-      <h4 style="color:${color}; margin:0 0 10px 0;">
-        ${icon} ${item.type.toUpperCase()} - ${item.status.toUpperCase()}
-      </h4>
-      <p style="margin:5px 0;"><b>Amount:</b> $${item.amount || 0}</p>
-      ${item.wallet ? `<p style="margin:5px 0;"><b>Wallet:</b> ${item.wallet}</p>` : ""}
-      ${extraInfo}
-      <p style="margin:5px 0; color:#666;"><small>${new Date(item.time).toLocaleString()}</small></p>
+      <h4>${icon} ${item.type.toUpperCase()}</h4>
+      <p class="amount">$${item.amount || 0}</p>
+      <span class="status-badge ${statusClass}">${item.status}</span>
+      ${extraContent}
+      <p class="time">${new Date(item.time).toLocaleString()}</p>
     `;
 
     list.appendChild(div);
@@ -201,16 +432,17 @@ function render(history) {
 }
 
 /////////////////////////////////////////////////////
-// NAVIGATION (USES REPLACE!)
+// NAVIGATION - FIXED
 /////////////////////////////////////////////////////
 
-function goBack() {
-  window.location.replace("dashboard.html");
+function goBack() { 
+  window.location.href = "dashboard.html"; 
 }
 
 window.goBack = goBack;
+window.filterHistory = filterHistory;
 
 </script>
-
 </body>
 </html>
+  
