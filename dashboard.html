@@ -374,6 +374,168 @@ h2{
   text-align: center;
   color: gold;
 }
+/* ===== PROFILE CARD ===== */
+
+.profile-card{
+  width:90%;
+  max-width:380px;
+  margin:20px auto;
+  padding:20px;
+
+  background:#1a1a2e;
+
+  border:1px solid #2a2a4e;
+  border-radius:22px;
+
+  text-align:center;
+
+  box-shadow:
+  0 10px 30px rgba(0,0,0,.45);
+
+  position:relative;
+  overflow:hidden;
+}
+
+/* glowing top line */
+.profile-card::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:2px;
+
+  background:linear-gradient(
+  90deg,
+  transparent,
+  #00c851,
+  transparent);
+}
+
+/* avatar ring */
+
+.profile-ring{
+  width:95px;
+  height:95px;
+
+  margin:0 auto 12px;
+
+  padding:3px;
+
+  border-radius:50%;
+
+  background:
+  linear-gradient(
+  135deg,
+  #00c851,
+  #33b5e5);
+
+  box-shadow:
+  0 0 20px rgba(0,200,81,.25);
+}
+
+.iavatar{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+
+  border-radius:50%;
+
+  background:#0f0f1a;
+}
+
+.profile-name{
+  margin:10px 0 5px;
+  font-size:22px;
+  font-weight:700;
+  color:white;
+}
+
+.profile-status{
+  margin:0;
+  color:#888;
+  font-size:14px;
+}
+.loader {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #333;
+  border-top-color: #00c851;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* ===== LOGO ===== */
+
+.logo-container{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+
+  padding:18px 20px;
+}
+
+.logo-container img{
+  width:140px;
+  height:auto;
+
+  transition:0.35s ease;
+
+  filter:
+  drop-shadow(0 0 8px rgba(255,255,255,0.08))
+  drop-shadow(0 0 20px rgba(0,200,81,0.15));
+}
+
+/* subtle premium hover */
+.logo-container img:hover{
+  transform:scale(1.04);
+}
+.plan-active{
+  color:#00c851 !important;
+  font-weight:700;
+  animation:greenPulse 1.5s infinite;
+}
+
+.plan-inactive{
+  color:#ff4444 !important;
+  font-weight:700;
+  animation:redPulse 1.5s infinite;
+}
+
+@keyframes greenPulse{
+  0%{
+    text-shadow:0 0 5px #00c851;
+  }
+  50%{
+    text-shadow:
+      0 0 10px #00c851,
+      0 0 20px #00c851,
+      0 0 30px #00c851;
+  }
+  100%{
+    text-shadow:0 0 5px #00c851;
+  }
+}
+
+@keyframes redPulse{
+  0%{
+    text-shadow:0 0 5px #ff4444;
+  }
+  50%{
+    text-shadow:
+      0 0 10px #ff4444,
+      0 0 20px #ff4444,
+      0 0 30px #ff4444;
+  }
+  100%{
+    text-shadow:0 0 5px #ff4444;
+  }
+  }
 </style>
 </head>
 
@@ -383,7 +545,21 @@ h2{
   <img src="go.png" alt="SmartIvest">
 </div>
 
-<img id="dashAvatar" class="iavatar">
+<div class="profile-card">
+
+  <div class="profile-ring">
+    <img id="dashAvatar" class="iavatar">
+  </div>
+
+  <h2 class="profile-name">
+    <span id="user">User</span>
+  </h2>
+
+  <p class="profile-status">
+    🟢 Verified Investor
+  </p>
+
+</div>
 
 <div class="nav">
   <button onclick="goHome()">Home</button>
@@ -760,13 +936,13 @@ function updateInvestmentStatus() {
   let el = document.getElementById("investStatus");
 
   if (userData.plan && userData.plan !== "None") {
-    el.innerText = "🟢 Active (" + userData.plan + ") - Click to check";
-    el.style.color = "#00c851";
-    el.style.animation = "glowPulse 1.5s infinite";
+    el.innerText = `🟢 Active (${userData.plan}) - Click to check`;
+    el.classList.remove("plan-inactive");
+    el.classList.add("plan-active");
   } else {
     el.innerText = "🔴 No Investment";
-    el.style.color = "#ff4444";
-    el.style.animation = "none";
+    el.classList.remove("plan-active");
+    el.classList.add("plan-inactive");
   }
 }
 
@@ -807,30 +983,6 @@ setInterval(() => {
 
 function goSupport() {
   window.location.href = "support.html";
-}
-const planContainer = document.querySelector(".plans-display");
-
-if (planContainer) {
-
-  let direction = 1;
-
-  setInterval(() => {
-
-    planContainer.scrollLeft += direction;
-
-    if (
-      planContainer.scrollLeft >=
-      planContainer.scrollWidth - planContainer.clientWidth
-    ) {
-      direction = -1; // move left
-    }
-
-    if (planContainer.scrollLeft <= 0) {
-      direction = 1; // move right
-    }
-
-  }, 20);
-
 }
 window.goSupport = goSupport;
 window.goDeposit = goDeposit;
