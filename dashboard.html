@@ -6,7 +6,6 @@
 <title>Dashboard</title>
 <link rel="stylesheet" href="style.css">
 
-<!-- Prevent back button after logout -->
 <script>
   if (window.history && window.history.pushState) {
     window.history.pushState(null, null, window.location.href);
@@ -17,17 +16,309 @@
 </script>
 
 <style>
+body {
+  background: #0f0f1a;
+  color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.logo-container {
+  text-align: center;
+  padding: 20px 0;
+}
+.logo-container img {
+  width: 140px;
+  height: auto;
+}
+
+.nav {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  flex-wrap: wrap;
+}
+.nav button {
+  background: #1a1a2e;
+  border: 1px solid #2a2a4e;
+  color: #aaa;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.nav button:hover {
+  background: #2a2a4e;
+  color: white;
+}
+
+.welcome {
+  text-align: center;
+  color: white;
+  margin: 10px 0 5px 0;
+}
+.sub {
+  text-align: center;
+  color: #888;
+  margin: 0 0 20px 0;
+}
+
+.status-banner {
+  padding: 15px;
+  border-radius: 12px;
+  margin: 15px auto;
+  text-align: center;
+  font-weight: bold;
+  max-width: 500px;
+  display: none;
+}
+.status-banner.blocked {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+  border: 1px solid #ff4444;
+  display: block;
+}
+.status-banner.warning {
+  background: rgba(255, 187, 51, 0.2);
+  color: #ffbb33;
+  border: 1px solid #ffbb33;
+  display: block;
+}
+.status-banner.success {
+  background: rgba(0, 200, 81, 0.2);
+  color: #00c851;
+  border: 1px solid #00c851;
+  display: block;
+}
+
 #investStatus {
   cursor: pointer;
   text-decoration: underline;
+  color: #33b5e5;
 }
-#investStatus:hover {
-  opacity: 0.8;
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+
+.card {
+  background: #1a1a2e;
+  border-radius: 16px;
+  padding: 25px;
+  border: 1px solid #2a2a4e;
+  text-align: center;
+}
+.card.highlight {
+  border-color: #00c851;
+}
+.card h4 {
+  color: #888;
+  margin: 0 0 10px 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.card h2 {
+  color: white;
+  margin: 0;
+  font-size: 28px;
+}
+.card p {
+  color: #ffbb33;
+  margin: 8px 0 0 0;
+  font-size: 14px;
+}
+
+.pending-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+.pending-box {
+  background: #1a1a2e;
+  border-radius: 16px;
+  padding: 25px;
+  text-align: center;
+  border: 1px solid #2a2a4e;
+}
+.pending-box.deposit {
+  border-color: #00c851;
+}
+.pending-box.withdraw {
+  border-color: #ff4444;
+}
+.pending-box h4 {
+  color: #888;
+  margin: 0 0 10px 0;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+.pending-box h2 {
+  margin: 0;
+  font-size: 24px;
+}
+.pending-box.deposit h2 {
+  color: #00c851;
+}
+.pending-box.withdraw h2 {
+  color: #ff4444;
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  max-width: 500px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+.action-btn {
+  padding: 25px;
+  border-radius: 16px;
+  border: none;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+  color: white;
+}
+.action-btn:hover {
+  transform: translateY(-3px);
+}
+.action-btn:active {
+  transform: translateY(0);
+}
+.action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+.deposit-btn {
+  background: linear-gradient(135deg, #00c851, #00b248);
+}
+.withdraw-btn {
+  background: linear-gradient(135deg, #ff4444, #cc0000);
+}
+.transfer-btn {
+  background: linear-gradient(135deg, #33b5e5, #2a9fd6);
+}
+.invest-btn {
+  background: linear-gradient(135deg, #ffbb33, #ff8800);
+  color: black;
+}
+
+.plans-display {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+.plan-card {
+  background: #1a1a2e;
+  border-radius: 16px;
+  padding: 25px;
+  text-align: center;
+  border: 1px solid #2a2a4e;
+}
+.plan-card h3 {
+  color: #ffbb33;
+  margin: 0 0 10px 0;
+}
+.plan-card p {
+  color: #888;
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.box {
+  background: #1a1a2e;
+  border-radius: 16px;
+  padding: 25px;
+  max-width: 500px;
+  margin: 20px auto;
+  border: 1px solid #2a2a4e;
+}
+
+.logout-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.9);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.logout-overlay.active {
+  display: flex;
+}
+.loader {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #333;
+  border-top-color: #00c851;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.iavatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: block;
+  margin: 10px auto;
+  border: 2px solid #2a2a4e;
+}
+
+h2 {
+  text-align: center;
+}
+
+.id-box {
+  background: #1a1a2e;
+  border-radius: 12px;
+  padding: 15px 20px;
+  max-width: 500px;
+  margin: 15px auto;
+  border: 1px solid #2a2a4e;
+  text-align: center;
+}
+.id-box p {
+  color: #888;
+  margin: 5px 0;
+  font-size: 13px;
+}
+.id-box span {
+  color: #33b5e5;
+  font-family: monospace;
+  font-size: 12px;
 }
 </style>
 </head>
 
 <body>
+
+<div class="logo-container">
+  <img src="logo.png" alt="SmartIvest">
+</div>
 
 <img id="dashAvatar" class="iavatar">
 
@@ -41,7 +332,9 @@
 <h2 class="welcome">👋 Welcome back, <span id="user"></span></h2>
 <p class="sub">Your investments are growing 📈</p>
 
-<h4>Investment Status: <span id="investStatus">Loading...</span></h4>
+<div id="statusBanner" class="status-banner"></div>
+
+<h4 style="text-align:center;">Investment Status: <span id="investStatus">Loading...</span></h4>
 
 <h2>Investment Dashboard</h2>
 
@@ -59,49 +352,55 @@
   </div>
 
   <div class="card">
-    <h4>Pending Deposits</h4>
-    <h2>$<span id="pending">0</span></h2>
-  </div>
-
-  <div class="card">
     <h4>Plan</h4>
     <h2 id="planType">None</h2>
   </div>
 
 </div>
 
-<div class="box">
-  <h3>Deposit</h3>
-  <button onclick="goDeposit()">Go to Deposit Page</button>
+<div class="pending-grid">
+  <div class="pending-box deposit">
+    <h4>⏳ PENDING DEPOSIT</h4>
+    <h2>$<span id="pendingDeposit">0.00</span></h2>
+  </div>
+  <div class="pending-box withdraw">
+    <h4>⏳ PENDING WITHDRAW</h4>
+    <h2>$<span id="pendingWithdraw">0.00</span></h2>
+  </div>
 </div>
 
-<div class="box">
-  <h3>Withdraw</h3>
-  <button onclick="goWithdraw()">Withdraw Funds</button>
+<div class="id-box">
+  <p><strong>Account ID:</strong> <span id="accountIdDisplay">—</span></p>
+  <p><strong>User ID:</strong> <span id="uidDisplay">—</span></p>
+</div>
+
+<div class="quick-actions">
+  <button class="action-btn deposit-btn" onclick="goDeposit()">💰 Deposit</button>
+  <button class="action-btn withdraw-btn" id="withdrawBtn" onclick="goWithdraw()">🏧 Withdraw</button>
+  <button class="action-btn transfer-btn" id="transferBtn" onclick="goTransfer()">💸 Transfer</button>
+  <button class="action-btn invest-btn" id="investBtn" onclick="goInvestPage()">📈 Invest</button>
 </div>
 
 <h2>Investment Plans</h2>
-
-<div class="grid">
-
-  <div class="card">
+<div class="plans-display">
+  <div class="plan-card">
     <h3>Starter</h3>
-    <p>10% Profit (48 hours)</p>
-    <button onclick="goInvest('Starter')">Invest</button>
+    <p>10% Profit</p>
+    <p>48 hours</p>
+    <p style="color:#666; margin-top:10px;">Min: $100</p>
   </div>
-
-  <div class="card">
+  <div class="plan-card">
     <h3>Pro</h3>
-    <p>20% Profit (96 hours)</p>
-    <button onclick="goInvest('Pro')">Invest</button>
+    <p>20% Profit</p>
+    <p>96 hours</p>
+    <p style="color:#666; margin-top:10px;">Min: $1,000</p>
   </div>
-
-  <div class="card">
+  <div class="plan-card">
     <h3>Premium</h3>
-    <p>40% Profit (120 hours)</p>
-    <button onclick="goInvest('Premium')">Invest</button>
+    <p>40% Profit</p>
+    <p>120 hours</p>
+    <p style="color:#666; margin-top:10px;">Min: $5,000</p>
   </div>
-
 </div>
 
 <div class="box">
@@ -117,32 +416,23 @@
 
 <script type="module">
 
-/////////////////////////////////////////////////////
-// IMPORTS
-/////////////////////////////////////////////////////
-
 import { auth, db } from "./firebase.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { ref, get, update, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-/////////////////////////////////////////////////////
-// GLOBAL DATA
-/////////////////////////////////////////////////////
-
 let currentUsername = null;
 let userData = null;
+let adminFlags = { canInvest: true, canWithdraw: true, blockReason: "" };
 
-/////////////////////////////////////////////////////
-// AUTH CHECK + LOAD DATA
-/////////////////////////////////////////////////////
+const MIN_BALANCE = 1000;
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.replace("login.html");
     return;
   }
-  
+
   const usersSnap = await get(ref(db, 'users'));
   usersSnap.forEach((childSnap) => {
     const data = childSnap.val();
@@ -151,29 +441,71 @@ onAuthStateChanged(auth, async (user) => {
       userData = data;
     }
   });
-  
+
   if (!userData) {
     sessionStorage.clear();
     window.location.replace("login.html");
     return;
   }
-  
+
   sessionStorage.setItem("loggedInUser", userData.username);
   sessionStorage.setItem("role", userData.role || "user");
-  
+
+  // Auto-add missing fields for existing users (old users without accountId)
+  let needsUpdate = false;
+  let updates = {};
+
+  if (!userData.accountId) {
+    // Generate unique account ID: eP + 6 random digits
+    let newId;
+    let isUnique = false;
+    let attempts = 0;
+
+    while (!isUnique && attempts < 10) {
+      newId = "eP" + Math.floor(100000 + Math.random() * 900000);
+
+      // Check if this ID already exists
+      let idExists = false;
+      usersSnap.forEach((child) => {
+        if (child.val().accountId === newId) {
+          idExists = true;
+        }
+      });
+
+      if (!idExists) {
+        isUnique = true;
+      }
+      attempts++;
+    }
+
+    updates.accountId = newId;
+    needsUpdate = true;
+    console.log("Generated accountId:", newId, "for user:", currentUsername);
+  }
+
+  if (!userData.adminFlags) {
+    updates.adminFlags = {
+      canInvest: true,
+      canWithdraw: true,
+      blockReason: ""
+    };
+    needsUpdate = true;
+  }
+
+  if (needsUpdate) {
+    await update(ref(db, 'users/' + currentUsername), updates);
+    // Reload user data after update
+    const refreshed = await get(ref(db, 'users/' + currentUsername));
+    userData = refreshed.val();
+  }
+
+  adminFlags = userData.adminFlags || { canInvest: true, canWithdraw: true, blockReason: "" };
+
   await updateUI();
 });
 
-/////////////////////////////////////////////////////
-// RATES
-/////////////////////////////////////////////////////
-
 let btcRate = 65000;
 let ethRate = 3500;
-
-/////////////////////////////////////////////////////
-// BALANCE ANIMATION
-/////////////////////////////////////////////////////
 
 let balanceInterval;
 
@@ -193,146 +525,156 @@ function animateBalance(value) {
   }, 16);
 }
 
-/////////////////////////////////////////////////////
-// UI UPDATE (WITH REAL PENDING DEPOSITS!)
-/////////////////////////////////////////////////////
+async function canInvest() {
+  const balance = userData.balance || 0;
+
+  if (adminFlags.canInvest === false) {
+    return { allowed: false, reason: adminFlags.blockReason || "Investing disabled by admin." };
+  }
+
+  if (balance < MIN_BALANCE) {
+    return { allowed: false, reason: `Need $${MIN_BALANCE} to invest. Current: $${balance.toFixed(2)}` };
+  }
+
+  if (userData.plan && userData.plan !== "None") {
+    return { allowed: false, reason: "Complete your current investment first." };
+  }
+
+  return { allowed: true };
+}
+
+async function canWithdraw() {
+  const balance = userData.balance || 0;
+
+  if (adminFlags.canWithdraw === false) {
+    return { allowed: false, reason: adminFlags.blockReason || "Withdrawal disabled by admin." };
+  }
+
+  if (balance < MIN_BALANCE) {
+    return { allowed: false, reason: `Need $${MIN_BALANCE} to withdraw. Current: $${balance.toFixed(2)}` };
+  }
+
+  return { allowed: true };
+}
+
+async function updateButtonStates() {
+  const balance = userData.balance || 0;
+
+  const investCheck = await canInvest();
+  const investBtn = document.getElementById('investBtn');
+  investBtn.disabled = !investCheck.allowed;
+  investBtn.title = investCheck.allowed ? "Go to Invest Page" : investCheck.reason;
+
+  const withdrawCheck = await canWithdraw();
+  const withdrawBtn = document.getElementById('withdrawBtn');
+  withdrawBtn.disabled = !withdrawCheck.allowed;
+  withdrawBtn.title = withdrawCheck.allowed ? "Withdraw" : withdrawCheck.reason;
+
+  const transferBtn = document.getElementById('transferBtn');
+  if (balance <= 0) {
+    transferBtn.disabled = true;
+    transferBtn.title = "No balance";
+  } else {
+    transferBtn.disabled = false;
+    transferBtn.title = "Transfer";
+  }
+
+  const banner = document.getElementById('statusBanner');
+
+  if (adminFlags.canInvest === false || adminFlags.canWithdraw === false) {
+    banner.className = "status-banner warning";
+    banner.innerText = `🔒 ADMIN: ${adminFlags.blockReason || "Contact support"}`;
+  } else if (balance < MIN_BALANCE) {
+    banner.className = "status-banner warning";
+    banner.innerText = `⏳ Deposit $${MIN_BALANCE - balance} more to unlock invest/withdraw`;
+  } else {
+    banner.className = "status-banner success";
+    banner.innerText = `✅ Account Active: You can invest and withdraw`;
+  }
+}
 
 async function updateUI() {
   document.getElementById("user").innerText = userData.username || "User";
-  
+
+  document.getElementById("accountIdDisplay").innerText = userData.accountId || "—";
+  document.getElementById("uidDisplay").innerText = userData.uid || "—";
+
   let balance = userData.balance || 0;
   animateBalance(balance);
-  
+
   document.getElementById("btc").innerText = (balance / btcRate).toFixed(6);
   document.getElementById("eth").innerText = (balance / ethRate).toFixed(4);
   document.getElementById("planType").innerText = userData.plan || "None";
   document.getElementById("dashAvatar").src = userData.image || "https://via.placeholder.com/80";
-  
-  // Load real pending deposits from Realtime Database
+
   try {
     const depSnap = await get(ref(db, 'deposits'));
-    let pendingTotal = 0;
+    let pendingDep = 0;
+    let pendingWit = 0;
+
     if (depSnap.exists()) {
       depSnap.forEach((childSnap) => {
         const deposit = childSnap.val();
         if (deposit.user === currentUsername && deposit.status === "pending") {
-          pendingTotal += Number(deposit.amount || 0);
+          if (deposit.type === "deposit") {
+            pendingDep += Number(deposit.amount || 0);
+          } else if (deposit.type === "withdraw") {
+            pendingWit += Number(deposit.amount || 0);
+          }
         }
       });
     }
-    document.getElementById("pending").innerText = pendingTotal.toFixed(2);
+
+    document.getElementById("pendingDeposit").innerText = pendingDep.toFixed(2);
+    document.getElementById("pendingWithdraw").innerText = pendingWit.toFixed(2);
   } catch (err) {
     console.error("Error loading pending:", err);
-    document.getElementById("pending").innerText = "0";
+    document.getElementById("pendingDeposit").innerText = "0.00";
+    document.getElementById("pendingWithdraw").innerText = "0.00";
   }
-  
+
+  await updateButtonStates();
   updateInvestmentStatus();
 }
-
-/////////////////////////////////////////////////////
-// INVESTMENT (WITH HISTORY!)
-/////////////////////////////////////////////////////
-
-async function goInvest(plan) {
-  let amount = 0;
-  let profitPercent = 0;
-  let hours = 0;
-  
-  if (plan === "Starter") {
-    amount = 100;
-    profitPercent = 0.10;
-    hours = 48;
-  } else if (plan === "Pro") {
-    amount = 1000;
-    profitPercent = 0.20;
-    hours = 96;
-  } else if (plan === "Premium") {
-    amount = 5000;
-    profitPercent = 0.40;
-    hours = 120;
-  }
-
-  if ((userData.balance || 0) < amount) {
-    alert("Not enough balance");
-    return;
-  }
-
-  const newBalance = (userData.balance || 0) - amount;
-  const investTime = Date.now();
-  
-  // Save investment to user profile
-  await update(ref(db, 'users/' + currentUsername), {
-    balance: newBalance,
-    plan: plan,
-    investTime: investTime,
-    investAmount: amount
-  });
-
-  // ✅ SAVE TO INVESTMENT HISTORY!
-  await push(ref(db, 'investments'), {
-    user: currentUsername,
-    plan: plan,
-    amount: amount,
-    profitPercent: profitPercent,
-    hours: hours,
-    status: "active",
-    investTime: investTime,
-    claimTime: null
-  });
-
-  userData.balance = newBalance;
-  userData.plan = plan;
-  userData.investTime = investTime;
-  userData.investAmount = amount;
-
-  await updateUI();
-  alert(`Investment successful! ✔\n\nPlan: ${plan}\nAmount: $${amount}\nProfit: ${(profitPercent * 100)}%\nDuration: ${hours} hours\n\nClick "Investment Status" to claim profit when ready!`);
-}
-
-/////////////////////////////////////////////////////
-// CHECK AND CLAIM PROFIT
-/////////////////////////////////////////////////////
 
 async function checkProfit() {
   if (!userData.plan || userData.plan === "None") {
     alert("You have no active investment.");
     return;
   }
-  
+
   const plans = {
     "Starter": { amount: 100, profit: 0.10, hours: 48 },
     "Pro": { amount: 1000, profit: 0.20, hours: 96 },
     "Premium": { amount: 5000, profit: 0.40, hours: 120 }
   };
-  
+
   const plan = plans[userData.plan];
   if (!plan) return;
-  
+
   const investTime = userData.investTime || 0;
   const now = Date.now();
   const hoursPassed = (now - investTime) / (1000 * 60 * 60);
-  
+
   if (hoursPassed >= plan.hours) {
-    // Profit is ready!
     const profitAmount = plan.amount * plan.profit;
     const totalReturn = plan.amount + profitAmount;
-    
+
     if (confirm(`🎉 Your ${userData.plan} investment is complete!\n\nInvested: $${plan.amount}\nProfit: $${profitAmount.toFixed(2)}\nTotal Return: $${totalReturn.toFixed(2)}\n\nClaim now?`)) {
-      // Add profit to balance
       const newBalance = (userData.balance || 0) + totalReturn;
-      
+
       await update(ref(db, 'users/' + currentUsername), {
         balance: newBalance,
         plan: "None",
         investTime: null,
         investAmount: null
       });
-      
+
       userData.balance = newBalance;
       userData.plan = "None";
       userData.investTime = null;
       userData.investAmount = null;
-      
+
       await updateUI();
       alert("✅ Profit claimed successfully!");
     }
@@ -343,37 +685,26 @@ async function checkProfit() {
   }
 }
 
-// Add click handler to investment status
 document.getElementById("investStatus").onclick = checkProfit;
-
-/////////////////////////////////////////////////////
-// STATUS
-/////////////////////////////////////////////////////
 
 function updateInvestmentStatus() {
   let el = document.getElementById("investStatus");
   if (userData.plan && userData.plan !== "None") {
     el.innerText = "🟢 Active (" + userData.plan + ") - Click to check";
-    el.style.color = "green";
+    el.style.color = "#00c851";
   } else {
     el.innerText = "🔴 No Investment";
-    el.style.color = "red";
+    el.style.color = "#ff4444";
   }
 }
 
-/////////////////////////////////////////////////////
-// NAVIGATION (ALL USE REPLACE!)
-/////////////////////////////////////////////////////
-
-function goDeposit() { window.location.replace("deposit.html"); }
-function goWithdraw() { window.location.replace("withdraw.html"); }
-function goHome() { window.location.replace("index.html"); }
-function goProfile() { window.location.replace("profile.html"); }
-function goHistory() { window.location.replace("history.html"); }
-
-/////////////////////////////////////////////////////
-// LOGOUT
-/////////////////////////////////////////////////////
+function goDeposit() { window.location.href = "deposit.html"; }
+function goWithdraw() { window.location.href = "withdraw.html"; }
+function goTransfer() { window.location.href = "transfer.html"; }
+function goInvestPage() { window.location.href = "invest.html"; }
+function goHome() { window.location.href = "index.html"; }
+function goProfile() { window.location.href = "profile.html"; }
+function goHistory() { window.location.href = "history.html"; }
 
 async function logout() {
   let overlay = document.getElementById("logoutOverlay");
@@ -382,7 +713,7 @@ async function logout() {
   try {
     await signOut(auth);
     sessionStorage.clear();
-    
+
     setTimeout(() => {
       window.location.replace("login.html");
     }, 2100);
@@ -393,19 +724,15 @@ async function logout() {
   }
 }
 
-/////////////////////////////////////////////////////
-// INIT
-/////////////////////////////////////////////////////
-
-window.goInvest = goInvest;
 window.goDeposit = goDeposit;
 window.goWithdraw = goWithdraw;
+window.goTransfer = goTransfer;
+window.goInvestPage = goInvestPage;
 window.goHome = goHome;
 window.goProfile = goProfile;
 window.goHistory = goHistory;
 window.logout = logout;
 
 </script>
-</body>
-  </html>
-
+</body> 
+</html>
