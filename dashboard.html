@@ -312,11 +312,15 @@ body {
 }
 
 .action-btn:disabled {
-  opacity: 0.4;
+  background: rgba(10, 10, 20, 0.95) !important;
+  color: #333340 !important;
+  opacity: 0.35;
   cursor: not-allowed;
   transform: none !important;
   box-shadow: none !important;
-  filter: grayscale(100%);
+  filter: grayscale(100%) brightness(0.6);
+  border-color: rgba(255, 255, 255, 0.03) !important;
+  pointer-events: none;
 }
 
 /* Deposit - Green Glow */
@@ -661,21 +665,23 @@ h4 {
 /* ===== DISABLED BUTTONS ===== */
 .invest-btn:disabled,
 .withdraw-btn:disabled {
-  background: rgba(15, 15, 30, 0.8) !important;
-  color: #666 !important;
-  opacity: 0.55;
+  background: rgba(10, 10, 20, 0.95) !important;
+  color: #333340 !important;
+  opacity: 0.35;
   cursor: not-allowed;
   box-shadow: none !important;
   transform: none !important;
-  filter: grayscale(100%);
-  border-color: rgba(255, 255, 255, 0.05) !important;
+  filter: grayscale(100%) brightness(0.6);
+  border-color: rgba(255, 255, 255, 0.03) !important;
+  pointer-events: none;
 }
 
 .invest-btn:disabled:hover,
 .withdraw-btn:disabled:hover {
   transform: none !important;
   box-shadow: none !important;
-  border-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.03) !important;
+  background: rgba(10, 10, 20, 0.95) !important;
 }
 
 /* ===== MOBILE ===== */
@@ -808,7 +814,6 @@ h4 {
   <div class="loader"></div>
   <p>Logging out...</p>
 </div>
-
 <script type="module">
 
 import { auth, db } from "./firebase.js";
