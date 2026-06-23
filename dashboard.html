@@ -14,15 +14,22 @@
 </script>
 
 <style>
+/* ===== RESET ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
   background: #0f0f1a;
-  color: white;
+  color: #e8e8ec;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
   padding: 0;
 }
 
-/* ===== HEADER ===== */
+/* ===== HEADER / LOGO ===== */
 .logo-container {
   text-align: center;
   padding: 18px 0;
@@ -42,48 +49,38 @@ body {
   padding: 10px;
   flex-wrap: wrap;
 }
-.deposit-btn {
-  background: linear-gradient(135deg, #00c851, #00b248);
-}
 
-.withdraw-btn {
-  background: linear-gradient(135deg, #ff4444, #cc0000);
-}
-
-.transfer-btn {
-  background: linear-gradient(135deg, #33b5e5, #2a9fd6);
-}
-
-.invest-btn {
-  background: linear-gradient(135deg, #ffbb33, #ff8800);
-  color: black;
-}
 .nav button {
-  background: #1a1a2e;
-  border: 1px solid #2a2a4e;
-  color: #aaa;
+  background: rgba(25, 25, 40, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #8888a0;
   padding: 10px 18px;
   border-radius: 10px;
   cursor: pointer;
-  transition: 0.25s ease;
+  transition: all 0.25s ease;
+  font-family: inherit;
+  font-size: 14px;
 }
 
 .nav button:hover {
-  background: #23233a;
+  background: rgba(255, 255, 255, 0.05);
   color: white;
   transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 /* ===== TEXT ===== */
 .welcome {
   text-align: center;
   margin: 10px 0 5px;
+  font-size: 18px;
 }
 
 .sub {
   text-align: center;
-  color: #888;
+  color: #666680;
   margin-bottom: 20px;
+  font-size: 14px;
 }
 
 /* ===== STATUS BANNER ===== */
@@ -96,6 +93,7 @@ body {
   max-width: 520px;
   display: none;
   backdrop-filter: blur(10px);
+  font-size: 14px;
 }
 
 .status-banner.warning,
@@ -123,55 +121,35 @@ body {
 }
 
 /* ===== INVEST STATUS ===== */
-  #investStatus{
-  cursor:pointer;
-  text-decoration:none;
+#investStatus {
+  cursor: pointer;
+  text-decoration: none;
   border-bottom: 1px dashed rgba(255,255,255,0.2);
-  }
-
-/* ===== GREEN (INVESTMENT ACTIVE) ===== */
-#investStatus.good{
-  color:#00c851;
-  font-weight:bold;
-  text-shadow:
-    0 0 8px rgba(0,200,81,.8),
-    0 0 20px rgba(0,200,81,.6);
-  animation:greenGlow 1.5s infinite;
 }
 
-/* ===== RED (NO INVESTMENT) ===== */
-#investStatus.bad{
-  color:#ff4444;
-  font-weight:bold;
-  text-shadow:
-    0 0 8px rgba(255,68,68,.8),
-    0 0 20px rgba(255,68,68,.6);
-  animation:redGlow 1.5s infinite;
+#investStatus.good {
+  color: #00c851;
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(0,200,81,.8), 0 0 20px rgba(0,200,81,.6);
+  animation: greenGlow 1.5s infinite;
 }
 
-/* ===== GREEN PULSE ===== */
-@keyframes greenGlow{
-  0%,100%{
-    opacity:1;
-    text-shadow:0 0 8px rgba(0,200,81,.6);
-  }
-  50%{
-    opacity:0.6;
-    text-shadow:0 0 25px rgba(0,200,81,1);
-  }
+#investStatus.bad {
+  color: #ff4444;
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(255,68,68,.8), 0 0 20px rgba(255,68,68,.6);
+  animation: redGlow 1.5s infinite;
 }
 
-/* ===== RED PULSE ===== */
-@keyframes redGlow{
-  0%,100%{
-    opacity:1;
-    text-shadow:0 0 8px rgba(255,68,68,.6);
-  }
-  50%{
-    opacity:0.6;
-    text-shadow:0 0 25px rgba(255,68,68,1);
-  }
-  }
+@keyframes greenGlow {
+  0%, 100% { opacity: 1; text-shadow: 0 0 8px rgba(0,200,81,.6); }
+  50% { opacity: 0.6; text-shadow: 0 0 25px rgba(0,200,81,1); }
+}
+
+@keyframes redGlow {
+  0%, 100% { opacity: 1; text-shadow: 0 0 8px rgba(255,68,68,.6); }
+  50% { opacity: 0.6; text-shadow: 0 0 25px rgba(255,68,68,1); }
+}
 
 /* ===== GRID ===== */
 .grid {
@@ -185,22 +163,44 @@ body {
 
 /* ===== MAIN CARDS ===== */
 .card {
-  background: linear-gradient(145deg, #1a1a2e, #151525);
-  border: 1px solid #2a2a4e;
+  background: rgba(25, 25, 40, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 18px;
   padding: 22px;
   text-align: center;
-  transition: 0.25s ease;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+  transition: all 0.25s ease;
+  backdrop-filter: blur(10px);
 }
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 28px rgba(0,0,0,0.55);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.4);
 }
 
 .card.highlight {
-  border-color: #00c851;
+  border-color: rgba(0, 200, 81, 0.4);
+  box-shadow: 0 0 20px rgba(0, 200, 81, 0.1);
+}
+
+.card h4 {
+  color: #8888a0;
+  margin: 0 0 10px 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.card h2 {
+  color: white;
+  margin: 0;
+  font-size: 28px;
+}
+
+.card p {
+  color: #ffbb33;
+  margin: 8px 0 0 0;
+  font-size: 14px;
 }
 
 /* ===== PENDING BOX ===== */
@@ -218,109 +218,231 @@ body {
   padding: 16px;
   border-radius: 14px;
   text-align: center;
-  background: linear-gradient(145deg, #1a1a2e, #151525);
-  border: 1px solid #2a2a4e;
+  background: rgba(25, 25, 40, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+  transition: all 0.25s ease;
 }
-/* ===== QUICK ACTIONS ===== */
+
+.pending-box:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-3px);
+}
+
+.pending-box.deposit {
+  border-color: rgba(0, 200, 81, 0.3);
+}
+
+.pending-box.withdraw {
+  border-color: rgba(255, 68, 68, 0.3);
+}
+
+.pending-box h4 {
+  color: #8888a0;
+  margin: 0 0 10px 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.pending-box h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.pending-box.deposit h2 {
+  color: #00c851;
+}
+
+.pending-box.withdraw h2 {
+  color: #ff4444;
+}
+
+/* ===== QUICK ACTIONS - GLASS BLACK GLOWING ===== */
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-  max-width: 520px;
+  gap: 12px;
+  max-width: 400px;
   margin: 25px auto;
   padding: 0 16px;
 }
 
 .action-btn {
-  padding: 22px;
-  border-radius: 16px;
-  border: none;
-  font-size: 16px;
-  font-weight: bold;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  transition: 0.25s ease;
+  transition: all 0.3s ease;
   color: white;
+  font-family: inherit;
+  position: relative;
+  overflow: hidden;
+  background: rgba(15, 15, 30, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  letter-spacing: 0.3px;
+  text-align: center;
+}
+
+.action-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  transition: left 0.5s ease;
+}
+
+.action-btn:hover::before {
+  left: 100%;
 }
 
 .action-btn:hover {
-  transform: translateY(-4px);
+  transform: translateY(-4px) scale(1.02);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* ===== PLANS SCROLL CONTAINER ===== */
+.action-btn:active {
+  transform: scale(0.98);
+}
+
+.action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+  filter: grayscale(100%);
+}
+
+/* Deposit - Green Glow */
+.deposit-btn {
+  background: rgba(15, 15, 30, 0.8);
+  box-shadow: 0 0 15px rgba(0, 200, 81, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.deposit-btn:hover {
+  box-shadow: 0 0 30px rgba(0, 200, 81, 0.35), 0 8px 25px rgba(0,0,0,0.3);
+  border-color: rgba(0, 200, 81, 0.4);
+}
+
+/* Withdraw - Red Glow */
+.withdraw-btn {
+  background: rgba(15, 15, 30, 0.8);
+  box-shadow: 0 0 15px rgba(255, 68, 68, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.withdraw-btn:hover {
+  box-shadow: 0 0 30px rgba(255, 68, 68, 0.35), 0 8px 25px rgba(0,0,0,0.3);
+  border-color: rgba(255, 68, 68, 0.4);
+}
+
+/* Transfer - Blue Glow */
+.transfer-btn {
+  background: rgba(15, 15, 30, 0.8);
+  box-shadow: 0 0 15px rgba(51, 181, 229, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.transfer-btn:hover {
+  box-shadow: 0 0 30px rgba(51, 181, 229, 0.35), 0 8px 25px rgba(0,0,0,0.3);
+  border-color: rgba(51, 181, 229, 0.4);
+}
+
+/* Invest - Gold Glow */
+.invest-btn {
+  background: rgba(15, 15, 30, 0.8);
+  color: #ffbb33;
+  box-shadow: 0 0 15px rgba(255, 187, 51, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.invest-btn:hover {
+  box-shadow: 0 0 30px rgba(255, 187, 51, 0.35), 0 8px 25px rgba(0,0,0,0.3);
+  border-color: rgba(255, 187, 51, 0.4);
+}
+
+/* ===== PLANS DISPLAY - SIDE BY SIDE (like homepage) ===== */
 .plans-display {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  padding: 25px 16px;
   max-width: 900px;
   margin: 20px auto;
-  scrollbar-width: none;
+  padding: 0 16px;
 }
 
-.plans-display::-webkit-scrollbar {
-  display: none;
+@media (max-width: 768px) {
+  .plans-display {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+  }
 }
 
-/* ===== PLAN CARD ===== */
-/* ===== PLAN CARD (BOLD / SOLID PREMIUM) ===== */
+/* ===== PLAN CARD - GLASS BLACK GLOWING (like homepage, not clickable) ===== */
 .plan-card {
-  flex: 0 0 240px;
-  scroll-snap-align: center;
-
-  background: linear-gradient(145deg, #141427, #0f0f1f);
-  border: 2px solid #2f2f55;
-
+  background: rgba(25, 25, 40, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 18px;
-  padding: 22px;
+  padding: 28px 22px;
   text-align: center;
-
-  transition: all 0.35s ease;
-
-  cursor: grab;
-
-  /* stronger presence */
-  opacity: 0.75;
-  transform: scale(0.92);
-
-  /* deeper shadow = more “solid object” feel */
-  box-shadow: 
-    0 12px 30px rgba(0,0,0,0.6),
-    inset 0 0 0 1px rgba(255,255,255,0.03);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
 }
 
-/* ACTIVE CENTER CARD (VERY STRONG FOCUS) */
-.plan-card.active {
-  transform: scale(1.12);
-  opacity: 1;
-
-  border: 2px solid #ffbb33;
-
-  box-shadow:
-    0 18px 45px rgba(0,0,0,0.75),
-    0 0 25px rgba(255, 187, 51, 0.25),
-    inset 0 0 0 1px rgba(255,255,255,0.05);
-
-  filter: brightness(1.15);
+.plan-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #ffbb33, transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-/* HOVER (SLIGHT LIFT, NOT FLOATY) */
 .plan-card:hover {
-  transform: scale(1.08);
+  border-color: rgba(255, 187, 51, 0.3);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+}
+
+.plan-card:hover::before {
   opacity: 1;
-  box-shadow:
-    0 16px 38px rgba(0,0,0,0.7);
+}
+
+.plan-card h3 {
+  color: #ffbb33;
+  margin: 0 0 12px 0;
+  font-size: 20px;
+}
+
+.plan-card p {
+  color: #8888a0;
+  margin: 6px 0;
+  font-size: 14px;
 }
 
 /* ===== BOX ===== */
 .box {
-  background: #1a1a2e;
+  background: rgba(25, 25, 40, 0.6);
   border-radius: 18px;
   padding: 22px;
   max-width: 520px;
   margin: 20px auto;
-  border: 1px solid #2a2a4e;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+}
+
+.box h3 {
+  margin-bottom: 12px;
+  color: #fff;
+}
+
+.box p {
+  color: #8888a0;
+  margin: 6px 0;
 }
 
 /* ===== SUPPORT BUTTON ===== */
@@ -329,13 +451,20 @@ body {
   bottom: 18px;
   left: 50%;
   transform: translateX(-50%);
-  background: #000;
-  border: 1px solid #222;
-  padding: 12px 18px;
+  background: rgba(15, 15, 30, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 12px 22px;
   border-radius: 50px;
   cursor: pointer;
   z-index: 999;
   animation: bounce 2s infinite;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.support-float:hover {
+  border-color: rgba(255, 187, 51, 0.3);
+  box-shadow: 0 0 20px rgba(255, 187, 51, 0.2);
 }
 
 .support-text {
@@ -346,28 +475,29 @@ body {
 }
 
 @keyframes blinkText {
-  0%,100% { opacity: 1; }
+  0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
 }
 
 @keyframes bounce {
-  0%,100% { transform: translateX(-50%) translateY(0); }
+  0%, 100% { transform: translateX(-50%) translateY(0); }
   50% { transform: translateX(-50%) translateY(-6px); }
 }
+
+/* ===== ID BOX ===== */
 .id-box {
-  background: linear-gradient(145deg, #1a1a2e, #151525);
+  background: rgba(25, 25, 40, 0.6);
   border-radius: 18px;
   padding: 18px 20px;
   max-width: 520px;
   margin: 20px auto;
-  border: 1px solid #2a2a4e;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.45);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(10px);
   position: relative;
   overflow: hidden;
+  transition: all 0.3s ease;
 }
 
-/* subtle glowing top line */
 .id-box::before {
   content: "";
   position: absolute;
@@ -379,24 +509,27 @@ body {
   opacity: 0.6;
 }
 
-/* text layout improvement */
+.id-box:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+}
+
 .id-box p {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #aaa;
+  color: #8888a0;
   margin: 10px 0;
   font-size: 13px;
   letter-spacing: 0.3px;
 }
 
-/* label styling */
 .id-box p strong {
   color: #ffffff;
   font-weight: 600;
 }
 
-/* value styling */
 .id-box span {
   color: #33b5e5;
   font-family: 'Courier New', monospace;
@@ -408,183 +541,104 @@ body {
   letter-spacing: 1px;
 }
 
-/* hover HD effect */
-.id-box:hover {
-  transform: translateY(-3px);
-  transition: 0.3s ease;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-}
-h2{
-  text-align: center;
-  color: gold;
-}
 /* ===== PROFILE CARD ===== */
-
-.profile-card{
-  width:90%;
-  max-width:380px;
-  margin:20px auto;
-  padding:20px;
-
-  background:#1a1a2e;
-
-  border:1px solid #2a2a4e;
-  border-radius:22px;
-
-  text-align:center;
-
-  box-shadow:
-  0 10px 30px rgba(0,0,0,.45);
-
-  position:relative;
-  overflow:hidden;
+.profile-card {
+  width: 90%;
+  max-width: 380px;
+  margin: 20px auto;
+  padding: 20px;
+  background: rgba(25, 25, 40, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 22px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
-/* glowing top line */
-.profile-card::before{
-  content:"";
-  position:absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:2px;
-
-  background:linear-gradient(
-  90deg,
-  transparent,
-  #00c851,
-  transparent);
+.profile-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00c851, transparent);
 }
 
-/* avatar ring */
-
-.profile-ring{
-  width:95px;
-  height:95px;
-
-  margin:0 auto 12px;
-
-  padding:3px;
-
-  border-radius:50%;
-
-  background:
-  linear-gradient(
-  135deg,
-  #00c851,
-  #33b5e5);
-
-  box-shadow:
-  0 0 20px rgba(0,200,81,.25);
+.profile-card:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.4);
 }
 
-.iavatar{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-
-  border-radius:50%;
-
-  background:#0f0f1a;
+.profile-ring {
+  width: 95px;
+  height: 95px;
+  margin: 0 auto 12px;
+  padding: 3px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00c851, #33b5e5);
+  box-shadow: 0 0 20px rgba(0,200,81,.25);
 }
 
-.profile-name{
-  margin:10px 0 5px;
-  font-size:22px;
-  font-weight:700;
-  color:white;
+.iavatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  background: #0f0f1a;
 }
 
-.profile-status{
-  margin:0;
-  color:#888;
-  font-size:14px;
+.profile-name {
+  margin: 10px 0 5px;
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
 }
 
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-/* ===== LOGO ===== */
-.logo-container{
-  display:flex;
-  align-items:center;
-  justify-content:flex-start;
-  padding:12px 18px;
+.profile-status {
+  margin: 0;
+  color: #8888a0;
+  font-size: 14px;
 }
 
-.logo-container img{
-  width:85px;
-  height:auto;
-  filter:drop-shadow(0 0 8px rgba(255,255,255,.08));
-  transition:.3s ease;
+/* ===== HEADINGS ===== */
+h2 {
+  text-align: center;
+  color: #ffbb33;
+  font-size: 24px;
+  margin: 20px 0;
 }
 
-.logo-container img:hover{
-  transform:scale(1.05);
-    }
-
-
-.plan-inactive{
-  color:#ff4444 !important;
-  font-weight:700;
-  animation:redPulse 1.5s infinite;
+h4 {
+  text-align: center;
+  color: #8888a0;
+  font-size: 14px;
+  margin: 10px 0;
 }
 
-@keyframes greenPulse{
-  0%{
-    text-shadow:0 0 5px #00c851;
-  }
-  50%{
-    text-shadow:
-      0 0 10px #00c851,
-      0 0 20px #00c851,
-      0 0 30px #00c851;
-  }
-  100%{
-    text-shadow:0 0 5px #00c851;
-  }
-}
-
-@keyframes redPulse{
-  0%{
-    text-shadow:0 0 5px #ff4444;
-  }
-  50%{
-    text-shadow:
-      0 0 10px #ff4444,
-      0 0 20px #ff4444,
-      0 0 30px #ff4444;
-  }
-  100%{
-    text-shadow:0 0 5px #ff4444;
-  }
-  }
- .logout-overlay{
+/* ===== LOGOUT OVERLAY ===== */
+.logout-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-
   background: rgba(0,0,0,0.92);
-
   display: none;
-
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
   z-index: 99999;
 }
 
-.logout-overlay.active{
+.logout-overlay.active {
   display: flex;
 }
 
-.loader{
+.loader {
   width: 50px;
   height: 50px;
   border: 4px solid #333;
@@ -593,46 +647,54 @@ h2{
   animation: spin 1s linear infinite;
 }
 
-.logout-overlay p{
+.logout-overlay p {
   margin-top: 15px;
   color: #fff;
   font-weight: 600;
   letter-spacing: 1px;
 }
 
-@keyframes spin{
-  to{
-    transform: rotate(360deg);
-  }
-  }
-  /* ===== DISABLED BUTTONS ===== */
-.invest-btn:disabled,
-.withdraw-btn:disabled{
-  background:linear-gradient(135deg,#222,#111) !important;
-  color:#666 !important;
-
-  opacity:0.55;
-
-  cursor:not-allowed;
-
-  box-shadow:none !important;
-
-  transform:none !important;
-
-  filter:grayscale(100%);
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
-/* Prevent hover effect while disabled */
+/* ===== DISABLED BUTTONS ===== */
+.invest-btn:disabled,
+.withdraw-btn:disabled {
+  background: rgba(15, 15, 30, 0.8) !important;
+  color: #666 !important;
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none !important;
+  transform: none !important;
+  filter: grayscale(100%);
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
 .invest-btn:disabled:hover,
-.withdraw-btn:disabled:hover{
-  transform:none !important;
-  box-shadow:none !important;
+.withdraw-btn:disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 768px) {
+  .quick-actions {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 400px;
+  }
+  .pending-grid {
+    flex-direction: column;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
 </head>
 
 <body>
-
 <div class="logo-container">
   <img src="go.png" alt="SmartIvest">
 </div>
