@@ -3,14 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contact Support</title>
+  <title>Contact Support — SmartInvest</title>
   <link rel="stylesheet" href="style.css">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       background: #0f0f1a;
-      color: white;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #e8e8ec;
+      font-family: 'Inter', 'Segoe UI', sans-serif;
       margin: 0;
       padding: 0;
       min-height: 100vh;
@@ -18,34 +25,76 @@
       align-items: center;
       justify-content: center;
     }
-    
-    .contact-container {
-      max-width: 450px;
+
+    /* Background particles */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: rgba(0, 200, 81, 0.12);
+      border-radius: 50%;
+      animation: float 15s infinite ease-in-out;
+    }
+
+    .particle:nth-child(1) { left: 10%; top: 80%; animation-delay: 0s; }
+    .particle:nth-child(2) { left: 20%; top: 20%; animation-delay: 2s; }
+    .particle:nth-child(3) { left: 35%; top: 60%; animation-delay: 4s; }
+    .particle:nth-child(4) { left: 50%; top: 10%; animation-delay: 6s; }
+    .particle:nth-child(5) { left: 65%; top: 70%; animation-delay: 8s; }
+    .particle:nth-child(6) { left: 80%; top: 30%; animation-delay: 10s; }
+    .particle:nth-child(7) { left: 90%; top: 85%; animation-delay: 12s; }
+    .particle:nth-child(8) { left: 15%; top: 40%; animation-delay: 14s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; }
+      50% { transform: translateY(-40px) scale(1.5); opacity: 0.8; }
+    }
+
+    .contact-wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 420px;
       width: 100%;
       padding: 20px;
     }
-    
+
     .contact-card {
-      background: #1a1a2e;
-      border-radius: 20px;
-      padding: 40px;
-      border: 1px solid #2a2a4e;
+      background: rgba(25, 25, 40, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 24px;
+      padding: 40px 32px;
       text-align: center;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
     }
-    
+
     .contact-card h2 {
-      color: #00c851;
-      margin: 0 0 10px 0;
-      font-size: 28px;
+      color: #fff;
+      margin: 0 0 8px 0;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
     }
-    
+
     .contact-card .subtitle {
-      color: #888;
+      color: #666680;
       margin: 0 0 30px 0;
       font-size: 14px;
     }
-    
+
+    /* WHATSAPP ICON - PULSE ANIMATION KEPT */
     .whatsapp-icon {
       width: 80px;
       height: 80px;
@@ -59,101 +108,170 @@
       box-shadow: 0 5px 20px rgba(37, 211, 102, 0.3);
       animation: pulse 2s infinite;
     }
-    
+
     @keyframes pulse {
       0% { transform: scale(1); }
       50% { transform: scale(1.05); }
       100% { transform: scale(1); }
     }
-    
-    .phone-number {
-      color: #ffbb33;
-      font-size: 24px;
-      font-weight: bold;
-      margin: 20px 0;
-      letter-spacing: 1px;
-    }
-    
+
     .availability {
       color: #00c851;
       font-size: 14px;
-      margin-bottom: 25px;
+      font-weight: 600;
+      margin-bottom: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
     }
-    
+
     .availability::before {
-      content: "🟢";
-      font-size: 10px;
+      content: "";
+      width: 8px;
+      height: 8px;
+      background: #00c851;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(0, 200, 81, 0.6);
+      animation: blink 1.5s infinite;
     }
-    
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .phone-number {
+      color: #ffbb33;
+      font-size: 22px;
+      font-weight: 700;
+      margin: 15px 0 25px;
+      letter-spacing: 1px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .info-box {
+      background: rgba(51, 181, 229, 0.08);
+      border: 1px solid rgba(51, 181, 229, 0.25);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+
+    .info-box p {
+      margin: 0;
+      color: #33b5e5;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
     .whatsapp-btn {
       width: 100%;
-      padding: 18px;
+      padding: 16px;
       border-radius: 12px;
-      border: none;
-      background: linear-gradient(135deg, #25d366, #128c7e);
-      color: white;
-      font-size: 18px;
-      font-weight: bold;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15, 15, 30, 0.8);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
       cursor: pointer;
-      transition: 0.3s;
+      transition: all 0.3s ease;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
-      margin-bottom: 25px;
+      margin-bottom: 24px;
+      font-family: 'Inter', sans-serif;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 15px rgba(37, 211, 102, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
     }
-    
+
+    .whatsapp-btn::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .whatsapp-btn:hover::before {
+      left: 100%;
+    }
+
     .whatsapp-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 30px rgba(37, 211, 102, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(37, 211, 102, 0.3), 0 8px 25px rgba(0,0,0,0.2);
+      border-color: rgba(37, 211, 102, 0.4);
     }
-    
+
+    .whatsapp-btn:active {
+      transform: scale(0.98);
+    }
+
     .nav-buttons {
       display: flex;
       gap: 10px;
       justify-content: center;
     }
-    
+
     .nav-btn {
       padding: 12px 24px;
-      border-radius: 10px;
-      border: 1px solid #2a2a4e;
-      background: #0f3460;
-      color: #aaa;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15, 15, 30, 0.6);
+      color: #8888a0;
       font-size: 14px;
+      font-weight: 500;
       cursor: pointer;
-      transition: 0.3s;
+      transition: all 0.3s ease;
+      font-family: 'Inter', sans-serif;
+      backdrop-filter: blur(10px);
     }
-    
+
     .nav-btn:hover {
-      background: #2a2a4e;
-      color: white;
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
     }
-    
-    .info-box {
-      background: rgba(51, 181, 229, 0.1);
-      border: 1px solid #33b5e5;
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 25px;
-    }
-    
-    .info-box p {
-      margin: 0;
-      color: #33b5e5;
-      font-size: 13px;
-      line-height: 1.5;
+
+    @media (max-width: 480px) {
+      .contact-card {
+        padding: 32px 24px;
+      }
+      .contact-card h2 {
+        font-size: 22px;
+      }
+      .nav-buttons {
+        flex-direction: column;
+      }
+      .nav-btn {
+        width: 100%;
+      }
     }
   </style>
 </head>
 
 <body>
 
-<div class="contact-container">
+<!-- Background Particles -->
+<div class="particles">
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+</div>
+
+<div class="contact-wrapper">
 
   <div class="contact-card">
 
@@ -184,7 +302,6 @@
 </div>
 
 <script>
-
 function openWhatsApp() {
   let number = "2349169165200";
 
@@ -204,8 +321,7 @@ function goHome() {
 function goBack() {
   window.location.href = "dashboard.html";
 }
-
 </script>
+
 </body>
-  </html>
-  
+</html>
