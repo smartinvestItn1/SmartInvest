@@ -814,7 +814,8 @@ h4 {
   <div class="loader"></div>
   <p>Logging out...</p>
 </div>
-<script type="module">
+   
+  <script type="module">
 
 import { auth, db } from "./firebase.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -856,22 +857,18 @@ onAuthStateChanged(auth, async (user) => {
   let updates = {};
 
   if (!userData.accountId) {
-    // Generate unique account ID: eP + 6 random digits
     let newId;
     let isUnique = false;
     let attempts = 0;
 
     while (!isUnique && attempts < 10) {
       newId = "eP" + Math.floor(100000 + Math.random() * 900000);
-
-      // Check if this ID already exists
       let idExists = false;
       usersSnap.forEach((child) => {
         if (child.val().accountId === newId) {
           idExists = true;
         }
       });
-
       if (!idExists) {
         isUnique = true;
       }
@@ -894,7 +891,6 @@ onAuthStateChanged(auth, async (user) => {
 
   if (needsUpdate) {
     await update(ref(db, 'users/' + currentUsername), updates);
-    // Reload user data after update
     const refreshed = await get(ref(db, 'users/' + currentUsername));
     userData = refreshed.val();
   }
@@ -957,7 +953,8 @@ async function canWithdraw() {
 
   if (adminFlags.canWithdraw === false) {
     return { allowed: false, reason: adminFlags.blockReason || "Withdrawal disabled by admin." };
-}
+  }
+
   return { allowed: true };
 }
 
@@ -989,9 +986,9 @@ async function updateButtonStates() {
     banner.className = "status-banner warning";
     banner.innerText = `🔒 ADMIN: ${adminFlags.blockReason || "Contact support"}`;
   } else if (balance < MIN_INVEST_BALANCE) {
-  banner.className = "status-banner warning";
-  banner.innerText = `⏳ Deposit $${(MIN_INVEST_BALANCE - balance).toFixed(2)} more to unlock investing`;
-} else {
+    banner.className = "status-banner warning";
+    banner.innerText = `⏳ Deposit $${(MIN_INVEST_BALANCE - balance).toFixed(2)} more to unlock investing`;
+  } else {
     banner.className = "status-banner success";
     banner.innerText = `✅ Account Active: You can invest and withdraw`;
   }
@@ -1093,18 +1090,17 @@ document.getElementById("investStatus").onclick = checkProfit;
 
 function updateInvestmentStatus() {
   let el = document.getElementById("investStatus");
-
-  // reset both states first
   el.classList.remove("good", "bad");
 
   if (userData.plan && userData.plan !== "None") {
     el.innerText = `🟢 Active (${userData.plan})`;
-    el.classList.add("good");   // 🟢 GREEN GLOW
+    el.classList.add("good");
   } else {
     el.innerText = "🔴 No Investment";
-    el.classList.add("bad");    // 🔴 RED GLOW
+    el.classList.add("bad");
   }
 }
+
 function goDeposit() { window.location.href = "deposit.html"; }
 function goWithdraw() { window.location.href = "withdraw.html"; }
 function goTransfer() { window.location.href = "transfer.html"; }
@@ -1130,6 +1126,7 @@ async function logout() {
     overlay.classList.remove("active");
   }
 }
+
 const supportText = document.getElementById("supportText");
 
 setInterval(() => {
@@ -1152,6 +1149,6 @@ window.goHome = goHome;
 window.goProfile = goProfile;
 window.goHistory = goHistory;
 window.logout = logout;
-</script>
-</body> 
-</html>
+  </script>
+  </body>
+  </html>
