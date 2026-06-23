@@ -5,284 +5,527 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SmartInvest</title>
   <link rel="stylesheet" href="style.css">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
   <style>
-    /* ===== BODY ===== */
-body{
-  background:
-    radial-gradient(circle at top,
-      rgba(255,187,51,.03),
-      transparent 35%),
-    radial-gradient(circle at bottom,
-      rgba(0,200,81,.03),
-      transparent 35%),
-    #10101b;
-
-  color:white;
-  font-family:'Segoe UI',sans-serif;
-}
-
-/* ===== LOGO ===== */
-.logo-container{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  margin:20px 0;
-}
-
-.logo-container img{
-  width:120px;
-  height:auto;
-}
-
-/* ===== SECTION ===== */
-    .section{
-  max-width:1100px;
-  margin:30px auto;
-  padding:20px;
-
-  background:rgba(25,25,40,.55);
-  backdrop-filter:blur(18px);
-  -webkit-backdrop-filter:blur(18px);
-
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:20px;
-
-  box-shadow:
-    0 8px 30px rgba(0,0,0,.35),
-    inset 0 1px 0 rgba(255,255,255,.04);
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-#plansSection{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:18px;
 
-  max-width:1100px;
-  margin:auto;
-  padding:20px 16px;
-}
-    @media(max-width:768px){
-
-  #plansSection{
-    grid-template-columns:1fr;
-  }
-
+    body {
+      background: #10101b;
+      color: #e8e8ec;
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
     }
-.section h2{
-  text-align:center;
-  color:white;
-  font-size:24px;
-  margin-bottom:20px;
-}
 
-/* ===== BUTTON ===== */
-.btn-primary{
-  background:linear-gradient(135deg,#00c851,#00b248);
-  border:none;
-  padding:15px 24px;
-  border-radius:14px;
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-  transition:.3s;
-}
-
-.btn-primary:hover{
-  transform:translateY(-3px);
-  box-shadow:0 10px 25px rgba(0,200,81,.25);
-}
-
-/* ===== ABOUT CARDS ===== */
-.cards{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:16px;
-  max-width:900px;
-  margin:auto;
-}
-
-.card{
-  background:rgba(25,25,40,.65);
-  backdrop-filter:blur(18px);
-  -webkit-backdrop-filter:blur(18px);
-
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:18px;
-
-  padding:20px;
-
-  box-shadow:
-    0 8px 30px rgba(0,0,0,.35),
-    inset 0 1px 0 rgba(255,255,255,.04);
-
-  transition:.3s;
-}
-
-.card:hover{
-  transform:translateY(-5px);
-  border-color:#ffbb33;
-}
-
-.card h3{
-  color:#ffbb33;
-  margin-bottom:10px;
-}
-
-.card p{
-  color:#aaa;
-  line-height:1.6;
-}
-
-/* ===== PLANS GRID ===== */
-.plans-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:18px;
-}
-
-.plan{
-  background:rgba(25,25,40,.65);
-  backdrop-filter:blur(18px);
-  -webkit-backdrop-filter:blur(18px);
-
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:18px;
-
-  padding:24px;
-  cursor:pointer;
-
-  transition:.3s;
-
-  box-shadow:
-    0 8px 30px rgba(0,0,0,.35),
-    inset 0 1px 0 rgba(255,255,255,.04);
-}
-
-.plan:hover{
-  transform:translateY(-6px);
-  border-color:#ffbb33;
-  box-shadow:
-    0 15px 35px rgba(0,0,0,.45),
-    0 0 15px rgba(255,187,51,.15);
-}
-
-.plan h3{
-  color:#ffbb33;
-  margin-bottom:12px;
-}
-
-.plan p{
-  color:#aaa;
-  margin:6px 0;
-}
-
-/* ===== LIVE FEED ===== */
-.live-feed{
-  max-width:1100px;
-  margin:20px auto;
-
-  background:rgba(25,25,40,.65);
-
-  backdrop-filter:blur(18px);
-  -webkit-backdrop-filter:blur(18px);
-
-  border-radius:18px;
-  border:1px solid rgba(255,255,255,.08);
-
-  padding:15px;
-
-  text-align:center;
-}
-
-/* ===== TRADINGVIEW ===== */
-iframe{
-  width:100%;
-  height:500px;
-  border:none;
-
-  border-radius:20px;
-
-  box-shadow:
-    0 8px 32px rgba(0,0,0,.35);
-
-  margin-top:20px;
-}
-
-/* ===== FOOTER ===== */
-.footer{
-  margin-top:60px;
-  padding:40px 20px;
-}
-
-.footer-content{
-  max-width:1100px;
-  margin:auto;
-  text-align:center;
-
-  background:rgba(25,25,40,.65);
-
-  backdrop-filter:blur(18px);
-  -webkit-backdrop-filter:blur(18px);
-
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:20px;
-
-  padding:30px;
-
-  box-shadow:
-    0 8px 30px rgba(0,0,0,.35);
-}
-
-.footer-logo{
-  color:#ffbb33;
-  font-size:28px;
-  margin-bottom:12px;
-}
-
-.footer-text{
-  color:#aaa;
-  max-width:700px;
-  margin:auto;
-  line-height:1.7;
-}
-
-.footer-links{
-  display:flex;
-  justify-content:center;
-  gap:25px;
-  margin:25px 0;
-  flex-wrap:wrap;
-}
-
-.footer-links a{
-  color:#ccc;
-  text-decoration:none;
-  transition:.3s;
-}
-
-.footer-links a:hover{
-  color:#ffbb33;
-}
-
-.footer-copy{
-  color:#777;
-  border-top:1px solid rgba(255,255,255,.05);
-  padding-top:15px;
-}
-
-/* ===== MOBILE ===== */
-@media(max-width:768px){
-
-  .cards{
-    grid-template-columns:1fr;
-  }
-
-  .plans-grid{
-    grid-template-columns:1fr;
-  }
-
+    /* ===== NAVBAR ===== */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 100;
     }
-    /* MENU BUTTON */
+
+    .navbar .logo {
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffbb33;
+      letter-spacing: -0.5px;
+    }
+
+    .navbar .nav-links {
+      display: flex;
+      gap: 8px;
+    }
+
+    .navbar .nav-links a {
+      color: #8888a0;
+      text-decoration: none;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.25s ease;
+    }
+
+    .navbar .nav-links a:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.04);
+    }
+
+    .navbar .nav-links a.primary-nav {
+      background: linear-gradient(135deg, #00c851, #00b248);
+      color: white;
+      font-weight: 600;
+    }
+
+    .navbar .nav-links a.primary-nav:hover {
+      background: linear-gradient(135deg, #00d85c, #00c851);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba(0,200,81,0.3);
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      text-align: center;
+      padding: 80px 20px 60px;
+      max-width: 800px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .hero .avatar {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      margin-bottom: 28px;
+      border: 2px solid rgba(255,187,51,0.3);
+      object-fit: cover;
+    }
+
+    .hero h1 {
+      font-size: 52px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      letter-spacing: -1.5px;
+      line-height: 1.1;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(135deg, #ffbb33, #ff8800);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      color: #8888a0;
+      font-size: 18px;
+      margin-bottom: 40px;
+      font-weight: 400;
+    }
+
+    .hero .hero-btns {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 14px 32px;
+      border-radius: 12px;
+      border: none;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #00c851, #00b248);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,200,81,0.35);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1.5px solid rgba(255,187,51,0.4);
+      color: #ffbb33;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,187,51,0.08);
+      border-color: #ffbb33;
+      transform: translateY(-2px);
+    }
+
+    /* ===== SECTIONS ===== */
+    .section {
+      max-width: 1100px;
+      margin: 60px auto;
+      padding: 0 24px;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .section-header h2 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .section-header p {
+      color: #666680;
+      font-size: 15px;
+    }
+
+    /* ===== FEATURE CARDS ===== */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: rgba(25,25,40,0.6);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 28px 24px;
+      transition: all 0.3s ease;
+      cursor: default;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(255,187,51,0.25);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    }
+
+    .feature-card .icon {
+      font-size: 28px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .feature-card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .feature-card p {
+      color: #777790;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ===== LIVE FEED ===== */
+    .live-feed {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 24px;
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .ticker-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(25,25,40,0.5);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-size: 14px;
+    }
+
+    .ticker-item .coin {
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .ticker-item .price {
+      color: #00c851;
+      font-weight: 600;
+    }
+
+    .ticker-item .change {
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .ticker-item .change.up {
+      background: rgba(0,200,81,0.15);
+      color: #00c851;
+    }
+
+    .ticker-item .change.down {
+      background: rgba(255,68,68,0.15);
+      color: #ff4444;
+    }
+
+    /* ===== PLANS ===== */
+    .plans-section {
+      max-width: 1100px;
+      margin: 60px auto;
+      padding: 0 24px;
+    }
+
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .plan-card {
+      background: rgba(25,25,40,0.6);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 20px;
+      padding: 36px 28px;
+      text-align: center;
+      transition: all 0.35s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .plan-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #ffbb33, #ff8800);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .plan-card:hover {
+      border-color: rgba(255,187,51,0.3);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+    }
+
+    .plan-card:hover::before {
+      opacity: 1;
+    }
+
+    .plan-card .plan-badge {
+      display: inline-block;
+      background: rgba(255,187,51,0.1);
+      color: #ffbb33;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+    }
+
+    .plan-card h3 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .plan-card .plan-range {
+      font-size: 15px;
+      color: #ffbb33;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .plan-card .plan-desc {
+      color: #777790;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .plan-card .plan-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(255,255,255,0.1);
+      background: transparent;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .plan-card:hover .plan-btn {
+      background: linear-gradient(135deg, #ffbb33, #ff8800);
+      border-color: transparent;
+      color: #10101b;
+    }
+
+    /* ===== CTA ===== */
+    .cta-section {
+      max-width: 900px;
+      margin: 80px auto;
+      padding: 0 24px;
+    }
+
+    .cta-box {
+      background: rgba(25,25,40,0.6);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 24px;
+      padding: 60px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-box::before {
+      content: "";
+      position: absolute;
+      top: -80px;
+      left: -80px;
+      width: 200px;
+      height: 200px;
+      background: rgba(255,187,51,0.06);
+      border-radius: 50%;
+      filter: blur(60px);
+    }
+
+    .cta-box::after {
+      content: "";
+      position: absolute;
+      bottom: -80px;
+      right: -80px;
+      width: 200px;
+      height: 200px;
+      background: rgba(0,200,81,0.06);
+      border-radius: 50%;
+      filter: blur(60px);
+    }
+
+    .cta-box h2 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .cta-box p {
+      color: #777790;
+      font-size: 16px;
+      margin-bottom: 32px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ===== CHART ===== */
+    .chart-section {
+      max-width: 1100px;
+      margin: 60px auto;
+      padding: 0 24px;
+    }
+
+    .chart-box {
+      background: rgba(25,25,40,0.6);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 20px;
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    .chart-box iframe {
+      width: 100%;
+      height: 480px;
+      border: none;
+      border-radius: 12px;
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      margin-top: 80px;
+      padding: 50px 24px 30px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .footer-logo {
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffbb33;
+      margin-bottom: 16px;
+      letter-spacing: -0.5px;
+    }
+
+    .footer-text {
+      color: #555570;
+      font-size: 14px;
+      max-width: 600px;
+      margin: 0 auto 24px;
+      line-height: 1.7;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin-bottom: 24px;
+    }
+
+    .footer-links a {
+      color: #666680;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      color: #ffbb33;
+    }
+
+    .footer-copy {
+      color: #444460;
+      font-size: 13px;
+    }
+
+    /* ===== MOBILE ===== */
+    @media (max-width: 900px) {
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .plans-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+      .hero h1 {
+        font-size: 36px;
+      }
+      .navbar {
+        padding: 16px 20px;
+      }
+      .navbar .nav-links {
+        display: none;
+      }
+    }
+
+    /* ===== SIDEBAR ===== */
     .menuBtn {
       position: fixed;
       top: 20px;
@@ -297,12 +540,11 @@ iframe{
       font-size: 20px;
       transition: 0.3s;
     }
-    
+
     .menuBtn:hover {
       background: #2a2a4e;
     }
-    
-    /* SIDEBAR */
+
     .sideBar {
       position: fixed;
       top: 0;
@@ -315,16 +557,16 @@ iframe{
       transition: 0.3s;
       z-index: 999;
     }
-    
+
     .sideBar.active {
       left: 0;
     }
-    
+
     .sideBar h3 {
       color: #ffbb33;
       margin-bottom: 20px;
     }
-    
+
     .sideBar button {
       display: block;
       width: 100%;
@@ -336,131 +578,26 @@ iframe{
       border-radius: 10px;
       cursor: pointer;
       transition: 0.3s;
+      font-family: 'Inter', sans-serif;
     }
-    
+
     .sideBar button:hover {
       background: #33b5e5;
     }
-    
-    .hero .avatar {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      margin-bottom: 20px;
-      border: 3px solid #ffbb33;
-    }
-    
-    .hero h1 {
-      font-size: 42px;
-      margin: 0;
-      background: linear-gradient(135deg, #ffbb33, #ff8800);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    
-    .hero p {
-      color: #888;
-      font-size: 18px;
-      margin: 15px 0 30px 0;
-    }
-    
-    .btn {
-      padding: 15px 30px;
-      border-radius: 12px;
-      border: none;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      margin: 5px;
-      transition: 0.3s;
-    } 
-    .btn-secondary {
-      background: transparent;
-      border: 2px solid #ffbb33;
-      color: #ffbb33;
-    }
- /*ANIMATION CLASSES - ADDED BACK! */
-    .plan.show {
-      opacity: 1;
-      transform: translateY(0);
-      transition: all 0.6s ease;
-    }
-    
-    #plansSection.animate .plan:nth-child(1) {
-      transition-delay: 0.4s;
-    }
-    #plansSection.animate .plan:nth-child(2) {
-      transition-delay: 0.8s;
-    }
-    #plansSection.animate .plan:nth-child(3) {
-      transition-delay: 1s;
-    } 
-      /* ===== CALL TO ACTION ===== */
-.out{
-  max-width:900px;
-  margin:40px auto;
-  padding:40px 25px;
 
-  text-align:center;
-
-  background:rgba(25,25,40,.65);
-  backdrop-filter:blur(18px);
-  -webkit-backdrop-filter:blur(18px);
-
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:24px;
-
-  box-shadow:
-    0 10px 35px rgba(0,0,0,.4),
-    inset 0 1px 0 rgba(255,255,255,.05);
-
-  position:relative;
-  overflow:hidden;
-}
-
-.out::before{
-  content:"";
-  position:absolute;
-  top:-100px;
-  left:-100px;
-  width:220px;
-  height:220px;
-
-  background:rgba(255,187,51,.08);
-  border-radius:50%;
-  filter:blur(50px);
-}
-
-.out::after{
-  content:"";
-  position:absolute;
-  bottom:-100px;
-  right:-100px;
-  width:220px;
-  height:220px;
-
-  background:rgba(0,200,81,.08);
-  border-radius:50%;
-  filter:blur(50px);
-}
-
-.out h2{
-  color:white;
-  font-size:30px;
-  margin-bottom:15px;
-  position:relative;
-  z-index:2;
-}
-
-.out p{
-  color:#aaa;
-  font-size:16px;
-  line-height:1.7;
-  max-width:650px;
-  margin:0 auto 25px;
-  position:relative;
-  z-index:2;
+    @media (max-width: 500px) {
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero {
+        padding: 50px 20px 40px;
+      }
+      .hero h1 {
+        font-size: 28px;
+      }
+      .section-header h2 {
+        font-size: 24px;
+      }
     }
   </style>
 </head>
@@ -478,108 +615,188 @@ iframe{
   <button onclick="goContact()">Contact Us</button>
 </div>
 
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="logo">SmartInvest</div>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="contact.html">Support</a>
+    <a href="terms.html">Terms</a>
+    <a href="login.html" class="primary-nav">Sign In</a>
+  </div>
+</nav>
+
 <!-- HERO -->
 <div class="hero">
-  <img id="dashAvatar" class="avatar" src="go.png">
-  <h1>SmartInvest</h1>
-  <p>Grow your money smarter and safer</p>
+  <img id="dashAvatar" class="avatar" src="go.png" alt="Avatar">
+  <h1>Grow Your Wealth <span>Smarter</span></h1>
+  <p>Secure, transparent, and intelligent investment platform for modern investors.</p>
+  <div class="hero-btns">
+    <button class="btn btn-primary" onclick="goLogin()">Start Investing</button>
+    <button class="btn btn-secondary" onclick="goSignup()">Create Account</button>
+  </div>
+</div>
 
-  <button class="btn btn-primary" onclick="goLogin()">Sign in to start your investment</button>
-  <button class="btn btn-secondary" onclick="goSignup()">Create Account</button>
+<!-- LIVE TICKER -->
+<div class="live-feed" id="liveFeed">
+  <div class="ticker-item">
+    <span class="coin">BTC</span>
+    <span class="price">$67,245</span>
+    <span class="change up">+2.4%</span>
+  </div>
+  <div class="ticker-item">
+    <span class="coin">ETH</span>
+    <span class="price">$3,521</span>
+    <span class="change up">+1.8%</span>
+  </div>
+  <div class="ticker-item">
+    <span class="coin">SOL</span>
+    <span class="price">$142.30</span>
+    <span class="change down">-0.5%</span>
+  </div>
 </div>
 
 <!-- FEATURES -->
 <div class="section">
-  <h2>Why Choose Us</h2>
-
-  <div class="cards">
-    <div class="card">
-      <h3>📈 Smart Growth</h3>
-      <p>We help you grow your funds with intelligent strategies.</p>
+  <div class="section-header">
+    <h2>Why Investors Trust Us</h2>
+    <p>Built for security, speed, and long-term growth</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <span class="icon">📈</span>
+      <h3>Smart Growth</h3>
+      <p>Intelligent portfolio strategies designed to maximize returns while managing risk.</p>
     </div>
-
-    <div class="card">
-      <h3>🔒 Secure System</h3>
-      <p>Your investments are protected with modern security.</p>
+    <div class="feature-card">
+      <span class="icon">🔒</span>
+      <h3>Bank-Grade Security</h3>
+      <p>Your assets are protected with enterprise-level encryption and multi-factor authentication.</p>
     </div>
-
-    <div class="card">
-      <h3>⚡ Fast Access</h3>
-      <p>Quick deposits and withdrawals anytime.</p>
+    <div class="feature-card">
+      <span class="icon">⚡</span>
+      <h3>Instant Access</h3>
+      <p>Deposit and withdraw funds in minutes, not days. Full control over your capital.</p>
     </div>
-
-    <div class="card">
-      <h3>🤝 Trusted Platform</h3>
-      <p>Join thousands building financial freedom.</p>
+    <div class="feature-card">
+      <span class="icon">🤝</span>
+      <h3>Trusted Worldwide</h3>
+      <p>Join thousands of investors building financial freedom through our platform.</p>
     </div>
   </div>
 </div>
 
-<!-- LIVE FEED -->
-<div id="liveFeed" class="live-feed"></div>
-
-<!-- INVESTMENT PLANS -->
-<div class="section" id="plansSection">
-  <h2 class="in">Investment Plans</h2>
-
-  <div class="plan" onclick="goLogin('starter')">
-    <h3>Starter Plan</h3>
-    <p>💰 $100 – $999</p>
-    <p>Low risk plan for beginners</p>
+<!-- PLANS -->
+<div class="plans-section" id="plansSection">
+  <div class="section-header">
+    <h2>Investment Plans</h2>
+    <p>Choose a plan that matches your goals</p>
   </div>
-
-  <div class="plan" onclick="goLogin('pro')">
-    <h3>Pro Plan</h3>
-    <p>💰 $1,000 – $4,999</p>
-    <p>Balanced growth investment</p>
-  </div>
-
-  <div class="plan" onclick="goLogin('premium')">
-    <h3>Premium Plan</h3>
-    <p>💰 $5,000 – $100,000</p>
-    <p>High return premium investment</p>
+  <div class="plans-grid">
+    <div class="plan-card" onclick="goLogin('starter')">
+      <div class="plan-badge">Starter</div>
+      <h3>Starter Plan</h3>
+      <div class="plan-range">$100 – $999</div>
+      <p class="plan-desc">Perfect for beginners looking to start their investment journey with low risk and steady returns.</p>
+      <button class="plan-btn">Get Started</button>
+    </div>
+    <div class="plan-card" onclick="goLogin('pro')">
+      <div class="plan-badge">Pro</div>
+      <h3>Pro Plan</h3>
+      <div class="plan-range">$1,000 – $4,999</div>
+      <p class="plan-desc">Balanced growth strategy for experienced investors seeking higher returns with managed risk.</p>
+      <button class="plan-btn">Get Started</button>
+    </div>
+    <div class="plan-card" onclick="goLogin('premium')">
+      <div class="plan-badge">Premium</div>
+      <h3>Premium Plan</h3>
+      <div class="plan-range">$5,000 – $100,000</div>
+      <p class="plan-desc">High-return premium strategy for serious investors ready to maximize their portfolio growth.</p>
+      <button class="plan-btn">Get Started</button>
+    </div>
   </div>
 </div>
 
-<!-- CALL TO ACTION -->
-<div class="out">
-  <h2>Start Your Investment Journey Today</h2>
-  <button class="btn btn-primary" onclick="goLogin()">Get Started</button>
+<!-- CTA -->
+<div class="cta-section">
+  <div class="cta-box">
+    <h2>Ready to Start Your Journey?</h2>
+    <p>Create your account in under 2 minutes and begin building your financial future today.</p>
+    <button class="btn btn-primary" onclick="goLogin()" style="position:relative; z-index:2;">Get Started Now</button>
+  </div>
 </div>
 
-<!-- CRYPTO WIDGET -->
-<iframe 
-  src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_crypto&screen=crypto_mkt&displayCurrency=USD"
-  width="100%" 
-  height="500" 
-  frameborder="0">
-</iframe>
+<!-- CHART -->
+<div class="chart-section">
+  <div class="section-header">
+    <h2>Live Market</h2>
+    <p>Real-time cryptocurrency market data</p>
+  </div>
+  <div class="chart-box">
+    <iframe 
+      src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_crypto&screen=crypto_mkt&displayCurrency=USD"
+      width="100%" 
+      height="480" 
+      frameborder="0">
+    </iframe>
+  </div>
+</div>
 
 <!-- FOOTER -->
 <footer class="footer">
-  <div class="footer-content">
-
-    <h2 class="footer-logo">SmartInvest</h2>
-
+  <div class="footer-inner">
+    <div class="footer-logo">SmartInvest</div>
     <p class="footer-text">
-      SmartInvest is a modern investment platform designed to help users grow wealth through smart,
-      secure and transparent financial systems.
+      SmartInvest is a modern investment platform designed to help users grow wealth through smart, secure, and transparent financial systems.
     </p>
-
     <div class="footer-links">
       <a href="index.html">Home</a>
       <a href="contact.html">Support</a>
       <a href="terms.html">Terms</a>
     </div>
-
-    <p class="footer-copy">
-      © 2026 SmartInvest. All Rights Reserved.
-    </p>
-
+    <p class="footer-copy">© 2026 SmartInvest. All Rights Reserved.</p>
   </div>
 </footer>
-
 <script>
+  function goLogin(plan) {
+    if (plan) {
+      sessionStorage.setItem("selectedPlan", plan);
+    }
+    window.location.href = "login.html";
+  }
+
+  function goSignup() {
+    window.location.href = "signup.html";
+  }
+
+  // Simple live ticker animation
+  const tickers = document.querySelectorAll('.ticker-item');
+  tickers.forEach((ticker, i) => {
+    ticker.style.opacity = '0';
+    ticker.style.transform = 'translateY(10px)';
+    setTimeout(() => {
+      ticker.style.transition = 'all 0.5s ease';
+      ticker.style.opacity = '1';
+      ticker.style.transform = 'translateY(0)';
+    }, 200 + i * 150);
+  });
+
+  // Scroll reveal for cards
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.feature-card, .plan-card').forEach(card => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(20px)';
+    card.style.transition = 'all 0.6s ease';
+    observer.observe(card);
+  });
 
 /////////////////////////////////////////////////////
 // NAVIGATION - EXACTLY AS YOU HAD IT
@@ -718,4 +935,3 @@ setInterval(showLiveProfit, 2500);
 </script>
 </body>
 </html>
-  
