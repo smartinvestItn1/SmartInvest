@@ -605,7 +605,29 @@ h2{
     transform: rotate(360deg);
   }
   }
-  
+  /* ===== DISABLED BUTTONS ===== */
+.invest-btn:disabled,
+.withdraw-btn:disabled{
+  background:linear-gradient(135deg,#222,#111) !important;
+  color:#666 !important;
+
+  opacity:0.55;
+
+  cursor:not-allowed;
+
+  box-shadow:none !important;
+
+  transform:none !important;
+
+  filter:grayscale(100%);
+}
+
+/* Prevent hover effect while disabled */
+.invest-btn:disabled:hover,
+.withdraw-btn:disabled:hover{
+  transform:none !important;
+  box-shadow:none !important;
+}
 </style>
 </head>
 
