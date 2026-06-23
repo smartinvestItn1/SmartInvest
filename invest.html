@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Invest</title>
+  <title>Invest — SmartInvest</title>
   <link rel="stylesheet" href="style.css">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
   <script>
     if (window.history && window.history.pushState) {
       window.history.pushState(null, null, window.location.href);
@@ -14,256 +15,410 @@
       };
     }
   </script>
-  
+
   <style>
-    body {
-      background: #0f0f1a;
-      color: white;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    * {
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
-    
-    .invest-container {
-      max-width: 500px;
+
+    body {
+      background: #0f0f1a;
+      color: #e8e8ec;
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    /* Background particles */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: rgba(255, 187, 51, 0.12);
+      border-radius: 50%;
+      animation: float 15s infinite ease-in-out;
+    }
+
+    .particle:nth-child(1) { left: 10%; top: 80%; animation-delay: 0s; }
+    .particle:nth-child(2) { left: 20%; top: 20%; animation-delay: 2s; }
+    .particle:nth-child(3) { left: 35%; top: 60%; animation-delay: 4s; }
+    .particle:nth-child(4) { left: 50%; top: 10%; animation-delay: 6s; }
+    .particle:nth-child(5) { left: 65%; top: 70%; animation-delay: 8s; }
+    .particle:nth-child(6) { left: 80%; top: 30%; animation-delay: 10s; }
+    .particle:nth-child(7) { left: 90%; top: 85%; animation-delay: 12s; }
+    .particle:nth-child(8) { left: 15%; top: 40%; animation-delay: 14s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; }
+      50% { transform: translateY(-40px) scale(1.5); opacity: 0.8; }
+    }
+
+    .invest-wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 480px;
       margin: 0 auto;
       padding: 20px;
     }
-    
-    .back-btn {
-      background: #1a1a2e;
-      border: 1px solid #2a2a4e;
-      color: #aaa;
-      padding: 12px 24px;
-      border-radius: 10px;
-      cursor: pointer;
-      margin-bottom: 20px;
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #666680;
+      text-decoration: none;
       font-size: 14px;
-      transition: 0.3s;
+      font-weight: 500;
+      margin-bottom: 28px;
+      transition: color 0.2s ease;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
     }
-    
-    .back-btn:hover {
-      background: #2a2a4e;
-      color: white;
+
+    .back-link:hover {
+      color: #ffbb33;
     }
-    
+
+    .back-link svg {
+      width: 16px;
+      height: 16px;
+    }
+
     .invest-card {
-      background: #1a1a2e;
-      border-radius: 16px;
-      padding: 30px;
-      border: 1px solid #2a2a4e;
+      background: rgba(25, 25, 40, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 24px;
+      padding: 36px 32px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
     }
-    
+
     .invest-header {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 28px;
     }
-    
-    .invest-header h2 {
-      color: #ffbb33;
-      margin: 0;
+
+    .invest-header .logo-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #ffbb33, #ff8800);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
       font-size: 24px;
     }
-    
+
+    .invest-header h2 {
+      color: #fff;
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
     .invest-header p {
-      color: #888;
+      color: #666680;
       margin: 8px 0 0 0;
       font-size: 14px;
     }
-    
+
     .balance-display {
-      background: #0f3460;
-      border-radius: 12px;
+      background: rgba(15, 15, 30, 0.6);
+      border-radius: 16px;
       padding: 20px;
       text-align: center;
-      margin-bottom: 25px;
-      border: 1px solid #2a2a4e;
+      margin-bottom: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(10px);
     }
-    
+
     .balance-display h3 {
-      color: #888;
-      margin: 0 0 10px 0;
+      color: #8888a0;
+      margin: 0 0 8px 0;
       font-size: 12px;
       text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
     }
-    
+
     .balance-display p {
       color: #00c851;
       margin: 0;
       font-size: 28px;
-      font-weight: bold;
+      font-weight: 700;
     }
-    
+
     .form-group {
-      margin-bottom: 25px;
+      margin-bottom: 20px;
     }
-    
+
     .form-group label {
       display: block;
-      color: #888;
-      font-size: 12px;
+      color: #8888a0;
+      font-size: 13px;
+      font-weight: 500;
       margin-bottom: 8px;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
     }
-    
+
     .amount-input {
       width: 100%;
-      padding: 15px;
+      padding: 14px 16px;
       border-radius: 12px;
-      border: 1px solid #333;
-      background: #0f3460;
-      color: white;
+      border: 1.5px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15, 15, 30, 0.6);
+      color: #fff;
       font-size: 18px;
       box-sizing: border-box;
       text-align: center;
-      font-weight: bold;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.25s ease;
     }
-    
+
+    .amount-input::placeholder {
+      color: #444460;
+    }
+
     .amount-input:focus {
       outline: none;
       border-color: #ffbb33;
+      box-shadow: 0 0 0 3px rgba(255, 187, 51, 0.1);
+      background: rgba(15, 15, 30, 0.8);
     }
-    
-    .amount-input::placeholder {
-      color: #666;
-    }
-    
+
     .plan-info {
-      background: rgba(255, 187, 51, 0.1);
-      border: 1px solid #ffbb33;
-      border-radius: 10px;
-      padding: 15px;
+      background: rgba(255, 187, 51, 0.08);
+      border: 1px solid rgba(255, 187, 51, 0.25);
+      border-radius: 12px;
+      padding: 16px;
       margin-bottom: 20px;
       display: none;
     }
-    
+
     .plan-info.show {
       display: block;
+      animation: fadeIn 0.3s ease;
     }
-    
+
     .plan-info h4 {
       color: #ffbb33;
       margin: 0 0 10px 0;
+      font-size: 16px;
+      font-weight: 700;
     }
-    
+
     .plan-info p {
-      color: #aaa;
+      color: #8888a0;
       margin: 5px 0;
       font-size: 14px;
     }
-    
+
     .error-box {
-      background: rgba(255, 68, 68, 0.1);
-      border: 1px solid #ff4444;
-      border-radius: 10px;
-      padding: 15px;
+      background: rgba(255, 68, 68, 0.08);
+      border: 1px solid rgba(255, 68, 68, 0.25);
+      border-radius: 12px;
+      padding: 16px;
       margin-bottom: 20px;
       display: none;
     }
-    
+
     .error-box.show {
       display: block;
+      animation: fadeIn 0.3s ease;
     }
-    
+
     .error-box p {
       color: #ff4444;
       margin: 0;
       font-size: 14px;
+      font-weight: 600;
     }
-    
+
     .submit-btn {
       width: 100%;
-      padding: 18px;
+      padding: 16px;
       border-radius: 12px;
-      border: none;
-      background: linear-gradient(135deg, #ffbb33, #ff8800);
-      color: black;
-      font-size: 18px;
-      font-weight: bold;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15, 15, 30, 0.8);
+      color: #ffbb33;
+      font-size: 16px;
+      font-weight: 600;
       cursor: pointer;
-      transition: 0.3s;
+      transition: all 0.3s ease;
+      font-family: 'Inter', sans-serif;
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.3px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 15px rgba(255, 187, 51, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
     }
-    
+
+    .submit-btn::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .submit-btn:hover::before {
+      left: 100%;
+    }
+
     .submit-btn:hover {
       transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(255, 187, 51, 0.3), 0 8px 25px rgba(0,0,0,0.2);
+      border-color: rgba(255, 187, 51, 0.4);
     }
-    
+
+    .submit-btn:active {
+      transform: scale(0.98);
+    }
+
     .submit-btn:disabled {
-      opacity: 0.4;
+      background: rgba(10, 10, 20, 0.95) !important;
+      color: #333340 !important;
+      opacity: 0.35;
       cursor: not-allowed;
-      transform: none;
+      transform: none !important;
+      box-shadow: none !important;
+      filter: grayscale(100%) brightness(0.6);
+      border-color: rgba(255, 255, 255, 0.03) !important;
+      pointer-events: none;
     }
-    
+
     #result {
       text-align: center;
-      padding: 15px;
+      padding: 14px 16px;
       border-radius: 10px;
       margin-top: 20px;
-      font-weight: bold;
+      font-weight: 600;
+      font-size: 13px;
       display: none;
+      font-family: 'Inter', sans-serif;
     }
-    
+
     #result.show {
       display: block;
+      animation: fadeIn 0.3s ease;
     }
-    
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     #result.success {
-      background: rgba(0, 200, 81, 0.2);
+      background: rgba(0, 200, 81, 0.12);
       color: #00c851;
-      border: 1px solid #00c851;
+      border: 1px solid rgba(0, 200, 81, 0.25);
     }
-    
+
     #result.error {
-      background: rgba(255, 68, 68, 0.2);
+      background: rgba(255, 68, 68, 0.12);
       color: #ff4444;
-      border: 1px solid #ff4444;
+      border: 1px solid rgba(255, 68, 68, 0.25);
     }
-    
+
     .plans-legend {
       margin-top: 25px;
       padding-top: 25px;
-      border-top: 1px solid #2a2a4e;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
     }
-    
+
     .plans-legend h4 {
-      color: #888;
+      color: #8888a0;
       margin: 0 0 15px 0;
       font-size: 12px;
       text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
     }
-    
+
     .plan-item {
       display: flex;
       justify-content: space-between;
       padding: 10px 0;
-      border-bottom: 1px solid #2a2a4e;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
       font-size: 14px;
     }
-    
+
     .plan-item span:first-child {
       color: #aaa;
+      font-weight: 600;
     }
-    
+
     .plan-item span:last-child {
       color: #ffbb33;
+    }
+
+    @media (max-width: 480px) {
+      .invest-card {
+        padding: 28px 20px;
+      }
+      .invest-header h2 {
+        font-size: 20px;
+      }
     }
   </style>
 </head>
 
 <body>
 
-<div class="invest-container">
+<!-- Background Particles -->
+<div class="particles">
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+</div>
 
-  <button class="back-btn" onclick="goBack()">⬅ Back to Dashboard</button>
+<div class="invest-wrapper">
+
+  <button class="back-link" onclick="goBack()">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+    </svg>
+    Back to Dashboard
+  </button>
 
   <div class="invest-card">
-    
+
     <div class="invest-header">
-      <h2>📈 Invest</h2>
+      <div class="logo-icon">📈</div>
+      <h2>Invest</h2>
       <p>Enter amount to see available plans</p>
     </div>
-    
+
     <div class="balance-display">
       <h3>Your Balance</h3>
       <p>$<span id="userBalance">0.00</span></p>
@@ -273,18 +428,18 @@
       <label>Investment Amount (USD)</label>
       <input id="investAmount" class="amount-input" type="number" placeholder="Min $100" oninput="checkPlan()">
     </div>
-    
+
     <div id="planInfo" class="plan-info">
       <h4 id="planName">Select amount</h4>
       <p id="planDetails">Enter amount to see plan details</p>
     </div>
-    
+
     <div id="errorBox" class="error-box">
       <p id="errorText"></p>
     </div>
 
     <button class="submit-btn" id="investBtn" onclick="submitInvest()" disabled>Invest Now</button>
-    
+
     <p id="result"></p>
 
     <div class="plans-legend">
@@ -308,7 +463,6 @@
 </div>
 
 <script type="module">
-
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { ref, get, update, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -480,8 +634,7 @@ function goBack() {
 window.goBack = goBack;
 window.checkPlan = checkPlan;
 window.submitInvest = submitInvest;
-
 </script>
 
 </body>
-</html>
+    </html>
