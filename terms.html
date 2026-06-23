@@ -3,82 +3,134 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terms & Conditions</title>
+  <title>Terms & Conditions — SmartInvest</title>
   <link rel="stylesheet" href="style.css">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       background: #0f0f1a;
-      color: white;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #e8e8ec;
+      font-family: 'Inter', 'Segoe UI', sans-serif;
       margin: 0;
       padding: 0;
       min-height: 100vh;
     }
-    
-    .terms-container {
+
+    /* Background particles */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: rgba(255, 187, 51, 0.08);
+      border-radius: 50%;
+      animation: float 15s infinite ease-in-out;
+    }
+
+    .particle:nth-child(1) { left: 10%; top: 80%; animation-delay: 0s; }
+    .particle:nth-child(2) { left: 20%; top: 20%; animation-delay: 2s; }
+    .particle:nth-child(3) { left: 35%; top: 60%; animation-delay: 4s; }
+    .particle:nth-child(4) { left: 50%; top: 10%; animation-delay: 6s; }
+    .particle:nth-child(5) { left: 65%; top: 70%; animation-delay: 8s; }
+    .particle:nth-child(6) { left: 80%; top: 30%; animation-delay: 10s; }
+    .particle:nth-child(7) { left: 90%; top: 85%; animation-delay: 12s; }
+    .particle:nth-child(8) { left: 15%; top: 40%; animation-delay: 14s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; }
+      50% { transform: translateY(-40px) scale(1.5); opacity: 0.8; }
+    }
+
+    .terms-wrapper {
+      position: relative;
+      z-index: 1;
       max-width: 800px;
       margin: 0 auto;
       padding: 40px 20px;
     }
-    
+
     .terms-card {
-      background: #1a1a2e;
-      border-radius: 20px;
+      background: rgba(25, 25, 40, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 24px;
       padding: 40px;
-      border: 1px solid #2a2a4e;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
     }
-    
+
     .terms-header {
       text-align: center;
       margin-bottom: 40px;
       padding-bottom: 30px;
-      border-bottom: 1px solid #2a2a4e;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
-    
+
     .terms-header h1 {
       color: #ffbb33;
       margin: 0;
       font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -1px;
     }
-    
+
     .terms-header .subtitle {
-      color: #888;
+      color: #666680;
       margin: 15px 0 0 0;
       font-size: 14px;
     }
-    
+
     .terms-section {
       margin-bottom: 30px;
       padding-bottom: 20px;
-      border-bottom: 1px solid #2a2a4e;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
-    
+
     .terms-section:last-of-type {
       border-bottom: none;
     }
-    
+
     .terms-section h3 {
       color: #00c851;
       margin: 0 0 15px 0;
-      font-size: 18px;
+      font-size: 16px;
+      font-weight: 700;
       display: flex;
       align-items: center;
       gap: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
-    
+
     .terms-section h3::before {
       content: "📋";
+      font-size: 18px;
     }
-    
+
     .terms-section p {
-      color: #aaa;
+      color: #8888a0;
       margin: 0;
       line-height: 1.8;
       font-size: 15px;
     }
-    
+
     .terms-section:nth-child(2) h3::before { content: "🤝"; }
     .terms-section:nth-child(3) h3::before { content: "👤"; }
     .terms-section:nth-child(4) h3::before { content: "📈"; }
@@ -86,41 +138,87 @@
     .terms-section:nth-child(6) h3::before { content: "⚖️"; }
     .terms-section:nth-child(7) h3::before { content: "🔒"; }
     .terms-section:nth-child(8) h3::before { content: "✅"; }
-    
+
     .back-btn {
       display: block;
       width: 100%;
-      max-width: 200px;
+      max-width: 220px;
       margin: 30px auto 0 auto;
-      padding: 15px;
+      padding: 14px;
       border-radius: 12px;
-      border: none;
-      background: linear-gradient(135deg, #33b5e5, #2a9fd6);
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15, 15, 30, 0.8);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
       cursor: pointer;
-      transition: 0.3s;
+      transition: all 0.3s ease;
       text-align: center;
+      font-family: 'Inter', sans-serif;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 15px rgba(51, 181, 229, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
     }
-    
+
+    .back-btn::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .back-btn:hover::before {
+      left: 100%;
+    }
+
     .back-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 5px 20px rgba(51, 181, 229, 0.3);
+      box-shadow: 0 0 25px rgba(51, 181, 229, 0.3), 0 8px 25px rgba(0,0,0,0.2);
+      border-color: rgba(51, 181, 229, 0.4);
     }
-    
+
+    .back-btn:active {
+      transform: scale(0.98);
+    }
+
     .footer-note {
       text-align: center;
       margin-top: 30px;
-      color: #666;
+      color: #444460;
       font-size: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .terms-card {
+        padding: 28px 20px;
+      }
+      .terms-header h1 {
+        font-size: 24px;
+      }
     }
   </style>
 </head>
 
 <body>
 
-<div class="terms-container">
+<!-- Background Particles -->
+<div class="particles">
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+</div>
+
+<div class="terms-wrapper">
 
   <div class="terms-card">
 
@@ -180,4 +278,3 @@ function goBack() {
 
 </body>
 </html>
-
