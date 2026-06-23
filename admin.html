@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Panel</title>
   <link rel="stylesheet" href="style.css">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
   <!-- Prevent back button after logout -->
   <script>
     if (window.history && window.history.pushState) {
@@ -15,313 +16,442 @@
       };
     }
   </script>
-  
+
   <style>
-    /* DARK THEME */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       background: #0f0f1a;
-      color: white;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #e8e8ec;
+      font-family: 'Inter', 'Segoe UI', sans-serif;
       margin: 0;
       padding: 0;
     }
-    
+
     .admin-container {
       max-width: 1200px;
       margin: 0 auto;
       padding: 20px;
     }
-    
+
+    /* ===== LOGOUT BUTTON ===== */
+    .logout-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 68, 68, 0.15);
+      color: #ff4444;
+      border: 1px solid rgba(255, 68, 68, 0.3);
+      padding: 12px 24px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.3px;
+      font-family: 'Inter', sans-serif;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 68, 68, 0.25);
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(255, 68, 68, 0.3);
+      border-color: rgba(255, 68, 68, 0.5);
+    }
+
+    /* ===== HEADER ===== */
     .admin-header {
       text-align: center;
-      padding: 30px 0;
+      padding: 50px 0 30px;
     }
-    
+
     .admin-header h2 {
       color: #ff4444;
       margin: 0;
-      font-size: 32px;
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      text-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
     }
-    
+
     .admin-header p {
-      color: #888;
-      margin: 10px 0 0 0;
+      color: #666680;
+      margin: 12px 0 0 0;
+      font-size: 15px;
     }
 
-    .logout-btn{
-  position:fixed;
-  top:20px;
-  right:20px;
-  background:#ff4444;
-  color:#fff;
-  border:none;
-  padding:12px 24px;
-  border-radius:14px;
-  cursor:pointer;
-  font-weight:700;
-  letter-spacing:.5px;
-
-  box-shadow:
-    0 8px 20px rgba(255,68,68,.35),
-    inset 0 1px 1px rgba(255,255,255,.12);
-
-  transition:all .3s ease;
-}
-
-.logout-btn:hover{
-  background:#ff4444;
-  transform:translateY(-3px);
-  box-shadow:
-    0 14px 30px rgba(255,68,68,.45),
-    0 0 15px rgba(255,68,68,.25);
-}
-
-.logout-btn:active{
-  transform:scale(.97);
-}
-    
+    /* ===== SECTION CARD - GLASS ===== */
     .section-card {
-      background: #1a1a2e;
-      border-radius: 16px;
-      padding: 25px;
-      margin-bottom: 25px;
-      border: 1px solid #2a2a4e;
+      background: rgba(25, 25, 40, 0.6);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+      transition: all 0.3s ease;
     }
-    
+
+    .section-card:hover {
+      border-color: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.45);
+    }
+
     .section-card h3 {
       color: #ffbb33;
       margin: 0 0 20px 0;
-      font-size: 20px;
+      font-size: 18px;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 1.5px;
+      font-weight: 700;
     }
-    
+
+    /* ===== SEARCH BOX ===== */
     .search-box {
       width: 100%;
-      padding: 15px;
-      border-radius: 10px;
-      border: 1px solid #333;
-      background: #0f3460;
-      color: white;
-      font-size: 16px;
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15, 15, 30, 0.6);
+      color: #fff;
+      font-size: 15px;
       margin-bottom: 20px;
       box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.25s ease;
     }
-    
+
+    .search-box::placeholder {
+      color: #444460;
+    }
+
     .search-box:focus {
       outline: none;
       border-color: #ffbb33;
+      box-shadow: 0 0 0 3px rgba(255, 187, 51, 0.1);
+      background: rgba(15, 15, 30, 0.8);
     }
-    .filter-tab{
-  background:#0f3460;
-  border:1px solid #2a2a4e;
-  color:#aaa;
-  padding:10px 20px;
-  border-radius:12px;
-  cursor:pointer;
-  font-weight:600;
 
-  transition:all .3s ease;
+    /* ===== FILTER TABS - GLASS GLOWING ===== */
+    .filter-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
 
-  box-shadow:
-    0 4px 12px rgba(0,0,0,.25),
-    inset 0 1px 1px rgba(255,255,255,.05);
-}
+    .filter-tab {
+      background: rgba(15, 15, 30, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #8888a0;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
 
-.filter-tab:hover{
-  transform:translateY(-2px);
-}
+    .filter-tab:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
 
-.filter-tab.active{
-  background:#33b5e5;
-  color:#fff;
+    .filter-tab.active {
+      background: rgba(51, 181, 229, 0.15);
+      color: #33b5e5;
+      border-color: rgba(51, 181, 229, 0.4);
+      box-shadow: 0 0 20px rgba(51, 181, 229, 0.2);
+    }
 
-  box-shadow:
-    0 0 15px rgba(51,181,229,.4),
-    0 8px 20px rgba(51,181,229,.25);
-}
-    
+    /* ===== USER CARD - GLASS ===== */
     .user-card {
-      background: #0f0f1a;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 15px;
-      border: 1px solid #2a2a4e;
+      background: rgba(15, 15, 30, 0.5);
+      border-radius: 16px;
+      padding: 22px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(10px);
+      transition: all 0.25s ease;
     }
-    
+
+    .user-card:hover {
+      border-color: rgba(255, 255, 255, 0.12);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
     .user-card h4 {
       color: #00c851;
       margin: 0 0 10px 0;
+      font-size: 16px;
+      font-weight: 700;
     }
-    
+
     .user-card p {
-      color: #aaa;
-      margin: 5px 0;
+      color: #8888a0;
+      margin: 6px 0;
       font-size: 14px;
     }
-    
+
     .user-card .balance {
       color: #ffbb33;
-      font-size: 18px;
-      font-weight: bold;
+      font-size: 20px;
+      font-weight: 700;
     }
-    
+
+    /* ===== TOGGLE ROW ===== */
     .toggle-row {
       display: flex;
-      gap: 15px;
+      gap: 12px;
       margin-top: 15px;
       flex-wrap: wrap;
     }
-    
-    .toggle-btn{
-  padding:10px 20px;
-  border-radius:12px;
-  border:none;
-  cursor:pointer;
-  font-weight:700;
 
-  transition:all .3s ease;
-
-  box-shadow:
-    0 6px 16px rgba(0,0,0,.3),
-    inset 0 1px 1px rgba(255,255,255,.08);
-}
-
-.toggle-btn:hover{
-  transform:translateY(-3px);
-}
-
-.toggle-btn:active{
-  transform:scale(.97);
-}
-
-.toggle-btn.enabled{
-  background:#00c851;
-  color:#fff;
-
-  box-shadow:
-    0 0 15px rgba(0,200,81,.35),
-    0 8px 20px rgba(0,200,81,.25);
-}
-
-.toggle-btn.disabled{
-  background:#ff4444;
-  color:#fff;
-
-  box-shadow:
-    0 0 15px rgba(255,68,68,.35),
-    0 8px 20px rgba(255,68,68,.25);
-}
-    
-    .deposit-card, .withdraw-card {
-      background: #0f0f1a;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 15px;
-      border: 1px solid #2a2a4e;
+    /* ===== TOGGLE BUTTONS - GLASS GLOWING ===== */
+    .toggle-btn {
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
     }
-    
+
+    .toggle-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .toggle-btn:active {
+      transform: scale(0.97);
+    }
+
+    .toggle-btn.enabled {
+      background: rgba(0, 200, 81, 0.15);
+      color: #00c851;
+      border-color: rgba(0, 200, 81, 0.4);
+      box-shadow: 0 0 20px rgba(0, 200, 81, 0.2);
+    }
+
+    .toggle-btn.enabled:hover {
+      box-shadow: 0 0 30px rgba(0, 200, 81, 0.35);
+    }
+
+    .toggle-btn.disabled {
+      background: rgba(255, 68, 68, 0.15);
+      color: #ff4444;
+      border-color: rgba(255, 68, 68, 0.4);
+      box-shadow: 0 0 20px rgba(255, 68, 68, 0.2);
+    }
+
+    .toggle-btn.disabled:hover {
+      box-shadow: 0 0 30px rgba(255, 68, 68, 0.35);
+    }
+
+    /* ===== DEPOSIT / WITHDRAW CARDS - GLASS ===== */
+    .deposit-card, .withdraw-card {
+      background: rgba(15, 15, 30, 0.5);
+      border-radius: 16px;
+      padding: 22px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(10px);
+      transition: all 0.25s ease;
+    }
+
+    .deposit-card:hover, .withdraw-card:hover {
+      border-color: rgba(255, 255, 255, 0.12);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    /* ===== STATUS BADGES - GLASS ===== */
     .status-badge {
       display: inline-block;
-      padding: 5px 15px;
+      padding: 6px 14px;
       border-radius: 20px;
-      font-size: 12px;
-      font-weight: bold;
+      font-size: 11px;
+      font-weight: 700;
       text-transform: uppercase;
+      letter-spacing: 0.5px;
+      backdrop-filter: blur(10px);
     }
-    
+
     .status-badge.pending {
-      background: rgba(255, 187, 51, 0.2);
+      background: rgba(255, 187, 51, 0.12);
       color: #ffbb33;
-      border: 1px solid #ffbb33;
+      border: 1px solid rgba(255, 187, 51, 0.3);
     }
-    
+
     .status-badge.approved {
-      background: rgba(0, 200, 81, 0.2);
+      background: rgba(0, 200, 81, 0.12);
       color: #00c851;
-      border: 1px solid #00c851;
+      border: 1px solid rgba(0, 200, 81, 0.3);
     }
-    
+
     .status-badge.rejected {
-      background: rgba(255, 68, 68, 0.2);
+      background: rgba(255, 68, 68, 0.12);
       color: #ff4444;
-      border: 1px solid #ff4444;
+      border: 1px solid rgba(255, 68, 68, 0.3);
     }
-    .action-btn{
-  padding:10px 20px;
-  border:none;
-  border-radius:12px;
-  cursor:pointer;
-  font-weight:700;
-  margin-right:10px;
 
-  transition:all .3s ease;
-}
+    /* ===== ACTION BUTTONS - GLASS GLOWING (like deposit/withdraw/transfer/invest) ===== */
+    .action-btn {
+      padding: 12px 22px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+      background: rgba(15, 15, 30, 0.8);
+      color: white;
+    }
 
-.action-btn:hover{
-  transform:translateY(-3px);
-}
+    .action-btn::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+      transition: left 0.5s ease;
+    }
 
-.action-btn:active{
-  transform:scale(.97);
-}
+    .action-btn:hover::before {
+      left: 100%;
+    }
 
-.approve-btn{
-  background:#00c851;
-  color:#fff;
+    .action-btn:hover {
+      transform: translateY(-2px);
+    }
 
-  box-shadow:
-    0 0 18px rgba(0,200,81,.35),
-    0 8px 20px rgba(0,200,81,.25);
-}
+    .action-btn:active {
+      transform: scale(0.97);
+    }
 
-.reject-btn{
-  background:#ff4444;
-  color:#fff;
+    /* Approve - Green Glow */
+    .approve-btn {
+      background: rgba(15, 15, 30, 0.8);
+      color: #00c851;
+      box-shadow: 0 0 15px rgba(0, 200, 81, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
 
-  box-shadow:
-    0 0 18px rgba(255,68,68,.35),
-    0 8px 20px rgba(255,68,68,.25);
-}
-    
-    
+    .approve-btn:hover {
+      box-shadow: 0 0 25px rgba(0, 200, 81, 0.3), 0 8px 20px rgba(0,0,0,0.2);
+      border-color: rgba(0, 200, 81, 0.4);
+    }
+
+    /* Reject - Red Glow */
+    .reject-btn {
+      background: rgba(15, 15, 30, 0.8);
+      color: #ff4444;
+      box-shadow: 0 0 15px rgba(255, 68, 68, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .reject-btn:hover {
+      box-shadow: 0 0 25px rgba(255, 68, 68, 0.3), 0 8px 20px rgba(0,0,0,0.2);
+      border-color: rgba(255, 68, 68, 0.4);
+    }
+
+    /* ===== NO DATA ===== */
     .no-data {
       text-align: center;
-      color: #666;
+      color: #444460;
       padding: 30px;
+      font-size: 14px;
     }
-    
+
+    /* ===== WALLET ADDRESS ===== */
     .wallet-address {
       color: #33b5e5;
       word-break: break-all;
-      font-family: monospace;
+      font-family: 'Courier New', monospace;
       font-size: 12px;
+      padding: 8px 12px;
+      background: rgba(51, 181, 229, 0.08);
+      border: 1px solid rgba(51, 181, 229, 0.2);
+      border-radius: 8px;
+      display: inline-block;
+      margin-top: 6px;
     }
-    
+
+    /* ===== NOTIFICATION BOX - GLASS ===== */
     .notification-box {
-      background: #0f0f1a;
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 10px;
-      border-left: 4px solid #ffbb33;
+      background: rgba(15, 15, 30, 0.5);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 12px;
+      border-left: 3px solid #ffbb33;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-left: 3px solid #ffbb33;
+      transition: all 0.25s ease;
     }
-    
+
+    .notification-box:hover {
+      border-color: rgba(255, 187, 51, 0.3);
+      transform: translateX(4px);
+    }
+
     .notification-box p {
       margin: 0;
-      color: #aaa;
+      color: #8888a0;
       font-size: 14px;
     }
-    
+
     .notification-box .time {
-      color: #666;
+      color: #555570;
       font-size: 12px;
-      margin-top: 5px;
+      margin-top: 8px;
+    }
+
+    /* ===== MOBILE ===== */
+    @media (max-width: 768px) {
+      .admin-header h2 {
+        font-size: 28px;
+      }
+      .filter-tabs {
+        gap: 8px;
+      }
+      .filter-tab {
+        padding: 8px 14px;
+        font-size: 12px;
+      }
+      .toggle-row {
+        gap: 8px;
+      }
+      .toggle-btn {
+        padding: 8px 14px;
+        font-size: 12px;
+      }
+      .section-card {
+        padding: 20px;
+      }
     }
   </style>
 </head>
 
 <body>
-
 <div class="admin-container">
 
   <button class="logout-btn" onclick="logout()">🚪 Logout</button>
