@@ -192,12 +192,6 @@ body {
   font-size: 13px;
 }
 
-.card p {
-  color: #ffbb33;
-  margin: 2px 0 0 0;
-  font-size: 9px;
-}
-
 /* ===== PENDING BOX - SMALLER SIDE BY SIDE ===== */
 .pending-grid {
   display: flex;
@@ -737,11 +731,6 @@ h4 {
   <div class="card highlight">
     <h4>USDT Balance</h4>
     <h2><span id="balance">0</span> USDT</h2>
-    <p>ETH: <span id="eth">0</span></p>
-  </div>
-  <div class="card">
-    <h4>Bitcoin</h4>
-    <h2><span id="btc">0</span> BTC</h2>
   </div>
   <div class="card">
     <h4>Plan</h4>
@@ -807,8 +796,8 @@ h4 {
 <div id="logoutOverlay" class="logout-overlay">
   <div class="loader"></div>
   <p>Logging out...</p>
-</div>   
-  <script type="module">
+</div>
+ <script type="module">
 
 import { auth, db } from "./firebase.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -892,9 +881,6 @@ onAuthStateChanged(auth, async (user) => {
 
   await updateUI();
 });
-
-let btcRate = 65000;
-let ethRate = 3500;
 
 let balanceInterval;
 
@@ -996,8 +982,6 @@ async function updateUI() {
   let balance = userData.balance || 0;
   animateBalance(balance);
 
-  document.getElementById("btc").innerText = (balance / btcRate).toFixed(6);
-  document.getElementById("eth").innerText = (balance / ethRate).toFixed(4);
   document.getElementById("planType").innerText = userData.plan || "None";
   document.getElementById("dashAvatar").src = userData.image || "https://via.placeholder.com/80";
 
@@ -1143,5 +1127,6 @@ window.goProfile = goProfile;
 window.goHistory = goHistory;
 window.logout = logout;
   </script>
-  </body>
+</body>
   </html>
+                                 
