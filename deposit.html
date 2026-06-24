@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Deposit Crypto — SmartInvest</title>
+  <title>Deposit — SmartInvest</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -186,38 +186,6 @@
       margin-bottom: 8px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-    }
-
-    .coin-select {
-      width: 100%;
-      padding: 14px 16px;
-      border-radius: 12px;
-      border: 1.5px solid rgba(255, 255, 255, 0.08);
-      background: rgba(15, 15, 30, 0.6);
-      color: #fff;
-      font-size: 15px;
-      cursor: pointer;
-      outline: none;
-      box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
-      transition: all 0.25s ease;
-      appearance: none;
-      -webkit-appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238888a0' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 16px center;
-      padding-right: 40px;
-    }
-
-    .coin-select:focus {
-      border-color: #00c851;
-      box-shadow: 0 0 0 3px rgba(0, 200, 81, 0.1);
-      background: rgba(15, 15, 30, 0.8);
-    }
-
-    .coin-select option {
-      background: #1a1a2e;
-      color: #fff;
     }
 
     .wallet-box {
@@ -425,12 +393,12 @@
 
     <div class="deposit-header">
       <div class="logo-icon">💰</div>
-      <h2>Deposit Crypto</h2>
-      <p>Send crypto to your wallet address below</p>
+      <h2>Deposit USDT</h2>
+      <p>Send USDT to your wallet address below</p>
     </div>
 
     <div class="info-box">
-      <p>⚠️ Send only the selected cryptocurrency to this address. Sending wrong coin may result in permanent loss.</p>
+      <p>⚠️ Send only USDT (TRC20) to this address. Sending wrong coin may result in permanent loss.</p>
     </div>
 
     <!-- QR Code Placeholder -->
@@ -439,19 +407,9 @@
     </div>
 
     <div class="form-group">
-      <label>Select Cryptocurrency</label>
-      <select id="coin" class="coin-select" onchange="updateWallet()">
-        <option value="USDT">USDT (TRC20)</option>
-        <option value="BTC">Bitcoin (BTC)</option>
-        <option value="ETH">Ethereum (ERC20)</option>
-        <option value="BNB">BNB (BEP20)</option>
-      </select>
-    </div>
-
-    <div class="form-group">
       <label>Wallet Address</label>
       <div class="wallet-box">
-        <input id="wallet" class="wallet-input" readonly value="">
+        <input id="wallet" class="wallet-input" readonly value="TXYZ1234567890ABCDEF1234567890USDT">
         <button class="copy-btn" onclick="copyWallet()">📋 Copy</button>
       </div>
     </div>
@@ -475,7 +433,7 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/f
 import { ref, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 /////////////////////////////////////////////////////
-// AUTH CHECK - EXACTLY AS YOU HAD IT
+// AUTH CHECK
 /////////////////////////////////////////////////////
 
 let currentUser = null;
@@ -486,7 +444,6 @@ onAuthStateChanged(auth, (user) => {
     return;
   }
   
-  // Get username from session
   currentUser = sessionStorage.getItem("loggedInUser");
   if (!currentUser) {
     window.location.replace("login.html");
@@ -494,50 +451,22 @@ onAuthStateChanged(auth, (user) => {
 });
 
 /////////////////////////////////////////////////////
-// WALLET ADDRESSES - EXACTLY AS YOU HAD IT
+// WALLET ADDRESS - ONLY USDT
 /////////////////////////////////////////////////////
 
-const wallets = {
-  USDT: "TXYZ1234567890ABCDEF1234567890USDT",
-  BTC: "bc1qcompanybtcaddress1234567890",
-  ETH: "0xCOMPANYETHADDRESS1234567890",
-  BNB: "bnbCOMPANYADDRESS1234567890"
-};
+const walletAddress = "TXYZ1234567890ABCDEF1234567890USDT";
 
 /////////////////////////////////////////////////////
-// UPDATE WALLET - EXACTLY AS YOU HAD IT
-/////////////////////////////////////////////////////
-
-function updateWallet() {
-  let coin = document.getElementById("coin").value;
-  let walletAddress = wallets[coin];
-  
-  // Set the wallet input value
-  document.getElementById("wallet").value = walletAddress;
-  
-  // Update QR code text (in real app, generate actual QR)
-  document.getElementById("qrCode").innerHTML = "QR for<br>" + coin + "<br>" + walletAddress.substring(0, 10) + "...";
-  
-  console.log("Selected:", coin, "Wallet:", walletAddress);
-}
-
-// RUN ON PAGE LOAD
-updateWallet();
-
-/////////////////////////////////////////////////////
-// COPY WALLET - EXACTLY AS YOU HAD IT
+// COPY WALLET
 /////////////////////////////////////////////////////
 
 function copyWallet() {
   let input = document.getElementById("wallet");
   
-  // Select the text
   input.select();
-  input.setSelectionRange(0, 99999); // For mobile
+  input.setSelectionRange(0, 99999);
   
-  // Copy to clipboard
   navigator.clipboard.writeText(input.value).then(function() {
-    // Visual feedback
     const btn = event.target;
     const originalText = btn.innerText;
     btn.innerText = "✅ Copied!";
@@ -549,14 +478,13 @@ function copyWallet() {
     }, 2000);
     
   }).catch(function(err) {
-    // Fallback for older browsers
     document.execCommand("copy");
     alert("Wallet copied: " + input.value);
   });
 }
 
 /////////////////////////////////////////////////////
-// SUBMIT DEPOSIT - EXACTLY AS YOU HAD IT
+// SUBMIT DEPOSIT
 /////////////////////////////////////////////////////
 
 async function submitDeposit() {
@@ -569,7 +497,6 @@ async function submitDeposit() {
   }
 
   let amount = Number(document.getElementById("amount").value);
-  let coin = document.getElementById("coin").value;
   let wallet = document.getElementById("wallet").value;
 
   if (!amount || amount <= 0) {
@@ -582,10 +509,9 @@ async function submitDeposit() {
     result.className = "show loading";
     result.innerText = "⏳ Submitting deposit...";
 
-    // Save to Realtime Database
     await push(ref(db, 'deposits'), {
       user: currentUser,
-      coin: coin,
+      coin: "USDT",
       amount: amount,
       wallet: wallet,
       status: "pending",
@@ -605,9 +531,7 @@ async function submitDeposit() {
 }
 
 /////////////////////////////////////////////////////
-// NAVIGATION - ONLY THIS CHANGED
-// Changed from window.location.replace to window.location.href
-// AND added to window object for global access
+// NAVIGATION
 /////////////////////////////////////////////////////
 
 function goBack() { 
@@ -615,14 +539,13 @@ function goBack() {
 }
 
 /////////////////////////////////////////////////////
-// INIT - ONLY ADDED window. assignments
+// INIT
 /////////////////////////////////////////////////////
 
 window.submitDeposit = submitDeposit;
 window.goBack = goBack;
 window.copyWallet = copyWallet;
-window.updateWallet = updateWallet;
 </script>
-
 </body>
-    </html>
+  </html>
+  
