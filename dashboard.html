@@ -29,24 +29,12 @@ body {
   padding: 0;
 }
 
-/* ===== HEADER / LOGO ===== */
-.logo-container {
-  text-align: center;
-  padding: 18px 0;
-}
-
-.logo-container img {
-  width: 130px;
-  height: auto;
-  filter: drop-shadow(0 0 10px rgba(255,255,255,0.08));
-}
-
-/* ===== NAV ===== */
+/* ===== NAV - SMALLER TOP BUTTONS ===== */
 .nav {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  padding: 10px;
+  gap: 6px;
+  padding: 8px 10px 4px;
   flex-wrap: wrap;
 }
 
@@ -54,46 +42,49 @@ body {
   background: rgba(25, 25, 40, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #8888a0;
-  padding: 10px 18px;
-  border-radius: 10px;
+  padding: 6px 12px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.25s ease;
   font-family: inherit;
-  font-size: 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
 }
 
 .nav button:hover {
   background: rgba(255, 255, 255, 0.05);
   color: white;
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   border-color: rgba(255, 255, 255, 0.15);
 }
 
 /* ===== TEXT ===== */
 .welcome {
   text-align: center;
-  margin: 10px 0 5px;
-  font-size: 18px;
+  margin: 4px 0 2px;
+  font-size: 13px;
 }
 
 .sub {
   text-align: center;
   color: #666680;
-  margin-bottom: 20px;
-  font-size: 14px;
+  margin-bottom: 6px;
+  font-size: 10px;
 }
 
 /* ===== STATUS BANNER ===== */
 .status-banner {
-  padding: 14px;
-  border-radius: 14px;
-  margin: 15px auto;
+  padding: 8px;
+  border-radius: 8px;
+  margin: 6px auto;
   text-align: center;
   font-weight: bold;
   max-width: 520px;
   display: none;
   backdrop-filter: blur(10px);
-  font-size: 14px;
+  font-size: 11px;
 }
 
 .status-banner.warning,
@@ -151,42 +142,46 @@ body {
   50% { opacity: 0.6; text-shadow: 0 0 25px rgba(255,68,68,1); }
 }
 
-/* ===== GRID ===== */
+/* ===== GRID - BALANCE CARDS IN A ROW ===== */
 .grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
   max-width: 900px;
-  margin: 20px auto;
-  padding: 0 16px;
+  margin: 6px auto;
+  padding: 0 10px;
+  flex-wrap: wrap;
 }
 
-/* ===== MAIN CARDS ===== */
+/* ===== MAIN CARDS - SMALLER RECTANGLE ===== */
 .card {
   background: rgba(25, 25, 40, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 18px;
-  padding: 22px;
+  border-radius: 8px;
+  padding: 8px 10px;
   text-align: center;
   transition: all 0.25s ease;
   backdrop-filter: blur(10px);
+  min-width: 80px;
+  flex: 1;
+  max-width: 110px;
 }
 
 .card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-2px);
   border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 10px 28px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
 
 .card.highlight {
   border-color: rgba(0, 200, 81, 0.4);
-  box-shadow: 0 0 20px rgba(0, 200, 81, 0.1);
+  box-shadow: 0 0 10px rgba(0, 200, 81, 0.1);
 }
 
 .card h4 {
   color: #8888a0;
-  margin: 0 0 10px 0;
-  font-size: 12px;
+  margin: 0 0 3px 0;
+  font-size: 7px;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -194,29 +189,29 @@ body {
 .card h2 {
   color: white;
   margin: 0;
-  font-size: 28px;
+  font-size: 13px;
 }
 
 .card p {
   color: #ffbb33;
-  margin: 8px 0 0 0;
-  font-size: 14px;
+  margin: 2px 0 0 0;
+  font-size: 9px;
 }
 
-/* ===== PENDING BOX ===== */
+/* ===== PENDING BOX - SMALLER SIDE BY SIDE ===== */
 .pending-grid {
   display: flex;
   justify-content: center;
-  gap: 12px;
-  max-width: 600px;
-  margin: 20px auto;
-  padding: 0 16px;
+  gap: 6px;
+  max-width: 280px;
+  margin: 6px auto;
+  padding: 0 10px;
 }
 
 .pending-box {
   flex: 1;
-  padding: 16px;
-  border-radius: 14px;
+  padding: 6px 8px;
+  border-radius: 8px;
   text-align: center;
   background: rgba(25, 25, 40, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -226,7 +221,7 @@ body {
 
 .pending-box:hover {
   border-color: rgba(255, 255, 255, 0.12);
-  transform: translateY(-3px);
+  transform: translateY(-2px);
 }
 
 .pending-box.deposit {
@@ -239,15 +234,15 @@ body {
 
 .pending-box h4 {
   color: #8888a0;
-  margin: 0 0 10px 0;
-  font-size: 12px;
+  margin: 0 0 3px 0;
+  font-size: 7px;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .pending-box h2 {
   margin: 0;
-  font-size: 24px;
+  font-size: 13px;
 }
 
 .pending-box.deposit h2 {
@@ -262,17 +257,17 @@ body {
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  max-width: 400px;
-  margin: 25px auto;
-  padding: 0 16px;
+  gap: 6px;
+  max-width: 280px;
+  margin: 8px auto;
+  padding: 0 10px;
 }
 
 .action-btn {
-  padding: 14px 18px;
-  border-radius: 14px;
+  padding: 8px 10px;
+  border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -303,7 +298,7 @@ body {
 }
 
 .action-btn:hover {
-  transform: translateY(-4px) scale(1.02);
+  transform: translateY(-3px) scale(1.02);
   border-color: rgba(255, 255, 255, 0.2);
 }
 
@@ -326,30 +321,30 @@ body {
 /* Deposit - Green Glow */
 .deposit-btn {
   background: rgba(15, 15, 30, 0.8);
-  box-shadow: 0 0 15px rgba(0, 200, 81, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+  box-shadow: 0 0 10px rgba(0, 200, 81, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
 }
 .deposit-btn:hover {
-  box-shadow: 0 0 30px rgba(0, 200, 81, 0.35), 0 8px 25px rgba(0,0,0,0.3);
+  box-shadow: 0 0 20px rgba(0, 200, 81, 0.35), 0 6px 18px rgba(0,0,0,0.3);
   border-color: rgba(0, 200, 81, 0.4);
 }
 
 /* Withdraw - Red Glow */
 .withdraw-btn {
   background: rgba(15, 15, 30, 0.8);
-  box-shadow: 0 0 15px rgba(255, 68, 68, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+  box-shadow: 0 0 10px rgba(255, 68, 68, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
 }
 .withdraw-btn:hover {
-  box-shadow: 0 0 30px rgba(255, 68, 68, 0.35), 0 8px 25px rgba(0,0,0,0.3);
+  box-shadow: 0 0 20px rgba(255, 68, 68, 0.35), 0 6px 18px rgba(0,0,0,0.3);
   border-color: rgba(255, 68, 68, 0.4);
 }
 
 /* Transfer - Blue Glow */
 .transfer-btn {
   background: rgba(15, 15, 30, 0.8);
-  box-shadow: 0 0 15px rgba(51, 181, 229, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+  box-shadow: 0 0 10px rgba(51, 181, 229, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
 }
 .transfer-btn:hover {
-  box-shadow: 0 0 30px rgba(51, 181, 229, 0.35), 0 8px 25px rgba(0,0,0,0.3);
+  box-shadow: 0 0 20px rgba(51, 181, 229, 0.35), 0 6px 18px rgba(0,0,0,0.3);
   border-color: rgba(51, 181, 229, 0.4);
 }
 
@@ -357,10 +352,10 @@ body {
 .invest-btn {
   background: rgba(15, 15, 30, 0.8);
   color: #ffbb33;
-  box-shadow: 0 0 15px rgba(255, 187, 51, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+  box-shadow: 0 0 10px rgba(255, 187, 51, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
 }
 .invest-btn:hover {
-  box-shadow: 0 0 30px rgba(255, 187, 51, 0.35), 0 8px 25px rgba(0,0,0,0.3);
+  box-shadow: 0 0 20px rgba(255, 187, 51, 0.35), 0 6px 18px rgba(0,0,0,0.3);
   border-color: rgba(255, 187, 51, 0.4);
 }
 
@@ -368,16 +363,16 @@ body {
 .plans-display {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  max-width: 900px;
-  margin: 20px auto;
-  padding: 0 16px;
+  gap: 8px;
+  max-width: 500px;
+  margin: 8px auto;
+  padding: 0 10px;
 }
 
 @media (max-width: 768px) {
   .plans-display {
     grid-template-columns: 1fr;
-    max-width: 400px;
+    max-width: 280px;
   }
 }
 
@@ -385,8 +380,8 @@ body {
 .plan-card {
   background: rgba(25, 25, 40, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 18px;
-  padding: 28px 22px;
+  border-radius: 10px;
+  padding: 10px 8px;
   text-align: center;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
@@ -400,7 +395,7 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
+  height: 2px;
   background: linear-gradient(90deg, transparent, #ffbb33, transparent);
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -408,8 +403,8 @@ body {
 
 .plan-card:hover {
   border-color: rgba(255, 187, 51, 0.3);
-  transform: translateY(-6px);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
 }
 
 .plan-card:hover::before {
@@ -418,46 +413,48 @@ body {
 
 .plan-card h3 {
   color: #ffbb33;
-  margin: 0 0 12px 0;
-  font-size: 20px;
+  margin: 0 0 4px 0;
+  font-size: 12px;
 }
 
 .plan-card p {
   color: #8888a0;
-  margin: 6px 0;
-  font-size: 14px;
+  margin: 2px 0;
+  font-size: 10px;
 }
 
 /* ===== BOX ===== */
 .box {
   background: rgba(25, 25, 40, 0.6);
-  border-radius: 18px;
-  padding: 22px;
-  max-width: 520px;
-  margin: 20px auto;
+  border-radius: 10px;
+  padding: 10px;
+  max-width: 280px;
+  margin: 8px auto;
   border: 1px solid rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(10px);
 }
 
 .box h3 {
-  margin-bottom: 12px;
+  margin-bottom: 6px;
   color: #fff;
+  font-size: 12px;
 }
 
 .box p {
   color: #8888a0;
-  margin: 6px 0;
+  margin: 3px 0;
+  font-size: 11px;
 }
 
 /* ===== SUPPORT BUTTON ===== */
 .support-float {
   position: fixed;
-  bottom: 18px;
+  bottom: 12px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(15, 15, 30, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 12px 22px;
+  padding: 6px 14px;
   border-radius: 50px;
   cursor: pointer;
   z-index: 999;
@@ -468,13 +465,13 @@ body {
 
 .support-float:hover {
   border-color: rgba(255, 187, 51, 0.3);
-  box-shadow: 0 0 20px rgba(255, 187, 51, 0.2);
+  box-shadow: 0 0 15px rgba(255, 187, 51, 0.2);
 }
 
 .support-text {
   color: #fff;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 11px;
   animation: blinkText 1.6s infinite;
 }
 
@@ -485,16 +482,16 @@ body {
 
 @keyframes bounce {
   0%, 100% { transform: translateX(-50%) translateY(0); }
-  50% { transform: translateX(-50%) translateY(-6px); }
+  50% { transform: translateX(-50%) translateY(-4px); }
 }
 
 /* ===== ID BOX ===== */
 .id-box {
   background: rgba(25, 25, 40, 0.6);
-  border-radius: 18px;
-  padding: 18px 20px;
-  max-width: 520px;
-  margin: 20px auto;
+  border-radius: 10px;
+  padding: 8px 12px;
+  max-width: 280px;
+  margin: 6px auto;
   border: 1px solid rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(10px);
   position: relative;
@@ -514,9 +511,9 @@ body {
 }
 
 .id-box:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
   border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
 }
 
 .id-box p {
@@ -524,8 +521,8 @@ body {
   justify-content: space-between;
   align-items: center;
   color: #8888a0;
-  margin: 10px 0;
-  font-size: 13px;
+  margin: 4px 0;
+  font-size: 10px;
   letter-spacing: 0.3px;
 }
 
@@ -537,23 +534,23 @@ body {
 .id-box span {
   color: #33b5e5;
   font-family: 'Courier New', monospace;
-  font-size: 13px;
-  padding: 4px 10px;
+  font-size: 10px;
+  padding: 2px 6px;
   background: rgba(51, 181, 229, 0.08);
   border: 1px solid rgba(51, 181, 229, 0.25);
-  border-radius: 8px;
+  border-radius: 6px;
   letter-spacing: 1px;
 }
 
-/* ===== PROFILE CARD ===== */
+/* ===== PROFILE CARD - MUCH SMALLER ===== */
 .profile-card {
   width: 90%;
-  max-width: 380px;
-  margin: 20px auto;
-  padding: 20px;
+  max-width: 240px;
+  margin: 8px auto;
+  padding: 10px;
   background: rgba(25, 25, 40, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 22px;
+  border-radius: 14px;
   text-align: center;
   backdrop-filter: blur(10px);
   position: relative;
@@ -573,18 +570,18 @@ body {
 
 .profile-card:hover {
   border-color: rgba(255, 255, 255, 0.12);
-  transform: translateY(-3px);
-  box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
 }
 
 .profile-ring {
-  width: 95px;
-  height: 95px;
-  margin: 0 auto 12px;
-  padding: 3px;
+  width: 45px;
+  height: 45px;
+  margin: 0 auto 6px;
+  padding: 2px;
   border-radius: 50%;
   background: linear-gradient(135deg, #00c851, #33b5e5);
-  box-shadow: 0 0 20px rgba(0,200,81,.25);
+  box-shadow: 0 0 10px rgba(0,200,81,.25);
 }
 
 .iavatar {
@@ -596,8 +593,8 @@ body {
 }
 
 .profile-name {
-  margin: 10px 0 5px;
-  font-size: 22px;
+  margin: 4px 0 2px;
+  font-size: 14px;
   font-weight: 700;
   color: white;
 }
@@ -605,22 +602,22 @@ body {
 .profile-status {
   margin: 0;
   color: #8888a0;
-  font-size: 14px;
+  font-size: 10px;
 }
 
 /* ===== HEADINGS ===== */
 h2 {
   text-align: center;
   color: #ffbb33;
-  font-size: 24px;
-  margin: 20px 0;
+  font-size: 15px;
+  margin: 6px 0;
 }
 
 h4 {
   text-align: center;
   color: #8888a0;
-  font-size: 14px;
-  margin: 10px 0;
+  font-size: 11px;
+  margin: 4px 0;
 }
 
 /* ===== LOGOUT OVERLAY ===== */
@@ -643,19 +640,20 @@ h4 {
 }
 
 .loader {
-  width: 50px;
-  height: 50px;
-  border: 4px solid #333;
+  width: 35px;
+  height: 35px;
+  border: 3px solid #333;
   border-top-color: #00c851;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
 .logout-overlay p {
-  margin-top: 15px;
+  margin-top: 8px;
   color: #fff;
   font-weight: 600;
   letter-spacing: 1px;
+  font-size: 12px;
 }
 
 @keyframes spin {
@@ -688,44 +686,42 @@ h4 {
 @media (max-width: 768px) {
   .quick-actions {
     grid-template-columns: repeat(2, 1fr);
-    max-width: 400px;
+    max-width: 280px;
   }
   .pending-grid {
-    flex-direction: column;
+    flex-direction: row;
   }
   .grid {
-    grid-template-columns: 1fr;
+    flex-direction: row;
+    align-items: stretch;
+  }
+  .card {
+    max-width: 90px;
   }
 }
 </style>
 </head>
 
 <body>
-<div class="logo-container">
-  <img src="go.png" alt="SmartIvest">
-</div>
 
-<div class="profile-card">
-
-  <div class="profile-ring">
-    <img id="dashAvatar" class="iavatar">
-  </div>
-
-  <h2 class="profile-name">
-    <span id="user">User</span>
-  </h2>
-
-  <p class="profile-status">
-    🟢 Verified Investor
-  </p>
-
-</div>
-
+<!-- NAV AT THE TOP -->
 <div class="nav">
   <button onclick="goHome()">Home</button>
   <button onclick="goProfile()">Profile</button>
   <button onclick="goHistory()">History</button>
   <button onclick="logout()">Logout</button>
+</div>
+
+<div class="profile-card">
+  <div class="profile-ring">
+    <img id="dashAvatar" class="iavatar">
+  </div>
+  <h2 class="profile-name">
+    <span id="user">User</span>
+  </h2>
+  <p class="profile-status">
+    🟢 Verified Investor
+  </p>
 </div>
 
 <h2 class="welcome">👋 Welcome back, <span id="user"></span></h2>
@@ -738,23 +734,19 @@ h4 {
 <h2>Investment Dashboard</h2>
 
 <div class="grid">
-
   <div class="card highlight">
     <h4>USDT Balance</h4>
     <h2><span id="balance">0</span> USDT</h2>
     <p>ETH: <span id="eth">0</span></p>
   </div>
-
   <div class="card">
     <h4>Bitcoin</h4>
     <h2><span id="btc">0</span> BTC</h2>
   </div>
-
   <div class="card">
     <h4>Plan</h4>
     <h2 id="planType">None</h2>
   </div>
-
 </div>
 
 <div class="pending-grid">
@@ -786,19 +778,19 @@ h4 {
     <h3>Starter</h3>
     <p>10% Profit</p>
     <p>48 hours</p>
-    <p style="color:#666; margin-top:10px;">Min: $100</p>
+    <p style="color:#666; margin-top:4px;">Min: $100</p>
   </div>
   <div class="plan-card">
     <h3>Pro</h3>
     <p>20% Profit</p>
     <p>96 hours</p>
-    <p style="color:#666; margin-top:10px;">Min: $1,000</p>
+    <p style="color:#666; margin-top:4px;">Min: $1,000</p>
   </div>
   <div class="plan-card">
     <h3>Premium</h3>
     <p>40% Profit</p>
     <p>120 hours</p>
-    <p style="color:#666; margin-top:10px;">Min: $5,000</p>
+    <p style="color:#666; margin-top:4px;">Min: $5,000</p>
   </div>
 </div>
 
@@ -807,14 +799,15 @@ h4 {
   <p>✔ Account active</p>
   <p>📈 Investment running</p>
 </div>
+
 <div class="support-float" onclick="goSupport()">
   <div class="support-text" id="supportText">💬 Contact Support</div>
 </div>
+
 <div id="logoutOverlay" class="logout-overlay">
   <div class="loader"></div>
   <p>Logging out...</p>
-</div>
-   
+</div>   
   <script type="module">
 
 import { auth, db } from "./firebase.js";
