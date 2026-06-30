@@ -461,8 +461,7 @@
   </div>
 
 </div>
-
-<script type="module">
+  <script type="module">
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { ref, get, update, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -562,25 +561,25 @@ async function submitInvest() {
   }
   
   // Determine plan
-  let plan = {};
+  let planName = "";
   let profitPercent = 0;
   let hours = 0;
   
   if (amount >= 100 && amount <= 999) {
-    plan = "Starter";
+    planName = "Starter";
     profitPercent = 0.10;
     hours = 48;
   } else if (amount >= 1000 && amount <= 4999) {
-    plan = "Pro";
+    planName = "Pro";
     profitPercent = 0.20;
     hours = 96;
   } else if (amount >= 5000) {
-    plan = "Premium";
+    planName = "Premium";
     profitPercent = 0.40;
     hours = 120;
   }
   
-  if (!confirm(`Confirm investment:\n\nPlan: ${plan}\nAmount: $${amount}\nProfit: ${(profitPercent * 100)}%\nDuration: ${hours} hours\n\nProceed?`)) {
+  if (!confirm(`Confirm investment:\n\nPlan: ${planName}\nAmount: $${amount}\nProfit: ${(profitPercent * 100)}%\nDuration: ${hours} hours\n\nProceed?`)) {
     return;
   }
   
@@ -591,18 +590,20 @@ async function submitInvest() {
     let newBalance = userBalance - amount;
     let investTime = Date.now();
     
-    // Update user
+    // Update user - SAVE EVERYTHING CORRECTLY
     await update(ref(db, 'users/' + currentUsername), {
       balance: newBalance,
-      plan: plan,
+      plan: planName,
       investTime: investTime,
-      investAmount: amount
+      investAmount: amount,
+      investProfitPercent: profitPercent,
+      investHours: hours
     });
     
-    // Save to investments
+    // Save to investments history
     await push(ref(db, 'investments'), {
       user: currentUsername,
-      plan: plan,
+      plan: planName,
       amount: amount,
       profitPercent: profitPercent,
       hours: hours,
@@ -612,7 +613,7 @@ async function submitInvest() {
     });
     
     result.className = "show success";
-    result.innerText = `✅ Investment successful! $${amount} invested in ${plan} plan.`;
+    result.innerText = `✅ Investment successful! $${amount} invested in ${planName} plan.`;
     
     // Update display
     userBalance = newBalance;
@@ -634,7 +635,6 @@ function goBack() {
 window.goBack = goBack;
 window.checkPlan = checkPlan;
 window.submitInvest = submitInvest;
-</script>
-
+  </script>
 </body>
     </html>
