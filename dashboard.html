@@ -797,7 +797,9 @@ h4 {
   <div class="loader"></div>
   <p>Logging out...</p>
 </div>
- <script type="module">
+ 
+  
+<script type="module">
 
 import { auth, db } from "./firebase.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -1015,6 +1017,7 @@ async function updateUI() {
   updateInvestmentStatus();
 }
 
+// ===== CORRECTED: Uses actual invested amount, not fixed plan amount =====
 async function checkProfit() {
   if (!userData.plan || userData.plan === "None") {
     alert("You have no active investment.");
@@ -1022,23 +1025,31 @@ async function checkProfit() {
   }
 
   const plans = {
-    "Starter": { amount: 100, profit: 0.10, hours: 48 },
-    "Pro": { amount: 1000, profit: 0.20, hours: 96 },
-    "Premium": { amount: 5000, profit: 0.40, hours: 120 }
+    "Starter": { profit: 0.10, hours: 48 },
+    "Pro": { profit: 0.20, hours: 96 },
+    "Premium": { profit: 0.40, hours: 120 }
   };
 
   const plan = plans[userData.plan];
   if (!plan) return;
+
+  // Use the ACTUAL amount the user invested
+  const investedAmount = userData.investAmount || 0;
+  
+  if (investedAmount <= 0) {
+    alert("Investment amount not found. Please contact support.");
+    return;
+  }
 
   const investTime = userData.investTime || 0;
   const now = Date.now();
   const hoursPassed = (now - investTime) / (1000 * 60 * 60);
 
   if (hoursPassed >= plan.hours) {
-    const profitAmount = plan.amount * plan.profit;
-    const totalReturn = plan.amount + profitAmount;
+    const profitAmount = investedAmount * plan.profit;
+    const totalReturn = investedAmount + profitAmount;
 
-    if (confirm(`🎉 Your ${userData.plan} investment is complete!\n\nInvested: $${plan.amount}\nProfit: $${profitAmount.toFixed(2)}\nTotal Return: $${totalReturn.toFixed(2)}\n\nClaim now?`)) {
+    if (confirm(`🎉 Your ${userData.plan} investment is complete!\n\nInvested: $${investedAmount.toFixed(2)}\nProfit: $${profitAmount.toFixed(2)}\nTotal Return: $${totalReturn.toFixed(2)}\n\nClaim now?`)) {
       const newBalance = (userData.balance || 0) + totalReturn;
 
       await update(ref(db, 'users/' + currentUsername), {
@@ -1058,8 +1069,8 @@ async function checkProfit() {
     }
   } else {
     const hoursLeft = Math.ceil(plan.hours - hoursPassed);
-    const profitAmount = plan.amount * plan.profit;
-    alert(`⏳ Investment still running...\n\nPlan: ${userData.plan}\nInvested: $${plan.amount}\nExpected Profit: $${profitAmount.toFixed(2)}\nTime left: ${hoursLeft} hours\n\nCome back later to claim profit!`);
+    const profitAmount = investedAmount * plan.profit;
+    alert(`⏳ Investment still running...\n\nPlan: ${userData.plan}\nInvested: $${investedAmount.toFixed(2)}\nExpected Profit: $${profitAmount.toFixed(2)}\nTime left: ${hoursLeft} hours\n\nCome back later to claim profit!`);
   }
 }
 
@@ -1126,7 +1137,7 @@ window.goHome = goHome;
 window.goProfile = goProfile;
 window.goHistory = goHistory;
 window.logout = logout;
-  </script>
+</script>
+  
 </body>
-  </html>
-                                 
+</html>                      
