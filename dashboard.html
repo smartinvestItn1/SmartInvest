@@ -798,8 +798,7 @@ h4 {
   <p>Logging out...</p>
 </div>
  
-  
-<script type="module">
+  <script type="module">
 
 import { auth, db } from "./firebase.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -836,7 +835,6 @@ onAuthStateChanged(auth, async (user) => {
   sessionStorage.setItem("loggedInUser", userData.username);
   sessionStorage.setItem("role", userData.role || "user");
 
-  // Auto-add missing fields for existing users (old users without accountId)
   let needsUpdate = false;
   let updates = {};
 
@@ -1017,36 +1015,29 @@ async function updateUI() {
   updateInvestmentStatus();
 }
 
-// ===== CORRECTED: Uses actual invested amount, not fixed plan amount =====
+// ===== FIXED checkProfit - Uses actual invested amount from userData =====
 async function checkProfit() {
   if (!userData.plan || userData.plan === "None") {
     alert("You have no active investment.");
     return;
   }
 
-  const plans = {
-    "Starter": { profit: 0.10, hours: 48 },
-    "Pro": { profit: 0.20, hours: 96 },
-    "Premium": { profit: 0.40, hours: 120 }
-  };
-
-  const plan = plans[userData.plan];
-  if (!plan) return;
-
-  // Use the ACTUAL amount the user invested
+  // Get the ACTUAL amount invested and profit percent from userData
   const investedAmount = userData.investAmount || 0;
+  const profitPercent = userData.investProfitPercent || 0;
+  const hours = userData.investHours || 0;
+  const investTime = userData.investTime || 0;
   
   if (investedAmount <= 0) {
     alert("Investment amount not found. Please contact support.");
     return;
   }
 
-  const investTime = userData.investTime || 0;
   const now = Date.now();
   const hoursPassed = (now - investTime) / (1000 * 60 * 60);
 
-  if (hoursPassed >= plan.hours) {
-    const profitAmount = investedAmount * plan.profit;
+  if (hoursPassed >= hours) {
+    const profitAmount = investedAmount * profitPercent;
     const totalReturn = investedAmount + profitAmount;
 
     if (confirm(`🎉 Your ${userData.plan} investment is complete!\n\nInvested: $${investedAmount.toFixed(2)}\nProfit: $${profitAmount.toFixed(2)}\nTotal Return: $${totalReturn.toFixed(2)}\n\nClaim now?`)) {
@@ -1056,20 +1047,24 @@ async function checkProfit() {
         balance: newBalance,
         plan: "None",
         investTime: null,
-        investAmount: null
+        investAmount: null,
+        investProfitPercent: null,
+        investHours: null
       });
 
       userData.balance = newBalance;
       userData.plan = "None";
       userData.investTime = null;
       userData.investAmount = null;
+      userData.investProfitPercent = null;
+      userData.investHours = null;
 
       await updateUI();
       alert("✅ Profit claimed successfully!");
     }
   } else {
-    const hoursLeft = Math.ceil(plan.hours - hoursPassed);
-    const profitAmount = investedAmount * plan.profit;
+    const hoursLeft = Math.ceil(hours - hoursPassed);
+    const profitAmount = investedAmount * profitPercent;
     alert(`⏳ Investment still running...\n\nPlan: ${userData.plan}\nInvested: $${investedAmount.toFixed(2)}\nExpected Profit: $${profitAmount.toFixed(2)}\nTime left: ${hoursLeft} hours\n\nCome back later to claim profit!`);
   }
 }
@@ -1137,7 +1132,7 @@ window.goHome = goHome;
 window.goProfile = goProfile;
 window.goHistory = goHistory;
 window.logout = logout;
-</script>
+  </script>
   
 </body>
 </html>                      
