@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Deposit — SmartInvest</title>
+  <title>Deposit USDT — SmartInvest</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -156,6 +156,39 @@
       color: #ffbb33;
       font-size: 13px;
       line-height: 1.6;
+    }
+
+    .network-select {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15, 15, 30, 0.6);
+      color: #fff;
+      font-size: 15px;
+      cursor: pointer;
+      outline: none;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.25s ease;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238888a0' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
+      margin-bottom: 20px;
+    }
+
+    .network-select:focus {
+      border-color: #00c851;
+      box-shadow: 0 0 0 3px rgba(0, 200, 81, 0.1);
+      background: rgba(15, 15, 30, 0.8);
+    }
+
+    .network-select option {
+      background: #1a1a2e;
+      color: #fff;
     }
 
     .qr-box {
@@ -394,11 +427,20 @@
     <div class="deposit-header">
       <div class="logo-icon">💰</div>
       <h2>Deposit USDT</h2>
-      <p>Send USDT to your wallet address below</p>
+      <p>Select network and send USDT to your wallet address below</p>
     </div>
 
     <div class="info-box">
-      <p>⚠️ Send only USDT (TRC20) to this address. Sending wrong coin may result in permanent loss.</p>
+      <p>⚠️ Send only USDT to the selected network address. Sending wrong network may result in permanent loss.</p>
+    </div>
+
+    <!-- Network Selection -->
+    <div class="form-group">
+      <label>Select Network</label>
+      <select id="network" class="network-select" onchange="updateWallet()">
+        <option value="TRC20">USDT (TRC20) — Tron Network</option>
+        <option value="BEP20">USDT (BEP20) — BSC Network</option>
+      </select>
     </div>
 
     <!-- QR Code Placeholder -->
@@ -409,7 +451,7 @@
     <div class="form-group">
       <label>Wallet Address</label>
       <div class="wallet-box">
-        <input id="wallet" class="wallet-input" readonly value="TXYZ1234567890ABCDEF1234567890USDT">
+        <input id="wallet" class="wallet-input" readonly value="">
         <button class="copy-btn" onclick="copyWallet()">📋 Copy</button>
       </div>
     </div>
@@ -451,10 +493,30 @@ onAuthStateChanged(auth, (user) => {
 });
 
 /////////////////////////////////////////////////////
-// WALLET ADDRESS - ONLY USDT
+// WALLET ADDRESSES — TWO NETWORKS
 /////////////////////////////////////////////////////
 
-const walletAddress = "TXYZ1234567890ABCDEF1234567890USDT";
+const wallets = {
+  TRC20: "TBdkLH7z9d6p6NKk3pZcoDdMzwoSxTfcQA",
+  BEP20: "0x681ef5FF6d9e2FD31ce87Cd256d09a0e4755F9d9"
+};
+
+/////////////////////////////////////////////////////
+// UPDATE WALLET & QR ON NETWORK CHANGE
+/////////////////////////////////////////////////////
+
+function updateWallet() {
+  let network = document.getElementById("network").value;
+  let walletAddress = wallets[network];
+  
+  document.getElementById("wallet").value = walletAddress;
+  document.getElementById("qrCode").innerHTML = "QR for<br>USDT " + network + "<br>" + walletAddress.substring(0, 10) + "...";
+  
+  console.log("Selected:", network, "Wallet:", walletAddress);
+}
+
+// RUN ON PAGE LOAD
+updateWallet();
 
 /////////////////////////////////////////////////////
 // COPY WALLET
@@ -497,6 +559,7 @@ async function submitDeposit() {
   }
 
   let amount = Number(document.getElementById("amount").value);
+  let network = document.getElementById("network").value;
   let wallet = document.getElementById("wallet").value;
 
   if (!amount || amount <= 0) {
@@ -512,6 +575,7 @@ async function submitDeposit() {
     await push(ref(db, 'deposits'), {
       user: currentUser,
       coin: "USDT",
+      network: network,
       amount: amount,
       wallet: wallet,
       status: "pending",
@@ -545,7 +609,8 @@ function goBack() {
 window.submitDeposit = submitDeposit;
 window.goBack = goBack;
 window.copyWallet = copyWallet;
+window.updateWallet = updateWallet;
 </script>
+
 </body>
-  </html>
-  
+    </html>
