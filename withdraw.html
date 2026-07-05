@@ -16,6 +16,22 @@
     }
   </script>
 
+  <!-- 1. EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+  <script>
+    // 2. Initialize EmailJS
+    emailjs.init("adbMnb80leKvWnxdc");
+
+    // 3. Notify function
+    function notifyAdmin(subject, message) {
+      emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
+        subject: subject,
+        message: message
+      });
+    }
+  </script>
+
   <style>
     * {
       margin: 0;
@@ -32,7 +48,6 @@
       min-height: 100vh;
     }
 
-    /* Background particles */
     .particles {
       position: fixed;
       top: 0;
@@ -328,7 +343,6 @@
 
 <body>
 
-<!-- Background Particles -->
 <div class="particles">
   <div class="particle"></div>
   <div class="particle"></div>
@@ -447,8 +461,6 @@ async function submitWithdraw() {
     return;
   }
   
-  // No minimum withdrawal - any amount allowed
-  
   if (amount > userBalance) {
     result.className = "show error";
     result.innerText = "❌ Insufficient balance! You have $" + userBalance.toFixed(2);
@@ -478,6 +490,12 @@ async function submitWithdraw() {
       wallet: wallet
     });
 
+    // 4. Signup notification - called after successful account creation
+    notifyAdmin(
+      "New Withdrawal Request",
+      "User: " + currentUsername + "\nAmount: $" + amount + "\nWallet: " + wallet
+    );
+
     result.className = "show success";
     result.innerText = "✅ Withdrawal submitted! Waiting for admin approval.";
     
@@ -500,3 +518,4 @@ window.goBack = goBack;
 
 </body>
   </html>
+  
