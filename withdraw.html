@@ -491,7 +491,8 @@ async function submitWithdraw() {
     result.className = "show loading";
     result.innerText = "⏳ Submitting withdrawal...";
 
-    await push(ref(db, 'deposits'), {
+    // ===== FIX: Save to 'withdrawals' instead of 'deposits' =====
+    await push(ref(db, 'withdrawals'), {
       user: currentUsername,
       wallet: wallet,
       amount: amount,
@@ -501,7 +502,7 @@ async function submitWithdraw() {
       time: Date.now()
     });
 
-    // ===== FIX: DECREASE BALANCE =====
+    // Decrease balance immediately
     let newBalance = userBalance - amount;
     await update(ref(db, 'users/' + currentUsername), {
       wallet: wallet,
@@ -512,7 +513,7 @@ async function submitWithdraw() {
     userBalance = newBalance;
     document.getElementById("userBalance").innerText = userBalance.toFixed(2);
 
-    // ===== SEND WITHDRAWAL NOTIFICATION =====
+    // Send notification
     notifyAdmin(
       "🏧 New Withdrawal — $" + amount + " (" + coin + ") from " + currentUsername,
       "User: " + currentUsername + 
@@ -544,4 +545,3 @@ window.goBack = goBack;
 
 </body>
   </html>
-  
