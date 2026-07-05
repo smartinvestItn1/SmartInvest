@@ -368,6 +368,14 @@
     </div>
 
     <div class="form-group">
+      <label>Network</label>
+      <select id="coin" class="form-input">
+        <option value="USDT TRC20">USDT (TRC20)</option>
+        <option value="USDT BEP20">USDT (BEP20)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
       <label>Wallet Address</label>
       <input id="wallet" class="form-input" placeholder="Enter your crypto wallet address">
     </div>
@@ -459,6 +467,7 @@ async function submitWithdraw() {
 
   let wallet = document.getElementById("wallet").value.trim();
   let amount = Number(document.getElementById("amount").value);
+  let coin = document.getElementById("coin").value;
 
   if (!wallet || !amount || amount <= 0) {
     result.className = "show error";
@@ -486,20 +495,29 @@ async function submitWithdraw() {
       user: currentUsername,
       wallet: wallet,
       amount: amount,
+      coin: coin,
       status: "pending",
       type: "withdraw",
       time: Date.now()
     });
 
+    // ===== FIX: DECREASE BALANCE =====
+    let newBalance = userBalance - amount;
     await update(ref(db, 'users/' + currentUsername), {
-      wallet: wallet
+      wallet: wallet,
+      balance: newBalance
     });
+
+    // Update local balance
+    userBalance = newBalance;
+    document.getElementById("userBalance").innerText = userBalance.toFixed(2);
 
     // ===== SEND WITHDRAWAL NOTIFICATION =====
     notifyAdmin(
-      "🏧 New Withdrawal — $" + amount + " from " + currentUsername,
+      "🏧 New Withdrawal — $" + amount + " (" + coin + ") from " + currentUsername,
       "User: " + currentUsername + 
       "\nAmount: $" + amount + 
+      "\nNetwork: " + coin +
       "\nWallet: " + wallet +
       "\nTime: " + new Date().toLocaleString()
     );
