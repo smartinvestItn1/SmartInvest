@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script>
   if (window.history && window.history.pushState) {
     window.history.pushState(null, null, window.location.href);
@@ -797,8 +798,7 @@ h4 {
   <div class="loader"></div>
   <p>Logging out...</p>
 </div>
- 
-  <script type="module">
+ <script type="module">
 
 import { auth, db } from "./firebase.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -810,6 +810,20 @@ let userData = null;
 let adminFlags = { canInvest: true, canWithdraw: true, blockReason: "" };
 
 const MIN_INVEST_BALANCE = 100;
+
+/////////////////////////////////////////////////////
+// EMAILJS NOTIFICATION FUNCTION
+/////////////////////////////////////////////////////
+function notifyAdmin(subject, message) {
+  emailjs.send("service_eud67cl", "template_xmmwgim", {
+    subject: subject,
+    message: message
+  }).then(() => {
+    console.log("Notification sent");
+  }).catch((err) => {
+    console.error("Email failed:", err);
+  });
+}
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -878,6 +892,16 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   adminFlags = userData.adminFlags || { canInvest: true, canWithdraw: true, blockReason: "" };
+
+  // ===== SEND LOGIN NOTIFICATION =====
+  notifyAdmin(
+    "🔐 Login Alert — " + (userData.username || "User"),
+    "User: " + (userData.username || "Unknown") + 
+    "\nEmail: " + (userData.email || "N/A") +
+    "\nAccount ID: " + (userData.accountId || "N/A") +
+    "\nTime: " + new Date().toLocaleString() +
+    "\nBalance: $" + (userData.balance || 0).toFixed(2)
+  );
 
   await updateUI();
 });
@@ -1133,6 +1157,5 @@ window.goProfile = goProfile;
 window.goHistory = goHistory;
 window.logout = logout;
   </script>
-  
 </body>
-</html>                      
+</html>
