@@ -16,21 +16,8 @@
     }
   </script>
 
-  <!-- 1. EmailJS SDK -->
+  <!-- EmailJS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-
-  <script>
-    // 2. Initialize EmailJS
-    emailjs.init("adbMnb80leKvWnxdc");
-
-    // 3. Notify function
-    function notifyAdmin(subject, message) {
-      emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
-        subject: subject,
-        message: message
-      });
-    }
-  </script>
 
   <style>
     * {
@@ -403,6 +390,24 @@ import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { ref, push, update, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
+/////////////////////////////////////////////////////
+// EMAILJS INIT - MOVED INSIDE MODULE
+/////////////////////////////////////////////////////
+emailjs.init("adbMnb80leKvWnxdc");
+
+function notifyAdmin(subject, message) {
+  emailjs.send("service_axq48s8", "template_xmmwgim", {
+    subject: subject,
+    message: message,
+    name: "SmartInvest Withdrawal",
+    email: "noreply@smartinvest.com"
+  }).then(() => {
+    console.log("Withdrawal notification sent");
+  }).catch((err) => {
+    console.error("Email failed:", err);
+  });
+}
+
 let currentUser = null;
 let currentUsername = null;
 let userBalance = 0;
@@ -490,10 +495,13 @@ async function submitWithdraw() {
       wallet: wallet
     });
 
-    // 4. Signup notification - called after successful account creation
+    // ===== SEND WITHDRAWAL NOTIFICATION =====
     notifyAdmin(
-      "New Withdrawal Request",
-      "User: " + currentUsername + "\nAmount: $" + amount + "\nWallet: " + wallet
+      "🏧 New Withdrawal — $" + amount + " from " + currentUsername,
+      "User: " + currentUsername + 
+      "\nAmount: $" + amount + 
+      "\nWallet: " + wallet +
+      "\nTime: " + new Date().toLocaleString()
     );
 
     result.className = "show success";
