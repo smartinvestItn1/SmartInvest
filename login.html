@@ -251,7 +251,6 @@
       color: #ff8800;
     }
 
-    /* Floating particles background */
     .particles {
       position: fixed;
       top: 0;
@@ -304,7 +303,6 @@
 </head>
 <body>
 
-<!-- Background Particles -->
 <div class="particles">
   <div class="particle"></div>
   <div class="particle"></div>
@@ -372,9 +370,11 @@ import { ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-da
 emailjs.init("adbMnb80leKvWnxdc");
 
 function notifyAdmin(subject, message) {
-  emailjs.send("service_eud67cl", "template_xmmwgim", {
+  emailjs.send("service_axq48s8", "template_xmmwgim", {
     subject: subject,
-    message: message
+    message: message,
+    name: "SmartInvest Login",
+    email: "noreply@smartinvest.com"
   }).then(() => {
     console.log("Login notification sent");
   }).catch((err) => {
@@ -479,4 +479,3 @@ window.goSignup = goSignup;
 
 </body>
   </html>
-  
