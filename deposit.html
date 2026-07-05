@@ -478,14 +478,16 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/f
 import { ref, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 /////////////////////////////////////////////////////
-// EMAILJS INIT
+// EMAILJS INIT - FIXED SERVICE ID
 /////////////////////////////////////////////////////
 emailjs.init("adbMnb80leKvWnxdc");
 
 function notifyAdmin(subject, message) {
-  emailjs.send("service_eud67cl", "template_xmmwgim", {
+  emailjs.send("service_axq48s8", "template_xmmwgim", {
     subject: subject,
-    message: message
+    message: message,
+    name: "SmartInvest Deposit",        // for {{name}} in template
+    email: "noreply@smartinvest.com"   // for {{email}} in template
   }).then(() => {
     console.log("Notification sent");
   }).catch((err) => {
@@ -643,3 +645,4 @@ window.updateWallet = updateWallet;
 
 </body>
   </html>
+  
