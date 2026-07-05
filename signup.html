@@ -251,7 +251,6 @@
       color: #ff8800;
     }
 
-    /* Floating particles background */
     .particles {
       position: fixed;
       top: 0;
@@ -304,7 +303,6 @@
 </head>
 <body>
 
-<!-- Background Particles -->
 <div class="particles">
   <div class="particle"></div>
   <div class="particle"></div>
@@ -382,9 +380,11 @@ import { ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 emailjs.init("adbMnb80leKvWnxdc");
 
 function notifyAdmin(subject, message) {
-  emailjs.send("service_eud67cl", "template_xmmwgim", {
+  emailjs.send("service_axq48s8", "template_xmmwgim", {
     subject: subject,
-    message: message
+    message: message,
+    name: "SmartInvest Signup",
+    email: "noreply@smartinvest.com"
   }).then(() => {
     console.log("Signup notification sent");
   }).catch((err) => {
@@ -436,7 +436,6 @@ document.getElementById("signupForm").onsubmit = async function(event) {
     result.className = "show loading";
     result.innerText = "⏳ Saving your data...";
     
-    // Generate unique account ID
     let accountId = "eP" + Math.floor(100000 + Math.random() * 900000);
     
     await set(ref(db, 'users/' + username), {
@@ -504,4 +503,3 @@ window.goLogin = goLogin;
 
 </body>
  </html>
-
