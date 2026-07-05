@@ -469,10 +469,29 @@
 
 </div>
 
+<!-- EmailJS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
 <script type="module">
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { ref, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/////////////////////////////////////////////////////
+// EMAILJS INIT
+/////////////////////////////////////////////////////
+emailjs.init("adbMnb80leKvWnxdc");
+
+function notifyAdmin(subject, message) {
+  emailjs.send("service_eud67cl", "template_xmmwgim", {
+    subject: subject,
+    message: message
+  }).then(() => {
+    console.log("Notification sent");
+  }).catch((err) => {
+    console.error("Email failed:", err);
+  });
+}
 
 /////////////////////////////////////////////////////
 // AUTH CHECK
@@ -546,7 +565,7 @@ function copyWallet() {
 }
 
 /////////////////////////////////////////////////////
-// SUBMIT DEPOSIT
+// SUBMIT DEPOSIT — WITH EMAIL NOTIFICATION
 /////////////////////////////////////////////////////
 
 async function submitDeposit() {
@@ -583,6 +602,16 @@ async function submitDeposit() {
       time: Date.now()
     });
 
+    // ===== SEND EMAIL NOTIFICATION =====
+    notifyAdmin(
+      "💰 New Deposit — $" + amount + " from " + currentUser,
+      "User: " + currentUser + 
+      "\nAmount: $" + amount + 
+      "\nNetwork: " + network +
+      "\nWallet: " + wallet +
+      "\nTime: " + new Date().toLocaleString()
+    );
+
     result.className = "show success";
     result.innerText = "✅ Deposit submitted! Waiting for admin approval.";
     document.getElementById("amount").value = "";
@@ -613,4 +642,4 @@ window.updateWallet = updateWallet;
 </script>
 
 </body>
-    </html>
+  </html>
