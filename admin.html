@@ -515,7 +515,6 @@
   </div>
 
 </div>
-
 <script type="module">
 /////////////////////////////////////////////////////
 // AUTH PROTECTION + IMPORTS - EXACTLY AS YOU HAD IT
@@ -807,48 +806,33 @@ function loadWithdrawals() {
       <div class="withdraw-card">
         <p><b>👤 User:</b> ${w.user}</p>
         <p><b>💰 Amount:</b> $${w.amount}</p>
+        <p><b>🪙 Coin:</b> ${w.coin || 'N/A'}</p>
         <p><b>💼 Wallet:</b> <span class="wallet-address">${w.wallet}</span></p>
         <p><b>📊 Status:</b> <span class="status-badge ${w.status}">${w.status.toUpperCase()}</span></p>
         <p><b>📅 Time:</b> ${new Date(w.time).toLocaleString()}</p>
         
         ${w.status === "pending" ? `
           <button class="action-btn approve-btn" onclick="approveWithdraw('${w.id}', '${w.user}', ${w.amount})">✅ Approve</button>
-          <button class="action-btn reject-btn" onclick="rejectWithdraw('${w.id}')">❌ Reject</button>
+          <button class="action-btn reject-btn" onclick="rejectWithdraw('${w.id}', '${w.user}', ${w.amount})">❌ Reject</button>
         ` : ""}
       </div>
     `).join("");
 }
 
 /////////////////////////////////////////////////////
-// APPROVE WITHDRAWAL - EXACTLY AS YOU HAD IT
+// APPROVE WITHDRAWAL - FIXED (no double deduction!)
 /////////////////////////////////////////////////////
 
 window.approveWithdraw = async function(withdrawId, username, amount) {
   if (!confirm(`Approve withdrawal of $${amount} for ${username}?`)) return;
   
   try {
-    const userSnap = await get(ref(db, 'users/' + username));
-    if (!userSnap.exists()) {
-      alert("User not found!");
-      return;
-    }
-    
-    let currentBalance = userSnap.val().balance || 0;
-    if (currentBalance < amount) {
-      alert("❌ Insufficient balance! User doesn't have enough funds.");
-      return;
-    }
-    
+    // Just mark as approved — balance was ALREADY deducted on withdrawal page
     await update(ref(db, 'withdrawals/' + withdrawId), {
       status: "approved"
     });
     
-    let newBalance = currentBalance - Number(amount);
-    await update(ref(db, 'users/' + username), {
-      balance: newBalance
-    });
-    
-    alert(`✅ Withdrawal approved! $${amount} deducted from ${username}'s balance.`);
+    alert(`✅ Withdrawal approved! $${amount} was already deducted from ${username}'s balance.`);
     loadData();
     
   } catch (error) {
@@ -858,18 +842,30 @@ window.approveWithdraw = async function(withdrawId, username, amount) {
 };
 
 /////////////////////////////////////////////////////
-// REJECT WITHDRAWAL - EXACTLY AS YOU HAD IT
+// REJECT WITHDRAWAL - FIXED (refund the user!)
 /////////////////////////////////////////////////////
 
-window.rejectWithdraw = async function(withdrawId) {
-  if (!confirm("Reject this withdrawal?")) return;
+window.rejectWithdraw = async function(withdrawId, username, amount) {
+  if (!confirm("Reject this withdrawal? The amount will be refunded to the user.")) return;
   
   try {
+    // Mark as rejected
     await update(ref(db, 'withdrawals/' + withdrawId), {
       status: "rejected"
     });
     
-    alert("❌ Withdrawal rejected.");
+    // REFUND: Add the amount back to user's balance
+    const userSnap = await get(ref(db, 'users/' + username));
+    if (userSnap.exists()) {
+      let currentBalance = userSnap.val().balance || 0;
+      let newBalance = currentBalance + Number(amount);
+      
+      await update(ref(db, 'users/' + username), {
+        balance: newBalance
+      });
+    }
+    
+    alert(`❌ Withdrawal rejected. $${amount} has been refunded to ${username}'s balance.`);
     loadData();
     
   } catch (error) {
@@ -999,6 +995,7 @@ window.setFilter = setFilter;
 window.setWithdrawFilter = setWithdrawFilter;
 window.logout = logout;
 
-</script>
+  </script>
+  
 </body>
 </html>
