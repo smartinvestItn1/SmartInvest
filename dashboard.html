@@ -790,7 +790,7 @@
   <div class="loader"></div>
   <p>Logging out...</p>
 </div>
- <script type="module">
+        <script type="module">
     import { auth, db } from "./firebase.js";
     import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { ref, get, update, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -976,19 +976,29 @@
       document.getElementById("dashAvatar").src = userData.image || "https://via.placeholder.com/80";
 
       try {
+        // ===== FIX: Load from BOTH deposits AND withdrawals =====
         const depSnap = await get(ref(db, 'deposits'));
+        const witSnap = await get(ref(db, 'withdrawals'));
+        
         let pendingDep = 0;
         let pendingWit = 0;
 
+        // Count pending deposits
         if (depSnap.exists()) {
           depSnap.forEach((childSnap) => {
             const deposit = childSnap.val();
             if (deposit.user === currentUsername && deposit.status === "pending") {
-              if (deposit.type === "deposit") {
-                pendingDep += Number(deposit.amount || 0);
-              } else if (deposit.type === "withdraw") {
-                pendingWit += Number(deposit.amount || 0);
-              }
+              pendingDep += Number(deposit.amount || 0);
+            }
+          });
+        }
+
+        // Count pending withdrawals
+        if (witSnap.exists()) {
+          witSnap.forEach((childSnap) => {
+            const withdrawal = childSnap.val();
+            if (withdrawal.user === currentUsername && withdrawal.status === "pending") {
+              pendingWit += Number(withdrawal.amount || 0);
             }
           });
         }
@@ -1120,7 +1130,7 @@
     window.goProfile = goProfile;
     window.goHistory = goHistory;
     window.logout = logout;
- </script>
+</script>
 </body>
   </html>
   
