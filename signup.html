@@ -4,10 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign Up — SmartInvest</title>
-  <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- EmailJS SDK -->
+  <!-- EmailJS at the top -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
   <!-- Prevent back button after logout -->
@@ -123,6 +122,10 @@
       letter-spacing: 0.5px;
     }
 
+    .password-wrapper {
+      position: relative;
+    }
+
     .form-group input {
       width: 100%;
       padding: 14px 16px;
@@ -144,6 +147,35 @@
       border-color: #00c851;
       box-shadow: 0 0 0 3px rgba(0, 200, 81, 0.1);
       background: rgba(15, 15, 30, 0.8);
+    }
+
+    .password-wrapper input {
+      padding-right: 50px;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #666680;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s ease;
+    }
+
+    .toggle-password:hover {
+      color: #00c851;
+    }
+
+    .toggle-password svg {
+      width: 20px;
+      height: 20px;
     }
 
     .signup-btn {
@@ -345,12 +377,28 @@
 
       <div class="form-group">
         <label>Password</label>
-        <input id="password" type="password" placeholder="Min 6 characters" required>
+        <div class="password-wrapper">
+          <input id="password" type="password" placeholder="Min 6 characters" required>
+          <button type="button" class="toggle-password" onclick="togglePassword('password', 'eye-icon-1')" title="Show/Hide Password">
+            <svg id="eye-icon-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div class="form-group">
         <label>Confirm Password</label>
-        <input id="confirm" type="password" placeholder="Confirm your password" required>
+        <div class="password-wrapper">
+          <input id="confirm" type="password" placeholder="Confirm your password" required>
+          <button type="button" class="toggle-password" onclick="togglePassword('confirm', 'eye-icon-2')" title="Show/Hide Password">
+            <svg id="eye-icon-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <button type="submit" class="signup-btn">Create Account</button>
@@ -369,14 +417,14 @@
 
 </div>
 
-<script type="module">
-import { auth, db } from "./firebase.js";
+<!-- MODULE SCRIPT AT THE BOTTOM -->
+<script type="modul">
+  
+  import { auth, db } from "./firebase.js";
 import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-/////////////////////////////////////////////////////
-// EMAILJS INIT
-/////////////////////////////////////////////////////
+// EmailJS is already loaded by the script tag in signup.html <head>
 emailjs.init("adbMnb80leKvWnxdc");
 
 function notifyAdmin(subject, message) {
@@ -391,6 +439,29 @@ function notifyAdmin(subject, message) {
     console.error("Email failed:", err);
   });
 }
+
+/////////////////////////////////////////////////////
+// PASSWORD TOGGLE (works for both password fields)
+/////////////////////////////////////////////////////
+window.togglePassword = function(inputId, eyeIconId) {
+  const passwordInput = document.getElementById(inputId);
+  const eyeIcon = document.getElementById(eyeIconId);
+  
+  if (passwordInput.type === "password") {
+    passwordInput.type = "text";
+    // Eye slash icon (hidden)
+    eyeIcon.innerHTML = `
+      <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+    `;
+  } else {
+    passwordInput.type = "password";
+    // Eye icon (visible)
+    eyeIcon.innerHTML = `
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+    `;
+  }
+};
 
 document.getElementById("signupForm").onsubmit = async function(event) {
   event.preventDefault();
@@ -502,4 +573,4 @@ window.goLogin = goLogin;
 </script>
 
 </body>
- </html>
+</html>
