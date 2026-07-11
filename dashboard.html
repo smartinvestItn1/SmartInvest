@@ -4,11 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard — SmartInvest</title>
-  <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
-    /* ===== RESET ===== */
     * {
       margin: 0;
       padding: 0;
@@ -16,363 +14,242 @@
     }
 
     body {
-      background: #0f0f1a;
+      background: #0a0a14;
       color: #e8e8ec;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      padding-bottom: 80px;
     }
 
-    /* ===== NAV - SMALLER TOP BUTTONS ===== */
-    .nav {
+    /* ===== TOP NAV ===== */
+    .top-nav {
       display: flex;
-      justify-content: center;
-      gap: 6px;
-      padding: 8px 10px 4px;
-      flex-wrap: wrap;
-    }
-
-    .nav button {
-      background: rgba(25, 25, 40, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: #8888a0;
-      padding: 6px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      font-family: inherit;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.3px;
-      text-transform: uppercase;
-    }
-
-    .nav button:hover {
-      background: rgba(255, 255, 255, 0.05);
-      color: white;
-      transform: translateY(-1px);
-      border-color: rgba(255, 255, 255, 0.15);
-    }
-
-    /* ===== TEXT ===== */
-    .welcome {
-      text-align: center;
-      margin: 4px 0 2px;
-      font-size: 13px;
-    }
-
-    .sub {
-      text-align: center;
-      color: #666680;
-      margin-bottom: 6px;
-      font-size: 10px;
-    }
-
-    /* ===== STATUS BANNER ===== */
-    .status-banner {
-      padding: 8px;
-      border-radius: 8px;
-      margin: 6px auto;
-      text-align: center;
-      font-weight: bold;
-      max-width: 520px;
-      display: none;
-      backdrop-filter: blur(10px);
-      font-size: 11px;
-    }
-
-    .status-banner.warning,
-    .status-banner.success,
-    .status-banner.blocked {
-      display: block;
-    }
-
-    .status-banner.warning {
-      background: rgba(255, 187, 51, 0.12);
-      color: #ffbb33;
-      border: 1px solid rgba(255, 187, 51, 0.4);
-    }
-
-    .status-banner.success {
-      background: rgba(0, 200, 81, 0.12);
-      color: #00c851;
-      border: 1px solid rgba(0, 200, 81, 0.4);
-    }
-
-    .status-banner.blocked {
-      background: rgba(255, 68, 68, 0.12);
-      color: #ff4444;
-      border: 1px solid rgba(255, 68, 68, 0.4);
-    }
-
-    /* ===== INVEST STATUS ===== */
-    #investStatus {
-      cursor: pointer;
-      text-decoration: none;
-      border-bottom: 1px dashed rgba(255,255,255,0.2);
-    }
-
-    #investStatus.good {
-      color: #00c851;
-      font-weight: bold;
-      text-shadow: 0 0 8px rgba(0,200,81,.8), 0 0 20px rgba(0,200,81,.6);
-      animation: greenGlow 1.5s infinite;
-    }
-
-    #investStatus.bad {
-      color: #ff4444;
-      font-weight: bold;
-      text-shadow: 0 0 8px rgba(255,68,68,.8), 0 0 20px rgba(255,68,68,.6);
-      animation: redGlow 1.5s infinite;
-    }
-
-    @keyframes greenGlow {
-      0%, 100% { opacity: 1; text-shadow: 0 0 8px rgba(0,200,81,.6); }
-      50% { opacity: 0.6; text-shadow: 0 0 25px rgba(0,200,81,1); }
-    }
-
-    @keyframes redGlow {
-      0%, 100% { opacity: 1; text-shadow: 0 0 8px rgba(255,68,68,.6); }
-      50% { opacity: 0.6; text-shadow: 0 0 25px rgba(255,68,68,1); }
-    }
-
-    /* ===== GRID - BALANCE CARDS IN A ROW ===== */
-    .grid {
-      display: flex;
-      justify-content: center;
-      gap: 6px;
-      max-width: 900px;
-      margin: 6px auto;
-      padding: 0 10px;
-      flex-wrap: wrap;
-    }
-
-    /* ===== MAIN CARDS - SMALLER RECTANGLE ===== */
-    .card {
-      background: rgba(25, 25, 40, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 8px;
-      padding: 8px 10px;
-      text-align: center;
-      transition: all 0.25s ease;
-      backdrop-filter: blur(10px);
-      min-width: 80px;
-      flex: 1;
-      max-width: 110px;
-    }
-
-    .card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(255, 255, 255, 0.12);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    }
-
-    .card.highlight {
-      border-color: rgba(0, 200, 81, 0.4);
-      box-shadow: 0 0 10px rgba(0, 200, 81, 0.1);
-    }
-
-    .card h4 {
-      color: #8888a0;
-      margin: 0 0 3px 0;
-      font-size: 7px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .card h2 {
-      color: white;
-      margin: 0;
-      font-size: 13px;
-    }
-
-    /* ===== PENDING BOX - SMALLER SIDE BY SIDE ===== */
-    .pending-grid {
-      display: flex;
-      justify-content: center;
-      gap: 6px;
-      max-width: 280px;
-      margin: 6px auto;
-      padding: 0 10px;
-    }
-
-    .pending-box {
-      flex: 1;
-      padding: 6px 8px;
-      border-radius: 8px;
-      text-align: center;
-      background: rgba(25, 25, 40, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(10px);
-      transition: all 0.25s ease;
-    }
-
-    .pending-box:hover {
-      border-color: rgba(255, 255, 255, 0.12);
-      transform: translateY(-2px);
-    }
-
-    .pending-box.deposit {
-      border-color: rgba(0, 200, 81, 0.3);
-    }
-
-    .pending-box.withdraw {
-      border-color: rgba(255, 68, 68, 0.3);
-    }
-
-    .pending-box h4 {
-      color: #8888a0;
-      margin: 0 0 3px 0;
-      font-size: 7px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .pending-box h2 {
-      margin: 0;
-      font-size: 13px;
-    }
-
-    .pending-box.deposit h2 {
-      color: #00c851;
-    }
-
-    .pending-box.withdraw h2 {
-      color: #ff4444;
-    }
-
-    /* ===== QUICK ACTIONS - GLASS BLACK GLOWING ===== */
-    .quick-actions {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 6px;
-      max-width: 280px;
-      margin: 8px auto;
-      padding: 0 10px;
-    }
-
-    .action-btn {
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      color: white;
-      font-family: inherit;
-      position: relative;
-      overflow: hidden;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
       background: rgba(15, 15, 30, 0.8);
       backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      letter-spacing: 0.3px;
-      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
-    .action-btn::before {
+    .top-nav .logo {
+      font-size: 18px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ffbb33, #ff8800);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .top-nav .menu-btn {
+      background: none;
+      border: none;
+      color: #8888a0;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    /* ===== PROFILE STRIP ===== */
+    .profile-strip {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(255, 187, 51, 0.3);
+    }
+
+    .profile-info h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .profile-info p {
+      font-size: 12px;
+      color: #00c851;
+    }
+
+    /* ===== BALANCE CARD ===== */
+    .balance-card {
+      background: linear-gradient(135deg, rgba(255, 187, 51, 0.15), rgba(255, 136, 0, 0.1));
+      border: 1px solid rgba(255, 187, 51, 0.2);
+      border-radius: 20px;
+      padding: 24px 20px;
+      margin: 0 16px 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .balance-card::before {
       content: "";
       position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
-      transition: left 0.5s ease;
+      top: -50%;
+      right: -20%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(255, 187, 51, 0.1), transparent);
+      border-radius: 50%;
     }
 
-    .action-btn:hover::before {
-      left: 100%;
+    .balance-label {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
     }
 
-    .action-btn:hover {
-      transform: translateY(-3px) scale(1.02);
-      border-color: rgba(255, 255, 255, 0.2);
+    .balance-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
-    .action-btn:active {
-      transform: scale(0.98);
+    .balance-amount {
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+      font-family: 'Inter', monospace;
+      letter-spacing: -0.5px;
     }
 
-    .action-btn:disabled {
-      background: rgba(10, 10, 20, 0.95) !important;
-      color: #333340 !important;
-      opacity: 0.35;
-      cursor: not-allowed;
-      transform: none !important;
-      box-shadow: none !important;
-      filter: grayscale(100%) brightness(0.6);
-      border-color: rgba(255, 255, 255, 0.03) !important;
-      pointer-events: none;
+    .balance-amount.hidden {
+      font-size: 32px;
+      letter-spacing: 4px;
     }
 
-    /* Deposit - Green Glow */
-    .deposit-btn {
-      background: rgba(15, 15, 30, 0.8);
-      box-shadow: 0 0 10px rgba(0, 200, 81, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
-    }
-    .deposit-btn:hover {
-      box-shadow: 0 0 20px rgba(0, 200, 81, 0.35), 0 6px 18px rgba(0,0,0,0.3);
-      border-color: rgba(0, 200, 81, 0.4);
-    }
-
-    /* Withdraw - Red Glow */
-    .withdraw-btn {
-      background: rgba(15, 15, 30, 0.8);
-      box-shadow: 0 0 10px rgba(255, 68, 68, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
-    }
-    .withdraw-btn:hover {
-      box-shadow: 0 0 20px rgba(255, 68, 68, 0.35), 0 6px 18px rgba(0,0,0,0.3);
-      border-color: rgba(255, 68, 68, 0.4);
-    }
-
-    /* Transfer - Blue Glow */
-    .transfer-btn {
-      background: rgba(15, 15, 30, 0.8);
-      box-shadow: 0 0 10px rgba(51, 181, 229, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
-    }
-    .transfer-btn:hover {
-      box-shadow: 0 0 20px rgba(51, 181, 229, 0.35), 0 6px 18px rgba(0,0,0,0.3);
-      border-color: rgba(51, 181, 229, 0.4);
-    }
-
-    /* Invest - Gold Glow */
-    .invest-btn {
-      background: rgba(15, 15, 30, 0.8);
+    .toggle-balance {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
       color: #ffbb33;
-      box-shadow: 0 0 10px rgba(255, 187, 51, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
-    }
-    .invest-btn:hover {
-      box-shadow: 0 0 20px rgba(255, 187, 51, 0.35), 0 6px 18px rgba(0,0,0,0.3);
-      border-color: rgba(255, 187, 51, 0.4);
+      transition: all 0.2s ease;
     }
 
-    /* ===== PLANS DISPLAY ===== */
-    .plans-display {
+    .toggle-balance:hover {
+      background: rgba(255, 187, 51, 0.2);
+    }
+
+    .toggle-balance svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .balance-currency {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 4px;
+    }
+
+    /* ===== QUICK ACTIONS GRID ===== */
+    .actions-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 8px;
-      max-width: 500px;
-      margin: 8px auto;
-      padding: 0 10px;
+      padding: 0 16px;
+      margin-bottom: 20px;
     }
 
-    @media (max-width: 768px) {
-      .plans-display {
-        grid-template-columns: 1fr;
-        max-width: 280px;
-      }
-    }
-
-    /* ===== PLAN CARD ===== */
-    .plan-card {
+    .action-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 12px 8px;
       background: rgba(25, 25, 40, 0.6);
       border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 10px;
-      padding: 10px 8px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .action-item:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .action-item:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .action-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .action-icon.deposit { background: rgba(0, 200, 81, 0.15); }
+    .action-icon.withdraw { background: rgba(255, 68, 68, 0.15); }
+    .action-icon.transfer { background: rgba(51, 181, 229, 0.15); }
+    .action-icon.invest { background: rgba(255, 187, 51, 0.15); }
+
+    .action-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #8888a0;
+    }
+
+    /* ===== SECTION TITLE ===== */
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      padding: 0 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title span {
+      color: #ffbb33;
+    }
+
+    /* ===== PLAN CARDS - HORIZONTAL ===== */
+    .plans-row {
+      display: flex;
+      gap: 10px;
+      padding: 0 16px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .plans-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .plan-card {
+      min-width: 110px;
+      flex: 1;
+      background: rgba(25, 25, 40, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 16px 12px;
       text-align: center;
       transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
       position: relative;
       overflow: hidden;
     }
@@ -383,16 +260,15 @@
       top: 0;
       left: 0;
       right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, #ffbb33, transparent);
+      height: 3px;
+      background: linear-gradient(90deg, #ffbb33, #ff8800);
       opacity: 0;
       transition: opacity 0.3s ease;
     }
 
     .plan-card:hover {
-      border-color: rgba(255, 187, 51, 0.3);
       transform: translateY(-4px);
-      box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+      border-color: rgba(255, 187, 51, 0.3);
     }
 
     .plan-card:hover::before {
@@ -400,212 +276,209 @@
     }
 
     .plan-card h3 {
+      font-size: 14px;
+      font-weight: 700;
       color: #ffbb33;
-      margin: 0 0 4px 0;
-      font-size: 12px;
+      margin-bottom: 8px;
     }
 
-    .plan-card p {
+    .plan-profit {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .plan-detail {
+      font-size: 11px;
       color: #8888a0;
       margin: 2px 0;
+    }
+
+    .plan-min {
       font-size: 10px;
+      color: #666680;
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    /* ===== BOX ===== */
-    .box {
-      background: rgba(25, 25, 40, 0.6);
-      border-radius: 10px;
-      padding: 10px;
-      max-width: 280px;
-      margin: 8px auto;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(10px);
+    /* ===== INFO CARDS ===== */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      padding: 0 16px;
+      margin-bottom: 16px;
     }
 
-    .box h3 {
-      margin-bottom: 6px;
-      color: #fff;
-      font-size: 12px;
-    }
-
-    .box p {
-      color: #8888a0;
-      margin: 3px 0;
-      font-size: 11px;
-    }
-
-    /* ===== SUPPORT BUTTON ===== */
-    .support-float {
-      position: fixed;
-      bottom: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(15, 15, 30, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 6px 14px;
-      border-radius: 50px;
-      cursor: pointer;
-      z-index: 999;
-      animation: bounce 2s infinite;
-      backdrop-filter: blur(10px);
-      transition: all 0.3s ease;
-    }
-
-    .support-float:hover {
-      border-color: rgba(255, 187, 51, 0.3);
-      box-shadow: 0 0 15px rgba(255, 187, 51, 0.2);
-    }
-
-    .support-text {
-      color: #fff;
-      font-weight: 600;
-      font-size: 11px;
-      animation: blinkText 1.6s infinite;
-    }
-
-    @keyframes blinkText {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(-4px); }
-    }
-
-    /* ===== ID BOX ===== */
-    .id-box {
-      background: rgba(25, 25, 40, 0.6);
-      border-radius: 10px;
-      padding: 8px 12px;
-      max-width: 280px;
-      margin: 6px auto;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(10px);
-      position: relative;
-      overflow: hidden;
-      transition: all 0.3s ease;
-    }
-
-    .id-box::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 20%;
-      width: 60%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, #33b5e5, transparent);
-      opacity: 0.6;
-    }
-
-    .id-box:hover {
-      transform: translateY(-2px);
-      border-color: rgba(255, 255, 255, 0.12);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-    }
-
-    .id-box p {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: #8888a0;
-      margin: 4px 0;
-      font-size: 10px;
-      letter-spacing: 0.3px;
-    }
-
-    .id-box p strong {
-      color: #ffffff;
-      font-weight: 600;
-    }
-
-    .id-box span {
-      color: #33b5e5;
-      font-family: 'Courier New', monospace;
-      font-size: 10px;
-      padding: 2px 6px;
-      background: rgba(51, 181, 229, 0.08);
-      border: 1px solid rgba(51, 181, 229, 0.25);
-      border-radius: 6px;
-      letter-spacing: 1px;
-    }
-
-    /* ===== PROFILE CARD - MUCH SMALLER ===== */
-    .profile-card {
-      width: 90%;
-      max-width: 240px;
-      margin: 8px auto;
-      padding: 10px;
+    .info-card {
       background: rgba(25, 25, 40, 0.6);
       border: 1px solid rgba(255, 255, 255, 0.06);
       border-radius: 14px;
-      text-align: center;
-      backdrop-filter: blur(10px);
-      position: relative;
-      overflow: hidden;
-      transition: all 0.3s ease;
+      padding: 14px;
     }
 
-    .profile-card::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, #00c851, transparent);
-    }
-
-    .profile-card:hover {
-      border-color: rgba(255, 255, 255, 0.12);
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-    }
-
-    .profile-ring {
-      width: 45px;
-      height: 45px;
-      margin: 0 auto 6px;
-      padding: 2px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #00c851, #33b5e5);
-      box-shadow: 0 0 10px rgba(0,200,81,.25);
-    }
-
-    .iavatar {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 50%;
-      background: #0f0f1a;
-    }
-
-    .profile-name {
-      margin: 4px 0 2px;
-      font-size: 14px;
-      font-weight: 700;
-      color: white;
-    }
-
-    .profile-status {
-      margin: 0;
-      color: #8888a0;
+    .info-card h4 {
       font-size: 10px;
-    }
-
-    /* ===== HEADINGS ===== */
-    h2 {
-      text-align: center;
-      color: #ffbb33;
-      font-size: 15px;
-      margin: 6px 0;
-    }
-
-    h4 {
-      text-align: center;
       color: #8888a0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .info-card .value {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .info-card .value.green { color: #00c851; }
+    .info-card .value.red { color: #ff4444; }
+
+    /* ===== STATUS BANNER ===== */
+    .status-banner {
+      margin: 0 16px 16px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      display: none;
+      text-align: center;
+    }
+
+    .status-banner.show { display: block; }
+
+    .status-banner.warning {
+      background: rgba(255, 187, 51, 0.12);
+      color: #ffbb33;
+      border: 1px solid rgba(255, 187, 51, 0.25);
+    }
+
+    .status-banner.success {
+      background: rgba(0, 200, 81, 0.12);
+      color: #00c851;
+      border: 1px solid rgba(0, 200, 81, 0.25);
+    }
+
+    .status-banner.blocked {
+      background: rgba(255, 68, 68, 0.12);
+      color: #ff4444;
+      border: 1px solid rgba(255, 68, 68, 0.25);
+    }
+
+    /* ===== INVEST STATUS ===== */
+    .invest-status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      margin-bottom: 16px;
+    }
+
+    .invest-status-bar p {
+      font-size: 13px;
+      color: #8888a0;
+    }
+
+    #investStatus {
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 20px;
+      transition: all 0.2s ease;
+    }
+
+    #investStatus.good {
+      color: #00c851;
+      background: rgba(0, 200, 81, 0.1);
+    }
+
+    #investStatus.bad {
+      color: #ff4444;
+      background: rgba(255, 68, 68, 0.1);
+    }
+
+    /* ===== ACCOUNT DETAILS ===== */
+    .details-card {
+      background: rgba(25, 25, 40, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 16px;
+      margin: 0 16px 16px;
+    }
+
+    .details-card h4 {
+      font-size: 12px;
+      color: #8888a0;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .detail-row span:first-child {
+      font-size: 12px;
+      color: #666680;
+    }
+
+    .detail-row span:last-child {
+      font-size: 12px;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      background: rgba(51, 181, 229, 0.1);
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    /* ===== BOTTOM NAV ===== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      background: rgba(15, 15, 30, 0.95);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      z-index: 100;
+    }
+
+    .bottom-nav button {
+      background: none;
+      border: none;
+      color: #666680;
       font-size: 11px;
-      margin: 4px 0;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: color 0.2s ease;
+    }
+
+    .bottom-nav button:hover {
+      color: #ffbb33;
+    }
+
+    .bottom-nav button svg {
+      width: 20px;
+      height: 20px;
     }
 
     /* ===== LOGOUT OVERLAY ===== */
@@ -628,8 +501,8 @@
     }
 
     .loader {
-      width: 35px;
-      height: 35px;
+      width: 40px;
+      height: 40px;
       border: 3px solid #333;
       border-top-color: #00c851;
       border-radius: 50%;
@@ -637,500 +510,534 @@
     }
 
     .logout-overlay p {
-      margin-top: 8px;
+      margin-top: 12px;
       color: #fff;
       font-weight: 600;
       letter-spacing: 1px;
-      font-size: 12px;
+      font-size: 14px;
     }
 
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
 
-    /* ===== DISABLED BUTTONS ===== */
-    .invest-btn:disabled,
-    .withdraw-btn:disabled {
-      background: rgba(10, 10, 20, 0.95) !important;
-      color: #333340 !important;
-      opacity: 0.35;
-      cursor: not-allowed;
-      box-shadow: none !important;
-      transform: none !important;
-      filter: grayscale(100%) brightness(0.6);
-      border-color: rgba(255, 255, 255, 0.03) !important;
-      pointer-events: none;
-    }
-
-    .invest-btn:disabled:hover,
-    .withdraw-btn:disabled:hover {
-      transform: none !important;
-      box-shadow: none !important;
-      border-color: rgba(255, 255, 255, 0.03) !important;
-      background: rgba(10, 10, 20, 0.95) !important;
-    }
-
-    /* ===== MOBILE ===== */
-    @media (max-width: 768px) {
-      .quick-actions {
-        grid-template-columns: repeat(2, 1fr);
-        max-width: 280px;
+    @media (max-width: 360px) {
+      .balance-amount {
+        font-size: 26px;
       }
-      .pending-grid {
-        flex-direction: row;
+      .plans-row {
+        gap: 8px;
       }
-      .grid {
-        flex-direction: row;
-        align-items: stretch;
-      }
-      .card {
-        max-width: 90px;
+      .plan-card {
+        min-width: 100px;
+        padding: 12px 10px;
       }
     }
   </style>
 </head>
 <body>
 
-<!-- NAV AT THE TOP -->
-<div class="nav">
-  <button onclick="goHome()">Home</button>
-  <button onclick="goProfile()">Profile</button>
-  <button onclick="goHistory()">History</button>
-  <button onclick="logout()">Logout</button>
+<!-- TOP NAV -->
+<div class="top-nav">
+  <div class="logo">SmartInvest</div>
+  <button class="menu-btn" onclick="goProfile()">👤</button>
 </div>
 
-<div class="profile-card">
-  <div class="profile-ring">
-    <img id="dashAvatar" class="iavatar">
+<!-- PROFILE STRIP -->
+<div class="profile-strip">
+  <img id="dashAvatar" class="avatar" src="https://via.placeholder.com/44" alt="Avatar">
+  <div class="profile-info">
+    <h3 id="userName">Welcome back</h3>
+    <p>🟢 Verified Investor</p>
   </div>
-  <h2 class="profile-name">
-    <span id="user">User</span>
-  </h2>
-  <p class="profile-status">
-    🟢 Verified Investor
-  </p>
 </div>
 
-<h2 class="welcome">👋 Welcome back, <span id="user"></span></h2>
-<p class="sub">Your investments are growing 📈</p>
+<!-- BALANCE CARD -->
+<div class="balance-card">
+  <div class="balance-label">Total Balance</div>
+  <div class="balance-row">
+    <div class="balance-amount" id="balanceDisplay">****</div>
+    <button class="toggle-balance" onclick="toggleBalance()" title="Show/Hide Balance">
+      <svg id="balanceEye" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+      </svg>
+    </button>
+  </div>
+  <div class="balance-currency">USDT</div>
+</div>
 
+<!-- STATUS BANNER -->
 <div id="statusBanner" class="status-banner"></div>
 
-<h4 style="text-align:center;">Investment Status: <span id="investStatus">Loading...</span></h4>
-
-<h2>Investment Dashboard</h2>
-
-<div class="grid">
-  <div class="card highlight">
-    <h4>USDT Balance</h4>
-    <h2><span id="balance">0</span> USDT</h2>
-  </div>
-  <div class="card">
-    <h4>Plan</h4>
-    <h2 id="planType">None</h2>
-  </div>
+<!-- INVEST STATUS -->
+<div class="invest-status-bar">
+  <p>Investment Status</p>
+  <span id="investStatus">Loading...</span>
 </div>
 
-<div class="pending-grid">
-  <div class="pending-box deposit">
-    <h4>⏳ PENDING DEPOSIT</h4>
-    <h2>$<span id="pendingDeposit">0.00</span></h2>
-  </div>
-  <div class="pending-box withdraw">
-    <h4>⏳ PENDING WITHDRAW</h4>
-    <h2>$<span id="pendingWithdraw">0.00</span></h2>
-  </div>
+<!-- QUICK ACTIONS -->
+<div class="actions-grid">
+  <button class="action-item" onclick="goDeposit()">
+    <div class="action-icon deposit">💰</div>
+    <span class="action-label">Deposit</span>
+  </button>
+  <button class="action-item" id="withdrawBtn" onclick="goWithdraw()">
+    <div class="action-icon withdraw">🏧</div>
+    <span class="action-label">Withdraw</span>
+  </button>
+  <button class="action-item" id="transferBtn" onclick="goTransfer()">
+    <div class="action-icon transfer">💸</div>
+    <span class="action-label">Transfer</span>
+  </button>
+  <button class="action-item" id="investBtn" onclick="goInvestPage()">
+    <div class="action-icon invest">📈</div>
+    <span class="action-label">Invest</span>
+  </button>
 </div>
 
-<div class="id-box">
-  <p><strong>Account ID:</strong> <span id="accountIdDisplay">—</span></p>
-  <p><strong>User ID:</strong> <span id="uidDisplay">—</span></p>
-</div>
-
-<div class="quick-actions">
-  <button class="action-btn deposit-btn" onclick="goDeposit()">💰 Deposit</button>
-  <button class="action-btn withdraw-btn" id="withdrawBtn" onclick="goWithdraw()">🏧 Withdraw</button>
-  <button class="action-btn transfer-btn" id="transferBtn" onclick="goTransfer()">💸 Transfer</button>
-  <button class="action-btn invest-btn" id="investBtn" onclick="goInvestPage()">📈 Invest</button>
-</div>
-
-<h2>Investment Plans</h2>
-<div class="plans-display">
+<!-- PLANS SECTION -->
+<div class="section-title"><span>🔥</span> Investment Plans</div>
+<div class="plans-row">
   <div class="plan-card">
     <h3>Starter</h3>
-    <p>10% Profit</p>
-    <p>48 hours</p>
-    <p style="color:#666; margin-top:4px;">Min: $100</p>
+    <div class="plan-profit">10%</div>
+    <div class="plan-detail">48 hours</div>
+    <div class="plan-min">Min $100</div>
   </div>
   <div class="plan-card">
     <h3>Pro</h3>
-    <p>20% Profit</p>
-    <p>96 hours</p>
-    <p style="color:#666; margin-top:4px;">Min: $1,000</p>
+    <div class="plan-profit">20%</div>
+    <div class="plan-detail">96 hours</div>
+    <div class="plan-min">Min $1,000</div>
   </div>
   <div class="plan-card">
     <h3>Premium</h3>
-    <p>40% Profit</p>
-    <p>120 hours</p>
-    <p style="color:#666; margin-top:4px;">Min: $5,000</p>
+    <div class="plan-profit">40%</div>
+    <div class="plan-detail">120 hours</div>
+    <div class="plan-min">Min $5,000</div>
   </div>
 </div>
 
-<div class="box">
-  <h3>📊 Activity</h3>
-  <p>✔ Account active</p>
-  <p>📈 Investment running</p>
+<!-- PENDING INFO -->
+<div class="section-title"><span>⏳</span> Pending</div>
+<div class="info-grid">
+  <div class="info-card">
+    <h4>Pending Deposit</h4>
+    <div class="value green">$<span id="pendingDeposit">0.00</span></div>
+  </div>
+  <div class="info-card">
+    <h4>Pending Withdraw</h4>
+    <div class="value red">$<span id="pendingWithdraw">0.00</span></div>
+  </div>
 </div>
 
-<div class="support-float" onclick="goSupport()">
-  <div class="support-text" id="supportText">💬 Contact Support</div>
+<!-- ACCOUNT DETAILS -->
+<div class="details-card">
+  <h4>Account Details</h4>
+  <div class="detail-row">
+    <span>Account ID</span>
+    <span id="accountIdDisplay">—</span>
+  </div>
+  <div class="detail-row">
+    <span>Current Plan</span>
+    <span id="planType">None</span>
+  </div>
 </div>
 
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button onclick="goHome()">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+    </svg>
+    Home
+  </button>
+  <button onclick="goHistory()">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    History
+  </button>
+  <button onclick="goSupport()">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+    </svg>
+    Support
+  </button>
+  <button onclick="logout()">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+    </svg>
+    Logout
+  </button>
+</div>
+
+<!-- LOGOUT OVERLAY -->
 <div id="logoutOverlay" class="logout-overlay">
   <div class="loader"></div>
   <p>Logging out...</p>
 </div>
-        <script type="module">
-    import { auth, db } from "./firebase.js";
-    import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { ref, get, update, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    let currentUsername = null;
-    let userData = null;
-    let adminFlags = { canInvest: true, canWithdraw: true, blockReason: "" };
-    const MIN_INVEST_BALANCE = 100;
+<!-- MODULE SCRIPT AT THE BOTTOM -->
+<script type="module">
+  import { auth, db } from "./firebase.js";
+import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.replace("login.html");
-        return;
-      }
+let currentUsername = null;
+let userData = null;
+let adminFlags = { canInvest: true, canWithdraw: true, blockReason: "" };
+const MIN_INVEST_BALANCE = 100;
 
-      const usersSnap = await get(ref(db, 'users'));
-      usersSnap.forEach((childSnap) => {
-        const data = childSnap.val();
-        if (data.uid === user.uid) {
-          currentUsername = childSnap.key;
-          userData = data;
+// Balance visibility state
+let balanceVisible = false;
+let currentBalance = 0;
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.replace("login.html");
+    return;
+  }
+
+  const usersSnap = await get(ref(db, 'users'));
+  usersSnap.forEach((childSnap) => {
+    const data = childSnap.val();
+    if (data.uid === user.uid) {
+      currentUsername = childSnap.key;
+      userData = data;
+    }
+  });
+
+  if (!userData) {
+    sessionStorage.clear();
+    window.location.replace("login.html");
+    return;
+  }
+
+  sessionStorage.setItem("loggedInUser", userData.username);
+  sessionStorage.setItem("role", userData.role || "user");
+
+  let needsUpdate = false;
+  let updates = {};
+
+  if (!userData.accountId) {
+    let newId;
+    let isUnique = false;
+    let attempts = 0;
+
+    while (!isUnique && attempts < 10) {
+      newId = "eP" + Math.floor(100000 + Math.random() * 900000);
+      let idExists = false;
+      usersSnap.forEach((child) => {
+        if (child.val().accountId === newId) {
+          idExists = true;
         }
       });
-
-      if (!userData) {
-        sessionStorage.clear();
-        window.location.replace("login.html");
-        return;
+      if (!idExists) {
+        isUnique = true;
       }
+      attempts++;
+    }
 
-      sessionStorage.setItem("loggedInUser", userData.username);
-      sessionStorage.setItem("role", userData.role || "user");
+    updates.accountId = newId;
+    needsUpdate = true;
+    console.log("Generated accountId:", newId, "for user:", currentUsername);
+  }
 
-      let needsUpdate = false;
-      let updates = {};
+  if (!userData.adminFlags) {
+    updates.adminFlags = {
+      canInvest: true,
+      canWithdraw: true,
+      blockReason: ""
+    };
+    needsUpdate = true;
+  }
 
-      if (!userData.accountId) {
-        let newId;
-        let isUnique = false;
-        let attempts = 0;
+  if (needsUpdate) {
+    await update(ref(db, 'users/' + currentUsername), updates);
+    const refreshed = await get(ref(db, 'users/' + currentUsername));
+    userData = refreshed.val();
+  }
 
-        while (!isUnique && attempts < 10) {
-          newId = "eP" + Math.floor(100000 + Math.random() * 900000);
-          let idExists = false;
-          usersSnap.forEach((child) => {
-            if (child.val().accountId === newId) {
-              idExists = true;
-            }
-          });
-          if (!idExists) {
-            isUnique = true;
-          }
-          attempts++;
+  adminFlags = userData.adminFlags || { canInvest: true, canWithdraw: true, blockReason: "" };
+
+  await updateUI();
+});
+
+let balanceInterval;
+
+function animateBalance(value) {
+  clearInterval(balanceInterval);
+  let start = 0;
+  let end = value;
+  let step = end / 50;
+
+  balanceInterval = setInterval(() => {
+    start += step;
+    if (start >= end) {
+      start = end;
+      clearInterval(balanceInterval);
+    }
+    currentBalance = start;
+    if (balanceVisible) {
+      document.getElementById("balanceDisplay").innerText = start.toFixed(2);
+    }
+  }, 16);
+}
+
+/////////////////////////////////////////////////////
+// BALANCE TOGGLE
+/////////////////////////////////////////////////////
+window.toggleBalance = function() {
+  balanceVisible = !balanceVisible;
+  const display = document.getElementById("balanceDisplay");
+  const eyeIcon = document.getElementById("balanceEye");
+  
+  if (balanceVisible) {
+    display.innerText = currentBalance.toFixed(2);
+    display.classList.remove("hidden");
+    eyeIcon.innerHTML = `
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+    `;
+  } else {
+    display.innerText = "****";
+    display.classList.add("hidden");
+    eyeIcon.innerHTML = `
+      <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+    `;
+  }
+};
+
+async function canInvest() {
+  const balance = userData.balance || 0;
+
+  if (adminFlags.canInvest === false) {
+    return {
+      allowed: false,
+      reason: adminFlags.blockReason || "Investing disabled by admin."
+    };
+  }
+
+  if (balance < MIN_INVEST_BALANCE) {
+    return {
+      allowed: false,
+      reason: `Need $${MIN_INVEST_BALANCE} to invest. Current: $${balance.toFixed(2)}`
+    };
+  }
+
+  if (userData.plan && userData.plan !== "None") {
+    return {
+      allowed: false,
+      reason: "Complete your current investment first."
+    };
+  }
+
+  return { allowed: true };
+}
+
+async function canWithdraw() {
+  const balance = userData.balance || 0;
+
+  if (adminFlags.canWithdraw === false) {
+    return { allowed: false, reason: adminFlags.blockReason || "Withdrawal disabled by admin." };
+  }
+
+  return { allowed: true };
+}
+
+async function updateButtonStates() {
+  const balance = userData.balance || 0;
+
+  const investCheck = await canInvest();
+  const investBtn = document.getElementById('investBtn');
+  investBtn.disabled = !investCheck.allowed;
+  investBtn.title = investCheck.allowed ? "Go to Invest Page" : investCheck.reason;
+
+  const withdrawCheck = await canWithdraw();
+  const withdrawBtn = document.getElementById('withdrawBtn');
+  withdrawBtn.disabled = !withdrawCheck.allowed;
+  withdrawBtn.title = withdrawCheck.allowed ? "Withdraw" : withdrawCheck.reason;
+
+  const transferBtn = document.getElementById('transferBtn');
+  if (balance <= 0) {
+    transferBtn.disabled = true;
+    transferBtn.title = "No balance";
+  } else {
+    transferBtn.disabled = false;
+    transferBtn.title = "Transfer";
+  }
+
+  const banner = document.getElementById('statusBanner');
+
+  if (adminFlags.canInvest === false || adminFlags.canWithdraw === false) {
+    banner.className = "status-banner warning show";
+    banner.innerText = `🔒 ADMIN: ${adminFlags.blockReason || "Contact support"}`;
+  } else if (balance < MIN_INVEST_BALANCE) {
+    banner.className = "status-banner warning show";
+    banner.innerText = `⏳ Deposit $${(MIN_INVEST_BALANCE - balance).toFixed(2)} more to unlock investing`;
+  } else {
+    banner.className = "status-banner success show";
+    banner.innerText = `✅ Account Active: You can invest and withdraw`;
+  }
+}
+
+async function updateUI() {
+  document.getElementById("userName").innerText = "Welcome, " + (userData.username || "User");
+
+  document.getElementById("accountIdDisplay").innerText = userData.accountId || "—";
+  document.getElementById("planType").innerText = userData.plan || "None";
+  document.getElementById("dashAvatar").src = userData.image || "https://via.placeholder.com/44";
+
+  let balance = userData.balance || 0;
+  animateBalance(balance);
+
+  try {
+    const depSnap = await get(ref(db, 'deposits'));
+    const witSnap = await get(ref(db, 'withdrawals'));
+    
+    let pendingDep = 0;
+    let pendingWit = 0;
+
+    if (depSnap.exists()) {
+      depSnap.forEach((childSnap) => {
+        const deposit = childSnap.val();
+        if (deposit.user === currentUsername && deposit.status === "pending") {
+          pendingDep += Number(deposit.amount || 0);
         }
+      });
+    }
 
-        updates.accountId = newId;
-        needsUpdate = true;
-        console.log("Generated accountId:", newId, "for user:", currentUsername);
-      }
+    if (witSnap.exists()) {
+      witSnap.forEach((childSnap) => {
+        const withdrawal = childSnap.val();
+        if (withdrawal.user === currentUsername && withdrawal.status === "pending") {
+          pendingWit += Number(withdrawal.amount || 0);
+        }
+      });
+    }
 
-      if (!userData.adminFlags) {
-        updates.adminFlags = {
-          canInvest: true,
-          canWithdraw: true,
-          blockReason: ""
-        };
-        needsUpdate = true;
-      }
+    document.getElementById("pendingDeposit").innerText = pendingDep.toFixed(2);
+    document.getElementById("pendingWithdraw").innerText = pendingWit.toFixed(2);
+  } catch (err) {
+    console.error("Error loading pending:", err);
+    document.getElementById("pendingDeposit").innerText = "0.00";
+    document.getElementById("pendingWithdraw").innerText = "0.00";
+  }
 
-      if (needsUpdate) {
-        await update(ref(db, 'users/' + currentUsername), updates);
-        const refreshed = await get(ref(db, 'users/' + currentUsername));
-        userData = refreshed.val();
-      }
+  await updateButtonStates();
+  updateInvestmentStatus();
+}
 
-      adminFlags = userData.adminFlags || { canInvest: true, canWithdraw: true, blockReason: "" };
+async function checkProfit() {
+  if (!userData.plan || userData.plan === "None") {
+    alert("You have no active investment.");
+    return;
+  }
+
+  const investedAmount = userData.investAmount || 0;
+  const profitPercent = userData.investProfitPercent || 0;
+  const hours = userData.investHours || 0;
+  const investTime = userData.investTime || 0;
+  
+  if (investedAmount <= 0) {
+    alert("Investment amount not found. Please contact support.");
+    return;
+  }
+
+  const now = Date.now();
+  const hoursPassed = (now - investTime) / (1000 * 60 * 60);
+
+  if (hoursPassed >= hours) {
+    const profitAmount = investedAmount * profitPercent;
+    const totalReturn = investedAmount + profitAmount;
+
+    if (confirm(`🎉 Your ${userData.plan} investment is complete!\n\nInvested: $${investedAmount.toFixed(2)}\nProfit: $${profitAmount.toFixed(2)}\nTotal Return: $${totalReturn.toFixed(2)}\n\nClaim now?`)) {
+      const newBalance = (userData.balance || 0) + totalReturn;
+
+      await update(ref(db, 'users/' + currentUsername), {
+        balance: newBalance,
+        plan: "None",
+        investTime: null,
+        investAmount: null,
+        investProfitPercent: null,
+        investHours: null
+      });
+
+      userData.balance = newBalance;
+      userData.plan = "None";
+      userData.investTime = null;
+      userData.investAmount = null;
+      userData.investProfitPercent = null;
+      userData.investHours = null;
 
       await updateUI();
-    });
-
-    let balanceInterval;
-
-    function animateBalance(value) {
-      clearInterval(balanceInterval);
-      let start = 0;
-      let end = value;
-      let step = end / 50;
-
-      balanceInterval = setInterval(() => {
-        start += step;
-        if (start >= end) {
-          start = end;
-          clearInterval(balanceInterval);
-        }
-        document.getElementById("balance").innerText = start.toFixed(2);
-      }, 16);
+      alert("✅ Profit claimed successfully!");
     }
+  } else {
+    const hoursLeft = Math.ceil(hours - hoursPassed);
+    const profitAmount = investedAmount * profitPercent;
+    alert(`⏳ Investment still running...\n\nPlan: ${userData.plan}\nInvested: $${investedAmount.toFixed(2)}\nExpected Profit: $${profitAmount.toFixed(2)}\nTime left: ${hoursLeft} hours\n\nCome back later to claim profit!`);
+  }
+}
 
-    async function canInvest() {
-      const balance = userData.balance || 0;
+document.getElementById("investStatus").onclick = checkProfit;
 
-      if (adminFlags.canInvest === false) {
-        return {
-          allowed: false,
-          reason: adminFlags.blockReason || "Investing disabled by admin."
-        };
-      }
+function updateInvestmentStatus() {
+  let el = document.getElementById("investStatus");
+  el.classList.remove("good", "bad");
 
-      if (balance < MIN_INVEST_BALANCE) {
-        return {
-          allowed: false,
-          reason: `Need $${MIN_INVEST_BALANCE} to invest. Current: $${balance.toFixed(2)}`
-        };
-      }
+  if (userData.plan && userData.plan !== "None") {
+    el.innerText = `🟢 Active (${userData.plan})`;
+    el.classList.add("good");
+  } else {
+    el.innerText = "🔴 No Investment";
+    el.classList.add("bad");
+  }
+}
 
-      if (userData.plan && userData.plan !== "None") {
-        return {
-          allowed: false,
-          reason: "Complete your current investment first."
-        };
-      }
+function goDeposit() { window.location.href = "deposit.html"; }
+function goWithdraw() { window.location.href = "withdraw.html"; }
+function goTransfer() { window.location.href = "transfer.html"; }
+function goInvestPage() { window.location.href = "invest.html"; }
+function goHome() { window.location.href = "index.html"; }
+function goProfile() { window.location.href = "profile.html"; }
+function goHistory() { window.location.href = "history.html"; }
 
-      return { allowed: true };
-    }
+async function logout() {
+  let overlay = document.getElementById("logoutOverlay");
+  overlay.classList.add("active");
 
-    async function canWithdraw() {
-      const balance = userData.balance || 0;
+  try {
+    await signOut(auth);
+    sessionStorage.clear();
 
-      if (adminFlags.canWithdraw === false) {
-        return { allowed: false, reason: adminFlags.blockReason || "Withdrawal disabled by admin." };
-      }
+    setTimeout(() => {
+      window.location.replace("login.html");
+    }, 2100);
+  } catch (error) {
+    console.error("Logout error:", error);
+    alert("Logout failed. Please try again.");
+    overlay.classList.remove("active");
+  }
+}
 
-      return { allowed: true };
-    }
+function goSupport() {
+  window.location.href = "contact.html";
+}
 
-    async function updateButtonStates() {
-      const balance = userData.balance || 0;
-
-      const investCheck = await canInvest();
-      const investBtn = document.getElementById('investBtn');
-      investBtn.disabled = !investCheck.allowed;
-      investBtn.title = investCheck.allowed ? "Go to Invest Page" : investCheck.reason;
-
-      const withdrawCheck = await canWithdraw();
-      const withdrawBtn = document.getElementById('withdrawBtn');
-      withdrawBtn.disabled = !withdrawCheck.allowed;
-      withdrawBtn.title = withdrawCheck.allowed ? "Withdraw" : withdrawCheck.reason;
-
-      const transferBtn = document.getElementById('transferBtn');
-      if (balance <= 0) {
-        transferBtn.disabled = true;
-        transferBtn.title = "No balance";
-      } else {
-        transferBtn.disabled = false;
-        transferBtn.title = "Transfer";
-      }
-
-      const banner = document.getElementById('statusBanner');
-
-      if (adminFlags.canInvest === false || adminFlags.canWithdraw === false) {
-        banner.className = "status-banner warning";
-        banner.innerText = `🔒 ADMIN: ${adminFlags.blockReason || "Contact support"}`;
-      } else if (balance < MIN_INVEST_BALANCE) {
-        banner.className = "status-banner warning";
-        banner.innerText = `⏳ Deposit $${(MIN_INVEST_BALANCE - balance).toFixed(2)} more to unlock investing`;
-      } else {
-        banner.className = "status-banner success";
-        banner.innerText = `✅ Account Active: You can invest and withdraw`;
-      }
-    }
-
-    async function updateUI() {
-      document.getElementById("user").innerText = userData.username || "User";
-
-      document.getElementById("accountIdDisplay").innerText = userData.accountId || "—";
-      document.getElementById("uidDisplay").innerText = userData.uid || "—";
-
-      let balance = userData.balance || 0;
-      animateBalance(balance);
-
-      document.getElementById("planType").innerText = userData.plan || "None";
-      document.getElementById("dashAvatar").src = userData.image || "https://via.placeholder.com/80";
-
-      try {
-        // ===== FIX: Load from BOTH deposits AND withdrawals =====
-        const depSnap = await get(ref(db, 'deposits'));
-        const witSnap = await get(ref(db, 'withdrawals'));
-        
-        let pendingDep = 0;
-        let pendingWit = 0;
-
-        // Count pending deposits
-        if (depSnap.exists()) {
-          depSnap.forEach((childSnap) => {
-            const deposit = childSnap.val();
-            if (deposit.user === currentUsername && deposit.status === "pending") {
-              pendingDep += Number(deposit.amount || 0);
-            }
-          });
-        }
-
-        // Count pending withdrawals
-        if (witSnap.exists()) {
-          witSnap.forEach((childSnap) => {
-            const withdrawal = childSnap.val();
-            if (withdrawal.user === currentUsername && withdrawal.status === "pending") {
-              pendingWit += Number(withdrawal.amount || 0);
-            }
-          });
-        }
-
-        document.getElementById("pendingDeposit").innerText = pendingDep.toFixed(2);
-        document.getElementById("pendingWithdraw").innerText = pendingWit.toFixed(2);
-      } catch (err) {
-        console.error("Error loading pending:", err);
-        document.getElementById("pendingDeposit").innerText = "0.00";
-        document.getElementById("pendingWithdraw").innerText = "0.00";
-      }
-
-      await updateButtonStates();
-      updateInvestmentStatus();
-    }
-
-    async function checkProfit() {
-      if (!userData.plan || userData.plan === "None") {
-        alert("You have no active investment.");
-        return;
-      }
-
-      const investedAmount = userData.investAmount || 0;
-      const profitPercent = userData.investProfitPercent || 0;
-      const hours = userData.investHours || 0;
-      const investTime = userData.investTime || 0;
-      
-      if (investedAmount <= 0) {
-        alert("Investment amount not found. Please contact support.");
-        return;
-      }
-
-      const now = Date.now();
-      const hoursPassed = (now - investTime) / (1000 * 60 * 60);
-
-      if (hoursPassed >= hours) {
-        const profitAmount = investedAmount * profitPercent;
-        const totalReturn = investedAmount + profitAmount;
-
-        if (confirm(`🎉 Your ${userData.plan} investment is complete!\n\nInvested: $${investedAmount.toFixed(2)}\nProfit: $${profitAmount.toFixed(2)}\nTotal Return: $${totalReturn.toFixed(2)}\n\nClaim now?`)) {
-          const newBalance = (userData.balance || 0) + totalReturn;
-
-          await update(ref(db, 'users/' + currentUsername), {
-            balance: newBalance,
-            plan: "None",
-            investTime: null,
-            investAmount: null,
-            investProfitPercent: null,
-            investHours: null
-          });
-
-          userData.balance = newBalance;
-          userData.plan = "None";
-          userData.investTime = null;
-          userData.investAmount = null;
-          userData.investProfitPercent = null;
-          userData.investHours = null;
-
-          await updateUI();
-          alert("✅ Profit claimed successfully!");
-        }
-      } else {
-        const hoursLeft = Math.ceil(hours - hoursPassed);
-        const profitAmount = investedAmount * profitPercent;
-        alert(`⏳ Investment still running...\n\nPlan: ${userData.plan}\nInvested: $${investedAmount.toFixed(2)}\nExpected Profit: $${profitAmount.toFixed(2)}\nTime left: ${hoursLeft} hours\n\nCome back later to claim profit!`);
-      }
-    }
-
-    document.getElementById("investStatus").onclick = checkProfit;
-
-    function updateInvestmentStatus() {
-      let el = document.getElementById("investStatus");
-      el.classList.remove("good", "bad");
-
-      if (userData.plan && userData.plan !== "None") {
-        el.innerText = `🟢 Active (${userData.plan})`;
-        el.classList.add("good");
-      } else {
-        el.innerText = "🔴 No Investment";
-        el.classList.add("bad");
-      }
-    }
-
-    function goDeposit() { window.location.href = "deposit.html"; }
-    function goWithdraw() { window.location.href = "withdraw.html"; }
-    function goTransfer() { window.location.href = "transfer.html"; }
-    function goInvestPage() { window.location.href = "invest.html"; }
-    function goHome() { window.location.href = "index.html"; }
-    function goProfile() { window.location.href = "profile.html"; }
-    function goHistory() { window.location.href = "history.html"; }
-
-    async function logout() {
-      let overlay = document.getElementById("logoutOverlay");
-      overlay.classList.add("active");
-
-      try {
-        await signOut(auth);
-        sessionStorage.clear();
-
-        setTimeout(() => {
-          window.location.replace("login.html");
-        }, 2100);
-      } catch (error) {
-        console.error("Logout error:", error);
-        alert("Logout failed. Please try again.");
-        overlay.classList.remove("active");
-      }
-    }
-
-    const supportText = document.getElementById("supportText");
-
-    setInterval(() => {
-      if (supportText.innerText.includes("Contact")) {
-        supportText.innerText = "💬 Chat with Us";
-      } else {
-        supportText.innerText = "💬 Contact Support";
-      }
-    }, 2000);
-
-    function goSupport() {
-      window.location.href = "contact.html";
-    }
-    window.goSupport = goSupport;
-    window.goDeposit = goDeposit;
-    window.goWithdraw = goWithdraw;
-    window.goTransfer = goTransfer;
-    window.goInvestPage = goInvestPage;
-    window.goHome = goHome;
-    window.goProfile = goProfile;
-    window.goHistory = goHistory;
-    window.logout = logout;
-</script>
-</body>
-  </html>
+window.goSupport = goSupport;
+window.goDeposit = goDeposit;
+window.goWithdraw = goWithdraw;
+window.goTransfer = goTransfer;
+window.goInvestPage = goInvestPage;
+window.goHome = goHome;
+window.goProfile = goProfile;
+window.goHistory = goHistory;
+window.logout = logout;
   
+</script>
+
+</body>
+</html>
