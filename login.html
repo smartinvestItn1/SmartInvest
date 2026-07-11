@@ -605,7 +605,7 @@ window.sendResetEmail = async function() {
   try {
     await sendPasswordResetEmail(auth, email);
     result.style.color = "#00c851";
-    result.innerText = "✅ Reset link sent! Check your email.";
+    result.innerText = "✅ Reset link sent! Check your inbox and spam folder.";
     btn.innerText = "Sent!";
     
     setTimeout(() => {
