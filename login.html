@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login — SmartInvest</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-  <!-- EmailJS at the top -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-
   <style>
     * {
       margin: 0;
@@ -17,7 +14,7 @@
     }
 
     body {
-      background: #0f0f1a;
+      background: #0a0a14;
       color: #e8e8ec;
       font-family: 'Inter', 'Segoe UI', sans-serif;
       min-height: 100vh;
@@ -25,13 +22,38 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Animated background glow */
+    body::before {
+      content: "";
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 50% 50%, rgba(255, 187, 51, 0.03) 0%, transparent 50%),
+                  radial-gradient(circle at 20% 80%, rgba(255, 136, 0, 0.02) 0%, transparent 40%);
+      pointer-events: none;
+      z-index: 0;
+      animation: bgPulse 8s ease-in-out infinite;
+    }
+
+    @keyframes bgPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.8; }
     }
 
     .login-wrapper {
       width: 100%;
       max-width: 420px;
+      position: relative;
+      z-index: 1;
     }
 
+    /* Back link */
     .back-link {
       display: inline-flex;
       align-items: center;
@@ -40,17 +62,19 @@
       text-decoration: none;
       font-size: 14px;
       font-weight: 500;
-      margin-bottom: 32px;
-      transition: color 0.2s ease;
+      margin-bottom: 24px;
+      transition: all 0.2s ease;
       cursor: pointer;
       background: none;
       border: none;
-      padding: 0;
+      padding: 8px 12px;
+      border-radius: 10px;
       font-family: 'Inter', sans-serif;
     }
 
     .back-link:hover {
       color: #ffbb33;
+      background: rgba(255, 187, 51, 0.05);
     }
 
     .back-link svg {
@@ -58,58 +82,133 @@
       height: 16px;
     }
 
+    /* Card */
     .login-card {
-      background: rgba(25, 25, 40, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: linear-gradient(145deg, rgba(25, 25, 40, 0.9), rgba(15, 15, 30, 0.95));
+      border: 1px solid rgba(255, 187, 51, 0.08);
       border-radius: 24px;
-      padding: 40px 36px;
+      padding: 40px 32px;
       backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5),
+                  0 0 0 1px rgba(255, 187, 51, 0.05),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      position: relative;
+      overflow: hidden;
     }
 
+    /* Subtle top glow line */
+    .login-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 20%;
+      right: 20%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255, 187, 51, 0.3), transparent);
+      border-radius: 2px;
+    }
+
+    /* Header */
     .login-header {
       text-align: center;
       margin-bottom: 32px;
     }
 
-    .login-header .logo-icon {
-      width: 56px;
-      height: 56px;
-      background: linear-gradient(135deg, #ffbb33, #ff8800);
-      border-radius: 16px;
+    .logo-ring {
+      width: 64px;
+      height: 64px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(255, 187, 51, 0.15), rgba(255, 136, 0, 0.1));
+      border: 1.5px solid rgba(255, 187, 51, 0.2);
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 0 auto 20px;
-      font-size: 24px;
+      font-size: 28px;
+      position: relative;
+    }
+
+    .logo-ring::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: 24px;
+      border: 1px solid rgba(255, 187, 51, 0.1);
+      animation: ringPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes ringPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.5; }
     }
 
     .login-header h2 {
       color: #fff;
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 700;
       margin-bottom: 8px;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.3px;
     }
 
     .login-header p {
       color: #666680;
       font-size: 14px;
+      line-height: 1.5;
     }
 
+    /* Social proof */
+    .social-proof {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 28px;
+      padding: 10px 16px;
+      background: rgba(0, 200, 81, 0.08);
+      border: 1px solid rgba(0, 200, 81, 0.15);
+      border-radius: 12px;
+    }
+
+    .social-proof .avatars {
+      display: flex;
+    }
+
+    .social-proof .avatars span {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffbb33, #ff8800);
+      border: 2px solid #0f0f1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      margin-left: -6px;
+    }
+
+    .social-proof .avatars span:first-child {
+      margin-left: 0;
+    }
+
+    .social-proof p {
+      font-size: 12px;
+      color: #00c851;
+      font-weight: 500;
+    }
+
+    /* Form */
     .form-group {
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     .form-group label {
       display: block;
       color: #8888a0;
-      font-size: 13px;
-      font-weight: 500;
+      font-size: 12px;
+      font-weight: 600;
       margin-bottom: 8px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.8px;
     }
 
     .password-wrapper {
@@ -120,8 +219,8 @@
       width: 100%;
       padding: 14px 16px;
       border-radius: 12px;
-      border: 1.5px solid rgba(255, 255, 255, 0.08);
-      background: rgba(15, 15, 30, 0.6);
+      border: 1.5px solid rgba(255, 255, 255, 0.06);
+      background: rgba(10, 10, 20, 0.6);
       color: #fff;
       font-size: 15px;
       font-family: 'Inter', sans-serif;
@@ -134,9 +233,9 @@
 
     .form-group input:focus {
       outline: none;
-      border-color: #ffbb33;
-      box-shadow: 0 0 0 3px rgba(255, 187, 51, 0.1);
-      background: rgba(15, 15, 30, 0.8);
+      border-color: rgba(255, 187, 51, 0.4);
+      box-shadow: 0 0 0 4px rgba(255, 187, 51, 0.08), 0 0 20px rgba(255, 187, 51, 0.05);
+      background: rgba(10, 10, 20, 0.8);
     }
 
     .password-wrapper input {
@@ -150,27 +249,30 @@
       transform: translateY(-50%);
       background: none;
       border: none;
-      color: #666680;
+      color: #555570;
       cursor: pointer;
-      padding: 4px;
+      padding: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: color 0.2s ease;
+      transition: all 0.2s ease;
+      border-radius: 8px;
     }
 
     .toggle-password:hover {
       color: #ffbb33;
+      background: rgba(255, 187, 51, 0.08);
     }
 
     .toggle-password svg {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
     }
 
+    /* Forgot password */
     .forgot-password {
       text-align: right;
-      margin-top: -10px;
+      margin-top: -8px;
       margin-bottom: 20px;
     }
 
@@ -180,47 +282,90 @@
       font-weight: 500;
       text-decoration: none;
       cursor: pointer;
-      transition: color 0.2s ease;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .forgot-password a::after {
+      content: "";
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #ffbb33, #ff8800);
+      transition: width 0.3s ease;
+      border-radius: 2px;
+    }
+
+    .forgot-password a:hover::after {
+      width: 100%;
     }
 
     .forgot-password a:hover {
       color: #ff8800;
     }
 
+    /* Button - ORANGE/GOLD now */
     .login-btn {
       width: 100%;
       padding: 16px;
-      border-radius: 12px;
+      border-radius: 14px;
       border: none;
-      background: linear-gradient(135deg, #00c851, #00b248);
-      color: #fff;
+      background: linear-gradient(135deg, #ffbb33, #ff8800);
+      color: #0a0a14;
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
-      margin-top: 8px;
-      transition: all 0.25s ease;
+      margin-top: 4px;
+      transition: all 0.3s ease;
       font-family: 'Inter', sans-serif;
       letter-spacing: 0.3px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-btn::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .login-btn:hover::before {
+      left: 100%;
     }
 
     .login-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0, 200, 81, 0.35);
+      box-shadow: 0 12px 35px rgba(255, 187, 51, 0.25);
     }
 
     .login-btn:active {
       transform: scale(0.98);
     }
 
+    .login-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Result message */
     #result {
       text-align: center;
-      padding: 12px 16px;
-      border-radius: 10px;
+      padding: 14px 16px;
+      border-radius: 12px;
       margin-top: 16px;
       font-weight: 600;
       font-size: 13px;
       display: none;
       font-family: 'Inter', sans-serif;
+      line-height: 1.5;
     }
 
     #result.show {
@@ -234,31 +379,32 @@
     }
 
     #result.success {
-      background: rgba(0, 200, 81, 0.12);
+      background: rgba(0, 200, 81, 0.1);
       color: #00c851;
-      border: 1px solid rgba(0, 200, 81, 0.25);
+      border: 1px solid rgba(0, 200, 81, 0.2);
     }
 
     #result.error {
-      background: rgba(255, 68, 68, 0.12);
+      background: rgba(255, 68, 68, 0.1);
       color: #ff4444;
-      border: 1px solid rgba(255, 68, 68, 0.25);
+      border: 1px solid rgba(255, 68, 68, 0.2);
     }
 
     #result.loading {
-      background: rgba(51, 181, 229, 0.12);
+      background: rgba(51, 181, 229, 0.1);
       color: #33b5e5;
-      border: 1px solid rgba(51, 181, 229, 0.25);
+      border: 1px solid rgba(51, 181, 229, 0.2);
     }
 
+    /* Divider */
     .divider {
       display: flex;
       align-items: center;
       margin: 28px 0;
-      color: #444460;
+      color: #333350;
       font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 1px;
+      font-weight: 600;
+      letter-spacing: 2px;
       text-transform: uppercase;
     }
 
@@ -267,31 +413,69 @@
       content: "";
       flex: 1;
       height: 1px;
-      background: rgba(255, 255, 255, 0.06);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
     }
 
     .divider span {
-      padding: 0 16px;
+      padding: 0 20px;
     }
 
+    /* Signup link */
     .signup-link {
       text-align: center;
       color: #666680;
       font-size: 14px;
+      padding: 4px;
     }
 
     .signup-link a {
       color: #ffbb33;
       text-decoration: none;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
-      transition: color 0.2s ease;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .signup-link a::after {
+      content: "";
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #ffbb33, #ff8800);
+      transition: width 0.3s ease;
+      border-radius: 2px;
+    }
+
+    .signup-link a:hover::after {
+      width: 100%;
     }
 
     .signup-link a:hover {
       color: #ff8800;
     }
 
+    /* Security badges */
+    .security-badges {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .security-badges span {
+      font-size: 11px;
+      color: #444460;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Modal */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -299,11 +483,12 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.8);
       z-index: 1000;
       align-items: center;
       justify-content: center;
       padding: 20px;
+      backdrop-filter: blur(5px);
     }
 
     .modal-overlay.active {
@@ -311,14 +496,15 @@
     }
 
     .modal-card {
-      background: rgba(25, 25, 40, 0.95);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(145deg, rgba(30, 30, 45, 0.98), rgba(20, 20, 35, 0.98));
+      border: 1px solid rgba(255, 187, 51, 0.1);
       border-radius: 24px;
       padding: 36px 32px;
       width: 100%;
       max-width: 400px;
-      backdrop-filter: blur(20px);
+      position: relative;
       animation: modalSlideIn 0.3s ease;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
     }
 
     @keyframes modalSlideIn {
@@ -356,7 +542,7 @@
     }
 
     .modal-close:hover {
-      color: #fff;
+      color: #ffbb33;
     }
 
     .modal-close svg {
@@ -370,9 +556,9 @@
       border-radius: 12px;
       border: none;
       background: linear-gradient(135deg, #ffbb33, #ff8800);
-      color: #fff;
+      color: #0a0a14;
       font-size: 15px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       margin-top: 16px;
       transition: all 0.25s ease;
@@ -381,7 +567,7 @@
 
     .modal-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(255, 187, 51, 0.35);
+      box-shadow: 0 8px 25px rgba(255, 187, 51, 0.3);
     }
 
     .modal-btn:disabled {
@@ -390,43 +576,38 @@
       transform: none;
     }
 
-    .particles {
+    /* Floating orbs */
+    .orb {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      border-radius: 50%;
+      filter: blur(60px);
       pointer-events: none;
       z-index: 0;
-      overflow: hidden;
+      opacity: 0.4;
     }
 
-    .particle {
-      position: absolute;
-      width: 4px;
-      height: 4px;
-      background: rgba(255, 187, 51, 0.15);
-      border-radius: 50%;
-      animation: float 15s infinite ease-in-out;
+    .orb-1 {
+      width: 300px;
+      height: 300px;
+      background: rgba(255, 187, 51, 0.08);
+      top: -100px;
+      right: -100px;
+      animation: orbFloat 20s ease-in-out infinite;
     }
 
-    .particle:nth-child(1) { left: 10%; top: 80%; animation-delay: 0s; }
-    .particle:nth-child(2) { left: 20%; top: 20%; animation-delay: 2s; }
-    .particle:nth-child(3) { left: 35%; top: 60%; animation-delay: 4s; }
-    .particle:nth-child(4) { left: 50%; top: 10%; animation-delay: 6s; }
-    .particle:nth-child(5) { left: 65%; top: 70%; animation-delay: 8s; }
-    .particle:nth-child(6) { left: 80%; top: 30%; animation-delay: 10s; }
-    .particle:nth-child(7) { left: 90%; top: 85%; animation-delay: 12s; }
-    .particle:nth-child(8) { left: 15%; top: 40%; animation-delay: 14s; }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; }
-      50% { transform: translateY(-40px) scale(1.5); opacity: 0.8; }
+    .orb-2 {
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 136, 0, 0.06);
+      bottom: -50px;
+      left: -50px;
+      animation: orbFloat 25s ease-in-out infinite reverse;
     }
 
-    .login-wrapper {
-      position: relative;
-      z-index: 1;
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -30px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.9); }
     }
 
     @media (max-width: 480px) {
@@ -445,16 +626,9 @@
 </head>
 <body>
 
-<div class="particles">
-  <div class="particle"></div>
-  <div class="particle"></div>
-  <div class="particle"></div>
-  <div class="particle"></div>
-  <div class="particle"></div>
-  <div class="particle"></div>
-  <div class="particle"></div>
-  <div class="particle"></div>
-</div>
+<!-- Background orbs -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
 
 <div class="login-wrapper">
 
@@ -468,9 +642,19 @@
   <div class="login-card">
 
     <div class="login-header">
-      <div class="logo-icon">📈</div>
+      <div class="logo-ring">📈</div>
       <h2>Welcome Back</h2>
       <p>Sign in to your SmartInvest account</p>
+    </div>
+
+    <!-- Social proof -->
+    <div class="social-proof">
+      <div class="avatars">
+        <span>👤</span>
+        <span>👤</span>
+        <span>👤</span>
+      </div>
+      <p>Trusted by millions of investors</p>
     </div>
 
     <form id="loginForm">
@@ -509,13 +693,20 @@
       Don't have an account? <a onclick="goSignup()">Create Account</a>
     </div>
 
+    <!-- Security badges -->
+    <div class="security-badges">
+      <span>🔒 SSL Secured</span>
+      <span>🛡️ 256-bit</span>
+      <span>✓ Verified</span>
+    </div>
+
   </div>
 
 </div>
 
 <!-- Forgot Password Modal -->
 <div class="modal-overlay" id="forgotPasswordModal">
-  <div class="modal-card" style="position: relative;">
+  <div class="modal-card">
     <button class="modal-close" onclick="closeForgotPassword()">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -534,13 +725,11 @@
   </div>
 </div>
 
-<!-- MODULE SCRIPT AT THE BOTTOM -->
 <script type="module">
   import { auth, db } from "./firebase.js";
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// EmailJS is already loaded by the script tag in <head>
 emailjs.init("adbMnb80leKvWnxdc");
 
 function notifyAdmin(subject, message) {
@@ -728,9 +917,8 @@ function goSignup() { window.location.href = "signup.html"; }
 
 window.goHome = goHome;
 window.goSignup = goSignup;
-  
+
 </script>
 
 </body>
-  </html>
-  
+</html>
