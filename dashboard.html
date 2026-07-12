@@ -681,7 +681,7 @@
       <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
     </svg>
     Refer
-  </button>k
+  </button>
   <button onclick="goSupport()">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
       <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -701,387 +701,396 @@
   <div class="loader"></div>
   <p>Logging out...</p>
   </div>
-<script type="module">
+    <script type="module">
   import { auth, db } from "./firebase.js";
-import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-let currentUsername = null;
-let userData = null;
-let adminFlags = { canInvest: true, canWithdraw: true, blockReason: "" };
-const MIN_INVEST_BALANCE = 100;
+  let currentUsername = null;
+  let userData = null;
+  let adminFlags = { canInvest: true, canWithdraw: true, blockReason: "" };
+  const MIN_INVEST_BALANCE = 100;
 
-// Balance visibility state
-let balanceVisible = false;
-let currentBalance = 0;
+  // Balance visibility state
+  let balanceVisible = false;
+  let currentBalance = 0;
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.replace("login.html");
-    return;
-  }
-
-  const usersSnap = await get(ref(db, 'users'));
-  usersSnap.forEach((childSnap) => {
-    const data = childSnap.val();
-    if (data.uid === user.uid) {
-      currentUsername = childSnap.key;
-      userData = data;
-    }
-  });
-
-  if (!userData) {
-    sessionStorage.clear();
-    window.location.replace("login.html");
-    return;
-  }
-
-  sessionStorage.setItem("loggedInUser", userData.username);
-  sessionStorage.setItem("role", userData.role || "user");
-
-  let needsUpdate = false;
-  let updates = {};
-
-  if (!userData.accountId) {
-    let newId;
-    let isUnique = false;
-    let attempts = 0;
-
-    while (!isUnique && attempts < 10) {
-      newId = "eP" + Math.floor(100000 + Math.random() * 900000);
-      let idExists = false;
-      usersSnap.forEach((child) => {
-        if (child.val().accountId === newId) {
-          idExists = true;
-        }
-      });
-      if (!idExists) {
-        isUnique = true;
-      }
-      attempts++;
-    }
-
-    updates.accountId = newId;
-    needsUpdate = true;
-    console.log("Generated accountId:", newId, "for user:", currentUsername);
-  }
-
-  if (!userData.adminFlags) {
-    updates.adminFlags = {
-      canInvest: true,
-      canWithdraw: true,
-      blockReason: ""
-    };
-    needsUpdate = true;
-  }
-
-  if (needsUpdate) {
-    await update(ref(db, 'users/' + currentUsername), updates);
-    const refreshed = await get(ref(db, 'users/' + currentUsername));
-    userData = refreshed.val();
-  }
-
-  adminFlags = userData.adminFlags || { canInvest: true, canWithdraw: true, blockReason: "" };
-
-  await updateUI();
-  await loadDashRefLink();
-});
-
-let balanceInterval;
-
-function animateBalance(value) {
-  clearInterval(balanceInterval);
-  let start = 0;
-  let end = value;
-  let step = end / 50;
-
-  balanceInterval = setInterval(() => {
-    start += step;
-    if (start >= end) {
-      start = end;
-      clearInterval(balanceInterval);
-    }
-    currentBalance = start;
-    if (balanceVisible) {
-      document.getElementById("balanceDisplay").innerText = "$" + start.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-  }, 16);
-}
-
-/////////////////////////////////////////////////////
-// BALANCE TOGGLE
-/////////////////////////////////////////////////////
-window.toggleBalance = function() {
-  balanceVisible = !balanceVisible;
-  const display = document.getElementById("balanceDisplay");
-  const eyeIcon = document.getElementById("balanceEye");
-  
-  if (balanceVisible) {
-    display.innerText = "$" + currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    display.classList.remove("hidden");
-    eyeIcon.innerHTML = `
-      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-    `;
-  } else {
-    display.innerText = "****";
-    display.classList.add("hidden");
-    eyeIcon.innerHTML = `
-      <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-    `;
-  }
-};
-
-async function canInvest() {
-  const balance = userData.balance || 0;
-
-  if (adminFlags.canInvest === false) {
-    return {
-      allowed: false,
-      reason: adminFlags.blockReason || "Investing disabled by admin."
-    };
-  }
-
-  if (balance < MIN_INVEST_BALANCE) {
-    return {
-      allowed: false,
-      reason: `Need $${MIN_INVEST_BALANCE} to invest. Current: $${balance.toFixed(2)}`
-    };
-  }
-
-  if (userData.plan && userData.plan !== "None") {
-    return {
-      allowed: false,
-      reason: "Complete your current investment first."
-    };
-  }
-
-  return { allowed: true };
-}
-
-async function canWithdraw() {
-  const balance = userData.balance || 0;
-
-  if (adminFlags.canWithdraw === false) {
-    return { allowed: false, reason: adminFlags.blockReason || "Withdrawal disabled by admin." };
-  }
-
-  return { allowed: true };
-}
-
-async function updateButtonStates() {
-  const balance = userData.balance || 0;
-
-  const investCheck = await canInvest();
-  const investBtn = document.getElementById('investBtn');
-  investBtn.disabled = !investCheck.allowed;
-  investBtn.title = investCheck.allowed ? "Go to Invest Page" : investCheck.reason;
-
-  const withdrawCheck = await canWithdraw();
-  const withdrawBtn = document.getElementById('withdrawBtn');
-  withdrawBtn.disabled = !withdrawCheck.allowed;
-  withdrawBtn.title = withdrawCheck.allowed ? "Withdraw" : withdrawCheck.reason;
-
-  const transferBtn = document.getElementById('transferBtn');
-  if (balance <= 0) {
-    transferBtn.disabled = true;
-    transferBtn.title = "No balance";
-  } else {
-    transferBtn.disabled = false;
-    transferBtn.title = "Transfer";
-  }
-
-  const banner = document.getElementById('statusBanner');
-
-  if (adminFlags.canInvest === false || adminFlags.canWithdraw === false) {
-    banner.className = "status-banner warning show";
-    banner.innerText = `🔒 ADMIN: ${adminFlags.blockReason || "Contact support"}`;
-  } else if (balance < MIN_INVEST_BALANCE) {
-    banner.className = "status-banner warning show";
-    banner.innerText = `⏳ Deposit $${(MIN_INVEST_BALANCE - balance).toFixed(2)} more to unlock investing`;
-  } else {
-    banner.className = "status-banner success show";
-    banner.innerText = `✅ Account Active: You can invest and withdraw`;
-  }
-}
-
-async function updateUI() {
-  document.getElementById("userName").innerText = "Welcome, " + (userData.username || "User");
-
-  document.getElementById("accountIdDisplay").innerText = userData.accountId || "—";
-  document.getElementById("planType").innerText = userData.plan || "None";
-  document.getElementById("dashAvatar").src = userData.image || "https://via.placeholder.com/44";
-
-  let balance = userData.balance || 0;
-  animateBalance(balance);
-
-  try {
-    const depSnap = await get(ref(db, 'deposits'));
-    const witSnap = await get(ref(db, 'withdrawals'));
-    
-    let pendingDep = 0;
-    let pendingWit = 0;
-
-    if (depSnap.exists()) {
-      depSnap.forEach((childSnap) => {
-        const deposit = childSnap.val();
-        if (deposit.user === currentUsername && deposit.status === "pending") {
-          pendingDep += Number(deposit.amount || 0);
-        }
-      });
-    }
-
-    if (witSnap.exists()) {
-      witSnap.forEach((childSnap) => {
-        const withdrawal = childSnap.val();
-        if (withdrawal.user === currentUsername && withdrawal.status === "pending") {
-          pendingWit += Number(withdrawal.amount || 0);
-        }
-      });
-    }
-
-    document.getElementById("pendingDeposit").innerText = pendingDep.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    document.getElementById("pendingWithdraw").innerText = pendingWit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  } catch (err) {
-    console.error("Error loading pending:", err);
-    document.getElementById("pendingDeposit").innerText = "0.00";
-    document.getElementById("pendingWithdraw").innerText = "0.00";
-  }
-
-  await updateButtonStates();
-  updateInvestmentStatus();
-}
-
-async function checkProfit() {
-  if (!userData.plan || userData.plan === "None") {
-    alert("You have no active investment.");
-    return;
-  }
-
-  const investedAmount = userData.investAmount || 0;
-  const profitPercent = userData.investProfitPercent || 0;
-  const hours = userData.investHours || 0;
-  const investTime = userData.investTime || 0;
-  
-  if (investedAmount <= 0) {
-    alert("Investment amount not found. Please contact support.");
-    return;
-  }
-
-  const now = Date.now();
-  const hoursPassed = (now - investTime) / (1000 * 60 * 60);
-
-  if (hoursPassed >= hours) {
-    const profitAmount = investedAmount * profitPercent;
-    const totalReturn = investedAmount + profitAmount;
-
-    if (confirm(`🎉 Your ${userData.plan} investment is complete!\n\nInvested: $${investedAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\nProfit: $${profitAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\nTotal Return: $${totalReturn.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n\nClaim now?`)) {
-      const newBalance = (userData.balance || 0) + totalReturn;
-
-      await update(ref(db, 'users/' + currentUsername), {
-        balance: newBalance,
-        plan: "None",
-        investTime: null,
-        investAmount: null,
-        investProfitPercent: null,
-        investHours: null
-      });
-
-      userData.balance = newBalance;
-      userData.plan = "None";
-      userData.investTime = null;
-      userData.investAmount = null;
-      userData.investProfitPercent = null;
-      userData.investHours = null;
-
-      await updateUI();
-      alert("✅ Profit claimed successfully!");
-    }
-  } else {
-    const hoursLeft = Math.ceil(hours - hoursPassed);
-    const profitAmount = investedAmount * profitPercent;
-    alert(`⏳ Investment still running...\n\nPlan: ${userData.plan}\nInvested: $${investedAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\nExpected Profit: $${profitAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\nTime left: ${hoursLeft} hours\n\nCome back later to claim profit!`);
-  }
-}
-
-document.getElementById("investStatus").onclick = checkProfit;
-
-function updateInvestmentStatus() {
-  let el = document.getElementById("investStatus");
-  el.classList.remove("good", "bad");
-
-  if (userData.plan && userData.plan !== "None") {
-    el.innerText = `🟢 Active (${userData.plan})`;
-    el.classList.add("good");
-  } else {
-    el.innerText = "🔴 No Investment";
-    el.classList.add("bad");
-  }
-}
-
-function goDeposit() { window.location.href = "deposit.html"; }
-function goWithdraw() { window.location.href = "withdraw.html"; }
-function goTransfer() { window.location.href = "transfer.html"; }
-function goInvestPage() { window.location.href = "invest.html"; }
-function goHome() { window.location.href = "index.html"; }
-function goProfile() { window.location.href = "profile.html"; }
-function goHistory() { window.location.href = "history.html"; }
-
-async function logout() {
-  let overlay = document.getElementById("logoutOverlay");
-  overlay.classList.add("active");
-
-  try {
-    await signOut(auth);
-    sessionStorage.clear();
-
-    setTimeout(() => {
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
       window.location.replace("login.html");
-    }, 2100);
-  } catch (error) {
-    console.error("Logout error:", error);
-    alert("Logout failed. Please try again.");
-    overlay.classList.remove("active");
-  }
-}
+      return;
+    }
 
-function goSupport() {
-  window.location.href = "contact.html";
-}
+    const usersSnap = await get(ref(db, 'users'));
+    usersSnap.forEach((childSnap) => {
+      const data = childSnap.val();
+      if (data.uid === user.uid) {
+        currentUsername = childSnap.key;
+        userData = data;
+      }
+    });
 
-// ===== NEW: DASHBOARD REFERRAL LINK =====
-async function loadDashRefLink() {
-  if (!currentUsername) return;
-  const snap = await get(ref(db, 'users/' + currentUsername + '/referralCode'));
-  const code = snap.val();
-  if (code) {
-    document.getElementById("dashRefLink").value = "https://smartinvestapp.online/?ref=" + code;
-  }
-}
+    if (!userData) {
+      sessionStorage.clear();
+      window.location.replace("login.html");
+      return;
+    }
 
-window.copyDashRefLink = function() {
-  const input = document.getElementById("dashRefLink");
-  input.select();
-  navigator.clipboard.writeText(input.value).then(() => {
-    alert("Referral link copied!");
+    sessionStorage.setItem("loggedInUser", userData.username);
+    sessionStorage.setItem("role", userData.role || "user");
+
+    let needsUpdate = false;
+    let updates = {};
+
+    if (!userData.accountId) {
+      let newId;
+      let isUnique = false;
+      let attempts = 0;
+
+      while (!isUnique && attempts < 10) {
+        newId = "eP" + Math.floor(100000 + Math.random() * 900000);
+        let idExists = false;
+        usersSnap.forEach((child) => {
+          if (child.val().accountId === newId) {
+            idExists = true;
+          }
+        });
+        if (!idExists) {
+          isUnique = true;
+        }
+        attempts++;
+      }
+
+      updates.accountId = newId;
+      needsUpdate = true;
+      console.log("Generated accountId:", newId, "for user:", currentUsername);
+    }
+
+    if (!userData.adminFlags) {
+      updates.adminFlags = {
+        canInvest: true,
+        canWithdraw: true,
+        blockReason: ""
+      };
+      needsUpdate = true;
+    }
+
+    if (needsUpdate) {
+      await update(ref(db, 'users/' + currentUsername), updates);
+      const refreshed = await get(ref(db, 'users/' + currentUsername));
+      userData = refreshed.val();
+    }
+
+    adminFlags = userData.adminFlags || { canInvest: true, canWithdraw: true, blockReason: "" };
+
+    await updateUI();
+    await loadDashRefLink();
   });
-};
 
-window.goReferral = function() {
-  window.location.href = "referral.html";
-};
+  let balanceInterval;
 
-window.goSupport = goSupport;
-window.goDeposit = goDeposit;
-window.goWithdraw = goWithdraw;
-window.goTransfer = goTransfer;
-window.goInvestPage = goInvestPage;
-window.goHome = goHome;
-window.goProfile = goProfile;
-window.goHistory = goHistory;
-window.logout = logout;
+  // ✅ FIXED: animateBalance no longer overwrites hidden display
+  function animateBalance(value) {
+    clearInterval(balanceInterval);
+    let start = currentBalance;
+    let end = value;
+    let diff = end - start;
+    let steps = 50;
+    let step = diff / steps;
+    let count = 0;
 
-</script>
+    balanceInterval = setInterval(() => {
+      count++;
+      start += step;
+      if (count >= steps) {
+        start = end;
+        clearInterval(balanceInterval);
+      }
+      currentBalance = start;
+      // Only update display text if balance is currently visible
+      if (balanceVisible) {
+        const display = document.getElementById("balanceDisplay");
+        if (display) {
+          display.innerText = "$" + start.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+      }
+    }, 16);
+  }
+
+  ///////////////////////////////////////////////////////
+  // BALANCE TOGGLE
+  ///////////////////////////////////////////////////////
+  window.toggleBalance = function() {
+    balanceVisible = !balanceVisible;
+    const display = document.getElementById("balanceDisplay");
+    const eyeIcon = document.getElementById("balanceEye");
+    
+    if (balanceVisible) {
+      display.innerText = "$" + currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      display.classList.remove("hidden");
+      eyeIcon.innerHTML = `
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+      `;
+    } else {
+      display.innerText = "****";
+      display.classList.add("hidden");
+      eyeIcon.innerHTML = `
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+      `;
+    }
+  };
+
+  async function canInvest() {
+    const balance = userData.balance || 0;
+
+    if (adminFlags.canInvest === false) {
+      return {
+        allowed: false,
+        reason: adminFlags.blockReason || "Investing disabled by admin."
+      };
+    }
+
+    if (balance < MIN_INVEST_BALANCE) {
+      return {
+        allowed: false,
+        reason: `Need $${MIN_INVEST_BALANCE} to invest. Current: $${balance.toFixed(2)}`
+      };
+    }
+
+    if (userData.plan && userData.plan !== "None") {
+      return {
+        allowed: false,
+        reason: "Complete your current investment first."
+      };
+    }
+
+    return { allowed: true };
+  }
+
+  async function canWithdraw() {
+    const balance = userData.balance || 0;
+
+    if (adminFlags.canWithdraw === false) {
+      return { allowed: false, reason: adminFlags.blockReason || "Withdrawal disabled by admin." };
+    }
+
+    return { allowed: true };
+  }
+
+  async function updateButtonStates() {
+    const balance = userData.balance || 0;
+
+    const investCheck = await canInvest();
+    const investBtn = document.getElementById('investBtn');
+    investBtn.disabled = !investCheck.allowed;
+    investBtn.title = investCheck.allowed ? "Go to Invest Page" : investCheck.reason;
+
+    const withdrawCheck = await canWithdraw();
+    const withdrawBtn = document.getElementById('withdrawBtn');
+    withdrawBtn.disabled = !withdrawCheck.allowed;
+    withdrawBtn.title = withdrawCheck.allowed ? "Withdraw" : withdrawCheck.reason;
+
+    const transferBtn = document.getElementById('transferBtn');
+    if (balance <= 0) {
+      transferBtn.disabled = true;
+      transferBtn.title = "No balance";
+    } else {
+      transferBtn.disabled = false;
+      transferBtn.title = "Transfer";
+    }
+
+    const banner = document.getElementById('statusBanner');
+
+    if (adminFlags.canInvest === false || adminFlags.canWithdraw === false) {
+      banner.className = "status-banner warning show";
+      banner.innerText = `🔒 ADMIN: ${adminFlags.blockReason || "Contact support"}`;
+    } else if (balance < MIN_INVEST_BALANCE) {
+      banner.className = "status-banner warning show";
+      banner.innerText = `⏳ Deposit $${(MIN_INVEST_BALANCE - balance).toFixed(2)} more to unlock investing`;
+    } else {
+      banner.className = "status-banner success show";
+      banner.innerText = `✅ Account Active: You can invest and withdraw`;
+    }
+  }
+
+  async function updateUI() {
+    document.getElementById("userName").innerText = "Welcome, " + (userData.username || "User");
+
+    document.getElementById("accountIdDisplay").innerText = userData.accountId || "—";
+    document.getElementById("planType").innerText = userData.plan || "None";
+    document.getElementById("dashAvatar").src = userData.image || "https://via.placeholder.com/44";
+
+    let balance = userData.balance || 0;
+    animateBalance(balance);
+
+    try {
+      const depSnap = await get(ref(db, 'deposits'));
+      const witSnap = await get(ref(db, 'withdrawals'));
+      
+      let pendingDep = 0;
+      let pendingWit = 0;
+
+      if (depSnap.exists()) {
+        depSnap.forEach((childSnap) => {
+          const deposit = childSnap.val();
+          if (deposit.user === currentUsername && deposit.status === "pending") {
+            pendingDep += Number(deposit.amount || 0);
+          }
+        });
+      }
+
+      if (witSnap.exists()) {
+        witSnap.forEach((childSnap) => {
+          const withdrawal = childSnap.val();
+          if (withdrawal.user === currentUsername && withdrawal.status === "pending") {
+            pendingWit += Number(withdrawal.amount || 0);
+          }
+        });
+      }
+
+      document.getElementById("pendingDeposit").innerText = pendingDep.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById("pendingWithdraw").innerText = pendingWit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    } catch (err) {
+      console.error("Error loading pending:", err);
+      document.getElementById("pendingDeposit").innerText = "0.00";
+      document.getElementById("pendingWithdraw").innerText = "0.00";
+    }
+
+    await updateButtonStates();
+    updateInvestmentStatus();
+  }
+
+  async function checkProfit() {
+    if (!userData.plan || userData.plan === "None") {
+      alert("You have no active investment.");
+      return;
+    }
+
+    const investedAmount = userData.investAmount || 0;
+    const profitPercent = userData.investProfitPercent || 0;
+    const hours = userData.investHours || 0;
+    const investTime = userData.investTime || 0;
+    
+    if (investedAmount <= 0) {
+      alert("Investment amount not found. Please contact support.");
+      return;
+    }
+
+    const now = Date.now();
+    const hoursPassed = (now - investTime) / (1000 * 60 * 60);
+
+    if (hoursPassed >= hours) {
+      const profitAmount = investedAmount * profitPercent;
+      const totalReturn = investedAmount + profitAmount;
+
+      if (confirm(`🎉 Your ${userData.plan} investment is complete!\n\nInvested: $${investedAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\nProfit: $${profitAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\nTotal Return: $${totalReturn.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n\nClaim now?`)) {
+        const newBalance = (userData.balance || 0) + totalReturn;
+
+        await update(ref(db, 'users/' + currentUsername), {
+          balance: newBalance,
+          plan: "None",
+          investTime: null,
+          investAmount: null,
+          investProfitPercent: null,
+          investHours: null
+        });
+
+        userData.balance = newBalance;
+        userData.plan = "None";
+        userData.investTime = null;
+        userData.investAmount = null;
+        userData.investProfitPercent = null;
+        userData.investHours = null;
+
+        await updateUI();
+        alert("✅ Profit claimed successfully!");
+      }
+    } else {
+      const hoursLeft = Math.ceil(hours - hoursPassed);
+      const profitAmount = investedAmount * profitPercent;
+      alert(`⏳ Investment still running...\n\nPlan: ${userData.plan}\nInvested: $${investedAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\nExpected Profit: $${profitAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\nTime left: ${hoursLeft} hours\n\nCome back later to claim profit!`);
+    }
+  }
+
+  document.getElementById("investStatus").onclick = checkProfit;
+
+  function updateInvestmentStatus() {
+    let el = document.getElementById("investStatus");
+    el.classList.remove("good", "bad");
+
+    if (userData.plan && userData.plan !== "None") {
+      el.innerText = `🟢 Active (${userData.plan})`;
+      el.classList.add("good");
+    } else {
+      el.innerText = "🔴 No Investment";
+      el.classList.add("bad");
+    }
+  }
+
+  function goDeposit() { window.location.href = "deposit.html"; }
+  function goWithdraw() { window.location.href = "withdraw.html"; }
+  function goTransfer() { window.location.href = "transfer.html"; }
+  function goInvestPage() { window.location.href = "invest.html"; }
+  function goHome() { window.location.href = "index.html"; }
+  function goProfile() { window.location.href = "profile.html"; }
+  function goHistory() { window.location.href = "history.html"; }
+
+  async function logout() {
+    let overlay = document.getElementById("logoutOverlay");
+    overlay.classList.add("active");
+
+    try {
+      await signOut(auth);
+      sessionStorage.clear();
+
+      setTimeout(() => {
+        window.location.replace("login.html");
+      }, 2100);
+    } catch (error) {
+      console.error("Logout error:", error);
+      alert("Logout failed. Please try again.");
+      overlay.classList.remove("active");
+    }
+  }
+
+  function goSupport() {
+    window.location.href = "contact.html";
+  }
+
+  // ===== NEW: DASHBOARD REFERRAL LINK =====
+  async function loadDashRefLink() {
+    if (!currentUsername) return;
+    const snap = await get(ref(db, 'users/' + currentUsername + '/referralCode'));
+    const code = snap.val();
+    if (code) {
+      document.getElementById("dashRefLink").value = "https://smartinvestapp.online/?ref=" + code;
+    }
+  }
+
+  window.copyDashRefLink = function() {
+    const input = document.getElementById("dashRefLink");
+    input.select();
+    navigator.clipboard.writeText(input.value).then(() => {
+      alert("Referral link copied!");
+    });
+  };
+
+  window.goReferral = function() {
+    window.location.href = "referral.html";
+  };
+
+  window.goSupport = goSupport;
+  window.goDeposit = goDeposit;
+  window.goWithdraw = goWithdraw;
+  window.goTransfer = goTransfer;
+  window.goInvestPage = goInvestPage;
+  window.goHome = goHome;
+  window.goProfile = goProfile;
+  window.goHistory = goHistory;
+  window.logout = logout;
+
+    </script>
 </body>
 </html>
