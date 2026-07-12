@@ -566,6 +566,12 @@
   <div class="balance-currency">USDT</div>
 </div>
 
+<!-- REFERRAL LINK CARD -->
+<div style="background: rgba(25, 25, 40, 0.6); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 16px; padding: 14px 16px; margin: 0 16px 16px; display: flex; align-items: center; gap: 10px;">
+  <input id="dashRefLink" style="flex: 1; background: rgba(10, 10, 20, 0.8); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 10px 12px; color: #e8e8ec; font-size: 12px; font-family: 'Courier New', monospace; outline: none;" type="text" readonly value="Loading..."/>
+  <button onclick="copyDashRefLink()" style="background: linear-gradient(135deg, #ffbb33, #ff8800); color: #0a0a14; border: none; border-radius: 10px; padding: 10px 16px; font-weight: 700; font-size: 12px; cursor: pointer;">COPY</button>
+</div>
+
 <!-- STATUS BANNER -->
 <div id="statusBanner" class="status-banner"></div>
 
@@ -593,6 +599,18 @@
     <div class="action-icon invest">📈</div>
     <span class="action-label">Invest</span>
   </button>
+</div>
+
+<!-- REFER & EARN BANNER -->
+<div onclick="window.location.href='referral.html'" style="background: linear-gradient(135deg, rgba(255,187,51,0.15), rgba(255,136,0,0.1)); border: 1px solid rgba(255,187,51,0.2); border-radius: 16px; padding: 16px 20px; margin: 0 16px 20px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.25s ease;">
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <div style="width: 44px; height: 44px; background: rgba(255,187,51,0.15); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px;">🎁</div>
+    <div>
+      <div style="font-size: 14px; font-weight: 700; color: #fff;">Refer & Earn</div>
+      <div style="font-size: 12px; color: #8888a0;">Get <span style="color: #ffbb33; font-weight: 600;">$10</span> per friend invited</div>
+    </div>
+  </div>
+  <div style="color: #ffbb33; font-size: 20px;">→</div>
 </div>
 
 <!-- PLANS SECTION -->
@@ -658,6 +676,12 @@
     </svg>
     History
   </button>
+  <button onclick="window.location.href='referral.html'">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+    Refer
+  </button>k
   <button onclick="goSupport()">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
       <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -676,12 +700,9 @@
 <div id="logoutOverlay" class="logout-overlay">
   <div class="loader"></div>
   <p>Logging out...</p>
-</div>
-
-<!-- MODULE SCRIPT AT THE BOTTOM -->
+  </div>
 <script type="module">
-
-import { auth, db } from "./firebase.js";
+  import { auth, db } from "./firebase.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -764,6 +785,7 @@ onAuthStateChanged(auth, async (user) => {
   adminFlags = userData.adminFlags || { canInvest: true, canWithdraw: true, blockReason: "" };
 
   await updateUI();
+  await loadDashRefLink();
 });
 
 let balanceInterval;
@@ -782,7 +804,7 @@ function animateBalance(value) {
     }
     currentBalance = start;
     if (balanceVisible) {
-      document.getElementById("balanceDisplay").innerText = start.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById("balanceDisplay").innerText = "$" + start.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
   }, 16);
 }
@@ -796,7 +818,7 @@ window.toggleBalance = function() {
   const eyeIcon = document.getElementById("balanceEye");
   
   if (balanceVisible) {
-    display.innerText = currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    display.innerText = "$" + currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     display.classList.remove("hidden");
     eyeIcon.innerHTML = `
       <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -1028,6 +1050,28 @@ function goSupport() {
   window.location.href = "contact.html";
 }
 
+// ===== NEW: DASHBOARD REFERRAL LINK =====
+async function loadDashRefLink() {
+  if (!currentUsername) return;
+  const snap = await get(ref(db, 'users/' + currentUsername + '/referralCode'));
+  const code = snap.val();
+  if (code) {
+    document.getElementById("dashRefLink").value = "https://smartinvestapp.online/?ref=" + code;
+  }
+}
+
+window.copyDashRefLink = function() {
+  const input = document.getElementById("dashRefLink");
+  input.select();
+  navigator.clipboard.writeText(input.value).then(() => {
+    alert("Referral link copied!");
+  });
+};
+
+window.goReferral = function() {
+  window.location.href = "referral.html";
+};
+
 window.goSupport = goSupport;
 window.goDeposit = goDeposit;
 window.goWithdraw = goWithdraw;
@@ -1037,9 +1081,7 @@ window.goHome = goHome;
 window.goProfile = goProfile;
 window.goHistory = goHistory;
 window.logout = logout;
-  
-  
-</script>
 
+</script>
 </body>
 </html>
