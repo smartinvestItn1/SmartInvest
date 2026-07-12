@@ -5,11 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign Up — SmartInvest</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-  <!-- EmailJS at the top -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-
-  <!-- Prevent back button after logout -->
   <script>
     if (window.history && window.history.pushState) {
       window.history.pushState(null, null, window.location.href);
@@ -18,7 +14,6 @@
       };
     }
   </script>
-
   <style>
     * {
       margin: 0;
@@ -27,7 +22,7 @@
     }
 
     body {
-      background: #0f0f1a;
+      background: #0a0a14;
       color: #e8e8ec;
       font-family: 'Inter', 'Segoe UI', sans-serif;
       min-height: 100vh;
@@ -35,11 +30,34 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 50% 50%, rgba(255, 187, 51, 0.03) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 20%, rgba(255, 136, 0, 0.02) 0%, transparent 40%);
+      pointer-events: none;
+      z-index: 0;
+      animation: bgPulse 8s ease-in-out infinite;
+    }
+
+    @keyframes bgPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.8; }
     }
 
     .signup-wrapper {
       width: 100%;
-      max-width: 440px;
+      max-width: 420px;
+      position: relative;
+      z-index: 1;
     }
 
     .back-link {
@@ -50,17 +68,19 @@
       text-decoration: none;
       font-size: 14px;
       font-weight: 500;
-      margin-bottom: 32px;
-      transition: color 0.2s ease;
+      margin-bottom: 24px;
+      transition: all 0.2s ease;
       cursor: pointer;
       background: none;
       border: none;
-      padding: 0;
+      padding: 8px 12px;
+      border-radius: 10px;
       font-family: 'Inter', sans-serif;
     }
 
     .back-link:hover {
       color: #ffbb33;
+      background: rgba(255, 187, 51, 0.05);
     }
 
     .back-link svg {
@@ -69,13 +89,27 @@
     }
 
     .signup-card {
-      background: rgba(25, 25, 40, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: linear-gradient(145deg, rgba(25, 25, 40, 0.9), rgba(15, 15, 30, 0.95));
+      border: 1px solid rgba(255, 187, 51, 0.08);
       border-radius: 24px;
-      padding: 40px 36px;
+      padding: 40px 32px;
       backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5),
+                  0 0 0 1px rgba(255, 187, 51, 0.05),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .signup-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 20%;
+      right: 20%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255, 187, 51, 0.3), transparent);
+      border-radius: 2px;
     }
 
     .signup-header {
@@ -83,43 +117,99 @@
       margin-bottom: 32px;
     }
 
-    .signup-header .logo-icon {
-      width: 56px;
-      height: 56px;
-      background: linear-gradient(135deg, #00c851, #00b248);
-      border-radius: 16px;
+    .logo-ring {
+      width: 64px;
+      height: 64px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(255, 187, 51, 0.15), rgba(255, 136, 0, 0.1));
+      border: 1.5px solid rgba(255, 187, 51, 0.2);
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 0 auto 20px;
-      font-size: 24px;
+      font-size: 28px;
+      position: relative;
+    }
+
+    .logo-ring::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: 24px;
+      border: 1px solid rgba(255, 187, 51, 0.1);
+      animation: ringPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes ringPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.5; }
     }
 
     .signup-header h2 {
       color: #fff;
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 700;
       margin-bottom: 8px;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.3px;
     }
 
     .signup-header p {
       color: #666680;
       font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .social-proof {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 28px;
+      padding: 10px 16px;
+      background: rgba(0, 200, 81, 0.08);
+      border: 1px solid rgba(0, 200, 81, 0.15);
+      border-radius: 12px;
+    }
+
+    .social-proof .avatars {
+      display: flex;
+    }
+
+    .social-proof .avatars span {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffbb33, #ff8800);
+      border: 2px solid #0f0f1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      margin-left: -6px;
+    }
+
+    .social-proof .avatars span:first-child {
+      margin-left: 0;
+    }
+
+    .social-proof p {
+      font-size: 12px;
+      color: #00c851;
+      font-weight: 500;
     }
 
     .form-group {
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
 
     .form-group label {
       display: block;
       color: #8888a0;
-      font-size: 13px;
-      font-weight: 500;
+      font-size: 12px;
+      font-weight: 600;
       margin-bottom: 8px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.8px;
     }
 
     .password-wrapper {
@@ -130,8 +220,8 @@
       width: 100%;
       padding: 14px 16px;
       border-radius: 12px;
-      border: 1.5px solid rgba(255, 255, 255, 0.08);
-      background: rgba(15, 15, 30, 0.6);
+      border: 1.5px solid rgba(255, 255, 255, 0.06);
+      background: rgba(10, 10, 20, 0.6);
       color: #fff;
       font-size: 15px;
       font-family: 'Inter', sans-serif;
@@ -144,9 +234,9 @@
 
     .form-group input:focus {
       outline: none;
-      border-color: #00c851;
-      box-shadow: 0 0 0 3px rgba(0, 200, 81, 0.1);
-      background: rgba(15, 15, 30, 0.8);
+      border-color: rgba(255, 187, 51, 0.4);
+      box-shadow: 0 0 0 4px rgba(255, 187, 51, 0.08), 0 0 20px rgba(255, 187, 51, 0.05);
+      background: rgba(10, 10, 20, 0.8);
     }
 
     .password-wrapper input {
@@ -160,58 +250,114 @@
       transform: translateY(-50%);
       background: none;
       border: none;
-      color: #666680;
+      color: #555570;
       cursor: pointer;
-      padding: 4px;
+      padding: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: color 0.2s ease;
+      transition: all 0.2s ease;
+      border-radius: 8px;
     }
 
     .toggle-password:hover {
-      color: #00c851;
+      color: #ffbb33;
+      background: rgba(255, 187, 51, 0.08);
     }
 
     .toggle-password svg {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
+    }
+
+    .terms-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding: 0 2px;
+    }
+
+    .terms-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      min-width: 18px;
+      accent-color: #ffbb33;
+      margin-top: 2px;
+      cursor: pointer;
+    }
+
+    .terms-row label {
+      font-size: 12px;
+      color: #666680;
+      line-height: 1.5;
+      cursor: pointer;
+    }
+
+    .terms-row label a {
+      color: #ffbb33;
+      text-decoration: none;
+      font-weight: 600;
     }
 
     .signup-btn {
       width: 100%;
       padding: 16px;
-      border-radius: 12px;
+      border-radius: 14px;
       border: none;
-      background: linear-gradient(135deg, #00c851, #00b248);
-      color: #fff;
+      background: linear-gradient(135deg, #ffbb33, #ff8800);
+      color: #0a0a14;
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
-      margin-top: 8px;
-      transition: all 0.25s ease;
+      margin-top: 4px;
+      transition: all 0.3s ease;
       font-family: 'Inter', sans-serif;
       letter-spacing: 0.3px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .signup-btn::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .signup-btn:hover::before {
+      left: 100%;
     }
 
     .signup-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0, 200, 81, 0.35);
+      box-shadow: 0 12px 35px rgba(255, 187, 51, 0.25);
     }
 
     .signup-btn:active {
       transform: scale(0.98);
     }
 
+    .signup-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     #result {
       text-align: center;
-      padding: 12px 16px;
-      border-radius: 10px;
+      padding: 14px 16px;
+      border-radius: 12px;
       margin-top: 16px;
       font-weight: 600;
       font-size: 13px;
       display: none;
       font-family: 'Inter', sans-serif;
+      line-height: 1.5;
     }
 
     #result.show {
@@ -225,31 +371,31 @@
     }
 
     #result.success {
-      background: rgba(0, 200, 81, 0.12);
+      background: rgba(0, 200, 81, 0.1);
       color: #00c851;
-      border: 1px solid rgba(0, 200, 81, 0.25);
+      border: 1px solid rgba(0, 200, 81, 0.2);
     }
 
     #result.error {
-      background: rgba(255, 68, 68, 0.12);
+      background: rgba(255, 68, 68, 0.1);
       color: #ff4444;
-      border: 1px solid rgba(255, 68, 68, 0.25);
+      border: 1px solid rgba(255, 68, 68, 0.2);
     }
 
     #result.loading {
-      background: rgba(51, 181, 229, 0.12);
+      background: rgba(51, 181, 229, 0.1);
       color: #33b5e5;
-      border: 1px solid rgba(51, 181, 229, 0.25);
+      border: 1px solid rgba(51, 181, 229, 0.2);
     }
 
     .divider {
       display: flex;
       align-items: center;
       margin: 28px 0;
-      color: #444460;
+      color: #333350;
       font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 1px;
+      font-weight: 600;
+      letter-spacing: 2px;
       text-transform: uppercase;
     }
 
@@ -258,68 +404,97 @@
       content: "";
       flex: 1;
       height: 1px;
-      background: rgba(255, 255, 255, 0.06);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
     }
 
     .divider span {
-      padding: 0 16px;
+      padding: 0 20px;
     }
 
     .login-link {
       text-align: center;
       color: #666680;
       font-size: 14px;
+      padding: 4px;
     }
 
     .login-link a {
       color: #ffbb33;
       text-decoration: none;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
-      transition: color 0.2s ease;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .login-link a::after {
+      content: "";
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #ffbb33, #ff8800);
+      transition: width 0.3s ease;
+      border-radius: 2px;
+    }
+
+    .login-link a:hover::after {
+      width: 100%;
     }
 
     .login-link a:hover {
       color: #ff8800;
     }
 
-    .particles {
+    .security-badges {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .security-badges span {
+      font-size: 11px;
+      color: #444460;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .orb {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      border-radius: 50%;
+      filter: blur(60px);
       pointer-events: none;
       z-index: 0;
-      overflow: hidden;
+      opacity: 0.4;
     }
 
-    .particle {
-      position: absolute;
-      width: 4px;
-      height: 4px;
-      background: rgba(0, 200, 81, 0.15);
-      border-radius: 50%;
-      animation: float 15s infinite ease-in-out;
+    .orb-1 {
+      width: 300px;
+      height: 300px;
+      background: rgba(255, 187, 51, 0.08);
+      top: -100px;
+      right: -100px;
+      animation: orbFloat 20s ease-in-out infinite;
     }
 
-    .particle:nth-child(1) { left: 10%; top: 80%; animation-delay: 0s; }
-    .particle:nth-child(2) { left: 20%; top: 20%; animation-delay: 2s; }
-    .particle:nth-child(3) { left: 35%; top: 60%; animation-delay: 4s; }
-    .particle:nth-child(4) { left: 50%; top: 10%; animation-delay: 6s; }
-    .particle:nth-child(5) { left: 65%; top: 70%; animation-delay: 8s; }
-    .particle:nth-child(6) { left: 80%; top: 30%; animation-delay: 10s; }
-    .particle:nth-child(7) { left: 90%; top: 85%; animation-delay: 12s; }
-    .particle:nth-child(8) { left: 15%; top: 40%; animation-delay: 14s; }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; }
-      50% { transform: translateY(-40px) scale(1.5); opacity: 0.8; }
+    .orb-2 {
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 136, 0, 0.06);
+      bottom: -50px;
+      left: -50px;
+      animation: orbFloat 25s ease-in-out infinite reverse;
     }
 
-    .signup-wrapper {
-      position: relative;
-      z-index: 1;
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -30px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.9); }
     }
 
     @media (max-width: 480px) {
@@ -330,21 +505,16 @@
       .signup-header h2 {
         font-size: 22px;
       }
+      .social-proof {
+        padding: 8px 12px;
+      }
     }
   </style>
 </head>
 <body>
 
-<div class="particles">
-  <div class="particle"></div>
-  <div class="particle"></div>
-  <div class="particle"></div>
-  <div class="particle"></div>
-  <div class="particle"></div>
-  <div class="particle"></div>
-  <div class="particle"></div>
-  <div class="particle"></div>
-</div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
 
 <div class="signup-wrapper">
 
@@ -358,9 +528,18 @@
   <div class="signup-card">
 
     <div class="signup-header">
-      <div class="logo-icon">🚀</div>
+      <div class="logo-ring">🚀</div>
       <h2>Create Account</h2>
-      <p>Join SmartInvest and start growing your wealth</p>
+      <p>Join thousands of investors building wealth with SmartInvest</p>
+    </div>
+
+    <div class="social-proof">
+      <div class="avatars">
+        <span>👤</span>
+        <span>👤</span>
+        <span>👤</span>
+      </div>
+      <p>500,000+ investors joined this month</p>
     </div>
 
     <form id="signupForm">
@@ -401,6 +580,12 @@
         </div>
       </div>
 
+ <div class="terms-row">
+  <input type="checkbox" id="terms" required>
+  <label for="terms">I agree to the <a href="terms.html" target="_blank">Terms of Service</a> and <a href="terms.html" target="_blank">Privacy Policy</a></label>
+
+      </div>
+
       <button type="submit" class="signup-btn">Create Account</button>
 
       <p id="result"></p>
@@ -413,18 +598,21 @@
       Already have an account? <a onclick="goLogin()">Sign In</a>
     </div>
 
+    <div class="security-badges">
+      <span>🔒 SSL Secured</span>
+      <span>🛡️ 256-bit</span>
+      <span>✓ Verified</span>
+    </div>
+
   </div>
 
 </div>
 
-<!-- MODULE SCRIPT AT THE BOTTOM -->
 <script type="module">
-  
   import { auth, db } from "./firebase.js";
 import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { ref, set, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// EmailJS is already loaded by the script tag in signup.html <head>
 emailjs.init("adbMnb80leKvWnxdc");
 
 function notifyAdmin(subject, message) {
@@ -440,22 +628,17 @@ function notifyAdmin(subject, message) {
   });
 }
 
-/////////////////////////////////////////////////////
-// PASSWORD TOGGLE (works for both password fields)
-/////////////////////////////////////////////////////
 window.togglePassword = function(inputId, eyeIconId) {
   const passwordInput = document.getElementById(inputId);
   const eyeIcon = document.getElementById(eyeIconId);
   
   if (passwordInput.type === "password") {
     passwordInput.type = "text";
-    // Eye slash icon (hidden)
     eyeIcon.innerHTML = `
       <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
     `;
   } else {
     passwordInput.type = "password";
-    // Eye icon (visible)
     eyeIcon.innerHTML = `
       <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
       <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -528,7 +711,46 @@ document.getElementById("signupForm").onsubmit = async function(event) {
       createdAt: Date.now()
     });
     
-    // ===== SEND SIGNUP NOTIFICATION =====
+    // ===== REFERRAL BONUS LOGIC =====
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get("ref");
+    
+    if (refCode && refCode.startsWith("REF")) {
+      try {
+        const allUsersSnap = await get(ref(db, 'users'));
+        let referrerUsername = null;
+        
+        allUsersSnap.forEach((childSnap) => {
+          if (childSnap.val().referralCode === refCode) {
+            referrerUsername = childSnap.key;
+          }
+        });
+        
+        if (referrerUsername) {
+          const referrerRef = ref(db, 'users/' + referrerUsername);
+          const referrerSnap = await get(referrerRef);
+          const referrerData = referrerSnap.val();
+          
+          const newRefBalance = (referrerData.referralBalance || 0) + 10;
+          const newRefCount = (referrerData.referralsCount || 0) + 1;
+          const referralId = "ref_" + Date.now();
+          
+          await update(referrerRef, {
+            referralBalance: newRefBalance,
+            referralsCount: newRefCount,
+            ['referrals/' + referralId]: {
+              name: username,
+              timestamp: Date.now(),
+              uid: user.uid
+            }
+          });
+          
+          console.log("Referral bonus awarded to:", referrerUsername);
+        }
+      } catch (err) { console.error("Referral bonus error:", err);
+      }
+    }
+    
     notifyAdmin(
       "🆕 New User Signup — " + username,
       "New user just registered!\n\n" +
@@ -570,7 +792,10 @@ function goLogin() { window.location.href = "login.html"; }
 
 window.goHome = goHome;
 window.goLogin = goLogin;
+
 </script>
 
 </body>
 </html>
+
+                         
