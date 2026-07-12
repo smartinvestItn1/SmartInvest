@@ -680,7 +680,8 @@
 
 <!-- MODULE SCRIPT AT THE BOTTOM -->
 <script type="module">
-  import { auth, db } from "./firebase.js";
+
+import { auth, db } from "./firebase.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -781,7 +782,7 @@ function animateBalance(value) {
     }
     currentBalance = start;
     if (balanceVisible) {
-      document.getElementById("balanceDisplay").innerText = start.toFixed(2);
+      document.getElementById("balanceDisplay").innerText = start.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
   }, 16);
 }
@@ -795,7 +796,7 @@ window.toggleBalance = function() {
   const eyeIcon = document.getElementById("balanceEye");
   
   if (balanceVisible) {
-    display.innerText = currentBalance.toFixed(2);
+    display.innerText = currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     display.classList.remove("hidden");
     eyeIcon.innerHTML = `
       <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -918,8 +919,8 @@ async function updateUI() {
       });
     }
 
-    document.getElementById("pendingDeposit").innerText = pendingDep.toFixed(2);
-    document.getElementById("pendingWithdraw").innerText = pendingWit.toFixed(2);
+    document.getElementById("pendingDeposit").innerText = pendingDep.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    document.getElementById("pendingWithdraw").innerText = pendingWit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   } catch (err) {
     console.error("Error loading pending:", err);
     document.getElementById("pendingDeposit").innerText = "0.00";
@@ -953,7 +954,7 @@ async function checkProfit() {
     const profitAmount = investedAmount * profitPercent;
     const totalReturn = investedAmount + profitAmount;
 
-    if (confirm(`🎉 Your ${userData.plan} investment is complete!\n\nInvested: $${investedAmount.toFixed(2)}\nProfit: $${profitAmount.toFixed(2)}\nTotal Return: $${totalReturn.toFixed(2)}\n\nClaim now?`)) {
+    if (confirm(`🎉 Your ${userData.plan} investment is complete!\n\nInvested: $${investedAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\nProfit: $${profitAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\nTotal Return: $${totalReturn.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n\nClaim now?`)) {
       const newBalance = (userData.balance || 0) + totalReturn;
 
       await update(ref(db, 'users/' + currentUsername), {
@@ -978,7 +979,7 @@ async function checkProfit() {
   } else {
     const hoursLeft = Math.ceil(hours - hoursPassed);
     const profitAmount = investedAmount * profitPercent;
-    alert(`⏳ Investment still running...\n\nPlan: ${userData.plan}\nInvested: $${investedAmount.toFixed(2)}\nExpected Profit: $${profitAmount.toFixed(2)}\nTime left: ${hoursLeft} hours\n\nCome back later to claim profit!`);
+    alert(`⏳ Investment still running...\n\nPlan: ${userData.plan}\nInvested: $${investedAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\nExpected Profit: $${profitAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\nTime left: ${hoursLeft} hours\n\nCome back later to claim profit!`);
   }
 }
 
@@ -1036,6 +1037,7 @@ window.goHome = goHome;
 window.goProfile = goProfile;
 window.goHistory = goHistory;
 window.logout = logout;
+  
   
 </script>
 
