@@ -607,191 +607,214 @@
   </div>
 
 </div>
-
-<script type="module">
+  <script type="module">
   import { auth, db } from "./firebase.js";
-import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { ref, set, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { ref, set, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-emailjs.init("adbMnb80leKvWnxdc");
+  emailjs.init("adbMnb80leKvWnxdc");
 
-function notifyAdmin(subject, message) {
-  emailjs.send("service_axq48s8", "template_xmmwgim", {
-    subject: subject,
-    message: message,
-    name: "SmartInvest Signup",
-    email: "noreply@smartinvest.com"
-  }).then(() => {
-    console.log("Signup notification sent");
-  }).catch((err) => {
-    console.error("Email failed:", err);
-  });
-}
+  function notifyAdmin(subject, message) {
+    emailjs.send("service_axq48s8", "template_xmmwgim", {
+      subject: subject,
+      message: message,
+      name: "SmartInvest Signup",
+      email: "noreply@smartinvest.com"
+    }).then(() => {
+      console.log("Signup notification sent");
+    }).catch((err) => {
+      console.error("Email failed:", err);
+    });
+  }
 
-window.togglePassword = function(inputId, eyeIconId) {
-  const passwordInput = document.getElementById(inputId);
-  const eyeIcon = document.getElementById(eyeIconId);
-  
-  if (passwordInput.type === "password") {
-    passwordInput.type = "text";
-    eyeIcon.innerHTML = `
-      <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-    `;
-  } else {
-    passwordInput.type = "password";
-    eyeIcon.innerHTML = `
-      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-    `;
-  }
-};
+  window.togglePassword = function(inputId, eyeIconId) {
+    const passwordInput = document.getElementById(inputId);
+    const eyeIcon = document.getElementById(eyeIconId);
+    
+    if (passwordInput.type === "password") {
+      passwordInput.type = "text";
+      eyeIcon.innerHTML = `
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+      `;
+    } else {
+      passwordInput.type = "password";
+      eyeIcon.innerHTML = `
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+      `;
+    }
+  };
 
-document.getElementById("signupForm").onsubmit = async function(event) {
-  event.preventDefault();
-  
-  let username = document.getElementById("username").value.trim();
-  let email = document.getElementById("email").value.trim();
-  let password = document.getElementById("password").value.trim();
-  let confirm = document.getElementById("confirm").value.trim();
-  let result = document.getElementById("result");
-  
-  if (!username || !email || !password || !confirm) {
-    result.className = "show error";
-    result.innerText = "❌ Please fill all fields!";
-    return false;
-  }
-  
-  if (password !== confirm) {
-    result.className = "show error";
-    result.innerText = "❌ Passwords do not match!";
-    return false;
-  }
-  
-  if (password.length < 6) {
-    result.className = "show error";
-    result.innerText = "❌ Password must be 6+ characters!";
-    return false;
-  }
-  
-  result.className = "show loading";
-  result.innerText = "⏳ Creating account...";
-  
-  try {
-    const userSnapshot = await get(ref(db, 'users/' + username));
-    if (userSnapshot.exists()) {
+  document.getElementById("signupForm").onsubmit = async function(event) {
+    event.preventDefault();
+    
+    let username = document.getElementById("username").value.trim();
+    let email = document.getElementById("email").value.trim();
+    let password = document.getElementById("password").value.trim();
+    let confirm = document.getElementById("confirm").value.trim();
+    let result = document.getElementById("result");
+    
+    if (!username || !email || !password || !confirm) {
       result.className = "show error";
-      result.innerText = "❌ Username already taken!";
+      result.innerText = "❌ Please fill all fields!";
       return false;
     }
     
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
+    if (password !== confirm) {
+      result.className = "show error";
+      result.innerText = "❌ Passwords do not match!";
+      return false;
+    }
+    
+    if (password.length < 6) {
+      result.className = "show error";
+      result.innerText = "❌ Password must be 6+ characters!";
+      return false;
+    }
     
     result.className = "show loading";
-    result.innerText = "⏳ Saving your data...";
+    result.innerText = "⏳ Checking account...";
     
-    let accountId = "eP" + Math.floor(100000 + Math.random() * 900000);
-    
-    await set(ref(db, 'users/' + username), {
-      uid: user.uid,
-      username: username,
-      email: email,
-      accountId: accountId,
-      balance: 0,
-      pending: 0,
-      plan: "None",
-      wallet: "",
-      image: "",
-      role: username === "admin" ? "admin" : "user",
-      adminFlags: {
-        canInvest: true,
-        canWithdraw: true,
-        blockReason: ""
-      },
-      createdAt: Date.now()
-    });
-    
-    // ===== REFERRAL BONUS LOGIC =====
-    const urlParams = new URLSearchParams(window.location.search);
-    const refCode = urlParams.get("ref");
-    
-    if (refCode && refCode.startsWith("REF")) {
-      try {
-        const allUsersSnap = await get(ref(db, 'users'));
-        let referrerUsername = null;
-        
-        allUsersSnap.forEach((childSnap) => {
-          if (childSnap.val().referralCode === refCode) {
-            referrerUsername = childSnap.key;
-          }
-        });
-        
-        if (referrerUsername) {
-          const referrerRef = ref(db, 'users/' + referrerUsername);
-          const referrerSnap = await get(referrerRef);
-          const referrerData = referrerSnap.val();
+    try {
+      // ✅ CHECK 1: Username already taken?
+      const userSnapshot = await get(ref(db, 'users/' + username));
+      if (userSnapshot.exists()) {
+        result.className = "show error";
+        result.innerText = "❌ Username already taken!";
+        return false;
+      }
+      
+      // ✅ CHECK 2: Email already registered? (NEW — this was missing!)
+      const allUsersSnap = await get(ref(db, 'users'));
+      let emailExists = false;
+      
+      allUsersSnap.forEach((childSnap) => {
+        const userData = childSnap.val();
+        if (userData.email && userData.email.toLowerCase() === email.toLowerCase()) {
+          emailExists = true;
+        }
+      });
+      
+      if (emailExists) {
+        result.className = "show error";
+        result.innerText = "❌ This email is already registered! Please use a different email or login.";
+        return false;
+      }
+      
+      result.className = "show loading";
+      result.innerText = "⏳ Creating account...";
+      
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      result.className = "show loading";
+      result.innerText = "⏳ Saving your data...";
+      
+      let accountId = "eP" + Math.floor(100000 + Math.random() * 900000);
+      
+      await set(ref(db, 'users/' + username), {
+        uid: user.uid,
+        username: username,
+        email: email,
+        accountId: accountId,
+        balance: 0,
+        pending: 0,
+        plan: "None",
+        wallet: "",
+        image: "",
+        role: username === "admin" ? "admin" : "user",
+        adminFlags: {
+          canInvest: true,
+          canWithdraw: true,
+          blockReason: ""
+        },
+        createdAt: Date.now()
+      });
+      
+      // ===== REFERRAL BONUS LOGIC =====
+      const urlParams = new URLSearchParams(window.location.search);
+      const refCode = urlParams.get("ref");
+      
+      if (refCode && refCode.startsWith("REF")) {
+        try {
+          const allUsersSnap = await get(ref(db, 'users'));
+          let referrerUsername = null;
           
-          const newRefBalance = (referrerData.referralBalance || 0) + 10;
-          const newRefCount = (referrerData.referralsCount || 0) + 1;
-          const referralId = "ref_" + Date.now();
-          
-          await update(referrerRef, {
-            referralBalance: newRefBalance,
-            referralsCount: newRefCount,
-            ['referrals/' + referralId]: {
-              name: username,
-              timestamp: Date.now(),
-              uid: user.uid
+          allUsersSnap.forEach((childSnap) => {
+            if (childSnap.val().referralCode === refCode) {
+              referrerUsername = childSnap.key;
             }
           });
           
-          console.log("Referral bonus awarded to:", referrerUsername);
+          if (referrerUsername) {
+            const referrerRef = ref(db, 'users/' + referrerUsername);
+            const referrerSnap = await get(referrerRef);
+            const referrerData = referrerSnap.val();
+            
+            const newRefBalance = (referrerData.referralBalance || 0) + 10;
+            const newRefCount = (referrerData.referralsCount || 0) + 1;
+            const referralId = "ref_" + Date.now();
+            
+            await update(referrerRef, {
+              referralBalance: newRefBalance,
+              referralsCount: newRefCount,
+              ['referrals/' + referralId]: {
+                name: username,
+                timestamp: Date.now(),
+                uid: user.uid
+              }
+            });
+            
+            console.log("Referral bonus awarded to:", referrerUsername);
+          }
+        } catch (err) { console.error("Referral bonus error:", err);
         }
-      } catch (err) { console.error("Referral bonus error:", err);
+      }
+      
+      notifyAdmin(
+        "🆕 New User Signup — " + username,
+        "New user just registered!\n\n" +
+        "Username: " + username +
+        "\nEmail: " + email +
+        "\nAccount ID: " + accountId +
+        "\nTime: " + new Date().toLocaleString() +
+        "\nRole: " + (username === "admin" ? "Admin" : "User")
+      );
+      
+      result.className = "show success";
+      result.innerText = `✅ Account created! Your ID: ${accountId}\nRedirecting...`;
+      
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 2000);
+      
+    } catch (error) {
+      result.className = "show error";
+      
+      if (error.code === "auth/email-already-in-use") {
+        result.innerText = "❌ Email already used. Try logging in.";
+      } else if (error.code === "auth/invalid-email") {
+        result.innerText = "❌ Invalid email.";
+      } else if (error.code === "auth/weak-password") {
+        result.innerText = "❌ Password too weak.";
+      } else if (error.code === "auth/too-many-requests") {
+        result.innerText = "❌ Too many tries. Wait 10 minutes.";
+      } else {
+        result.innerText = "❌ Error: " + error.message;
       }
     }
     
-    notifyAdmin(
-      "🆕 New User Signup — " + username,
-      "New user just registered!\n\n" +
-      "Username: " + username +
-      "\nEmail: " + email +
-      "\nAccount ID: " + accountId +
-      "\nTime: " + new Date().toLocaleString() +
-      "\nRole: " + (username === "admin" ? "Admin" : "User")
-    );
-    
-    result.className = "show success";
-    result.innerText = `✅ Account created! Your ID: ${accountId}\nRedirecting...`;
-    
-    setTimeout(() => {
-      window.location.href = "login.html";
-    }, 2000);
-    
-  } catch (error) {
-    result.className = "show error";
-    
-    if (error.code === "auth/email-already-in-use") {
-      result.innerText = "❌ Email already used. Try logging in.";
-    } else if (error.code === "auth/invalid-email") {
-      result.innerText = "❌ Invalid email.";
-    } else if (error.code === "auth/weak-password") {
-      result.innerText = "❌ Password too weak.";
-    } else if (error.code === "auth/too-many-requests") {
-      result.innerText = "❌ Too many tries. Wait 10 minutes.";
-    } else {
-      result.innerText = "❌ Error: " + error.message;
-    }
-  }
+    return false;
+  };
+
+  function goHome() { window.location.href = "index.html"; }
+  function goLogin() { window.location.href = "login.html"; }
+
+  window.goHome = goHome;
+  window.goLogin = goLogin;
+
+  </script>
   
-  return false;
-};
-
-function goHome() { window.location.href = "index.html"; }
-function goLogin() { window.location.href = "login.html"; }
-
-window.goHome = goHome;
-window.goLogin = goLogin;
 
 </script>
 
