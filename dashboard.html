@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -702,9 +702,7 @@
   <p>Logging out...</p>
   </div>
         
-
-        
-  <script type="module">
+ <script type="module">
   import { auth, db } from "./firebase.js";
   import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -715,7 +713,6 @@
   let adminFlags = { canInvest: true, canWithdraw: true, blockReason: "" };
   const MIN_INVEST_BALANCE = 100;
 
-  // Balance visibility state
   let balanceVisible = false;
   let currentBalance = 0;
   let balanceInterval;
@@ -792,7 +789,7 @@
     await loadDashRefLink();
   });
 
-  // ✅ FIXED: animateBalance — only updates currentBalance, NEVER forces display
+  // ✅ FIXED: animateBalance — ONLY updates currentBalance, NEVER touches display
   function animateBalance(value) {
     clearInterval(balanceInterval);
     let start = currentBalance;
@@ -810,19 +807,13 @@
         clearInterval(balanceInterval);
       }
       currentBalance = start;
-      // Only update display text if balance is currently visible
-      if (balanceVisible) {
-        const display = document.getElementById("balanceDisplay");
-        if (display) {
-          display.innerText = "$" + start.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-      }
+      // ❌ NOTHING HERE — no display update at all!
     }, 16);
   }
 
-  // ✅ FIXED: toggleBalance — kills animation, forces correct state
+  // ✅ FIXED: toggleBalance — ONLY function that writes to display
   window.toggleBalance = function() {
-    clearInterval(balanceInterval);
+    clearInterval(balanceInterval); // Stop animation
     balanceVisible = !balanceVisible;
     const display = document.getElementById("balanceDisplay");
     const eyeIcon = document.getElementById("balanceEye");
@@ -830,13 +821,19 @@
     if (!display || !eyeIcon) return;
 
     if (balanceVisible) {
+      // SHOW balance
       display.innerText = "$" + currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      display.classList.remove("hidden");
+      // Eye OPEN icon
       eyeIcon.innerHTML = `
         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
         <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
       `;
     } else {
+      // HIDE balance
       display.innerText = "****";
+      display.classList.add("hidden");
+      // Eye CLOSED icon
       eyeIcon.innerHTML = `
         <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
       `;
@@ -1091,6 +1088,6 @@
   window.goHistory = goHistory;
   window.logout = logout;
 
-  </script>
+ </script>
 </body>
 </html>
