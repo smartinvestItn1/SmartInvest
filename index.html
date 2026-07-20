@@ -229,80 +229,30 @@
   transition: 0.3s; font-family: 'Inter', sans-serif; font-weight: 600;
 }
 .sideBar button:hover { background: var(--gold); color: #0c0c14; }
-/* Language Switcher - Clean Style */
-.lang-switcher {
-  position: fixed;
-  top: 15px;
-  right: 15px;
-  z-index: 9999;
-}
 
-.lang-switcher select {
-  padding: 10px 35px 10px 15px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(25,25,40,0.9);
-  color: #fff;
-  font-size: 14px;
-  font-family: 'Inter', sans-serif;
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23fff' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  backdrop-filter: blur(10px);
-}
-
-.lang-switcher select:hover {
-  border-color: rgba(255,255,255,0.3);
-}
-
-.lang-switcher select option {
-  background: #1a1a2e;
-  color: #fff;
-}
-
-/* ========== FORCE HIDE GOOGLE TRANSLATE BAR ========== */
+iframe.goog-te-banner-frame,
 .goog-te-banner-frame,
-.goog-te-banner-frame.skiptranslate,
 .goog-te-gadget,
-.goog-te-gadget-simple,
 .goog-te-menu-value,
-.goog-te-balloon-frame,
 #goog-gt-tt,
 .goog-tooltip,
-.goog-tooltip:hover {
+.VIpgJd-ZVi9kd-INgbqf {
   display: none !important;
   visibility: hidden !important;
-  opacity: 0 !important;
-  height: 0 !important;
-  width: 0 !important;
-  overflow: hidden !important;
 }
-
-/* Force body back to top */
-body.goog-te-banner,
 body {
   top: 0 !important;
   margin-top: 0 !important;
   padding-top: 0 !important;
 }
 
-/* Hide the "Translation" dropdown in top right */
-.VIpgJd-ZVi9kd-INgbqf-LgbsSe,
-.VIpgJd-ZVi9kd-INgbqf {
-  display: none !important;
-}
-    
+  
     
   </style>
   </head>
 <body> 
-  <!-- Hidden Google Translate element -->
-<div id="google_translate_element" style="display:none;"></div>
 
-<!-- Custom Language Switcher -->
-<div class="lang-switcher">
+  <div class="lang-switcher">
   <select onchange="changeLanguage(this.value)">
     <option value="en">🇺🇸 English</option>
     <option value="ar">🇸🇦 العربية</option>
@@ -313,7 +263,7 @@ body {
     <option value="ms">🇲🇾 Melayu</option>
     <option value="tr">🇹🇷 Türkçe</option>
   </select>
-</div>
+  </div>
   
   <!-- MENU BUTTON -->
 <div class="menuBtn" onclick="toggleSidebar()">☰</div>
@@ -672,31 +622,25 @@ body {
   setInterval(showLiveProfit, 2500);
 </script>
   <script>
-// Force hide Google Translate bar
-function hideGoogleBar() {
-  var bar = document.querySelector('.goog-te-banner-frame');
-  if (bar) {
-    bar.style.display = 'none';
-    document.body.style.top = '0px';
-    document.body.style.position = 'static';
+function changeLanguage(lang) {
+  localStorage.setItem('si_lang', lang);
+  if (lang === 'en') {
+    location.reload();
+    return;
   }
-  
-  // Also hide the gadget
-  var gadget = document.querySelector('.goog-te-gadget');
-  if (gadget) gadget.style.display = 'none';
-  
-  // Hide the menu value
-  var menu = document.querySelector('.goog-te-menu-value');
-  if (menu) menu.style.display = 'none';
+  window.location.href = 'https://translate.google.com/translate?sl=en&tl=' + lang + '&u=' + encodeURIComponent(window.location.href);
 }
 
-// Run immediately and keep checking
-hideGoogleBar();
-setInterval(hideGoogleBar, 100);
-
-// Also run after page loads
-window.addEventListener('load', hideGoogleBar);
+// Hide Google bar
+setInterval(function(){
+  var b = document.querySelector('.goog-te-banner-frame');
+  if(b) { b.style.display='none'; document.body.style.top='0'; }
+  document.querySelectorAll('.goog-te-gadget, .goog-te-menu-value').forEach(function(el){
+    el.style.display='none';
+  });
+}, 100);
   </script>
+  
   
 </body>
 </html>
