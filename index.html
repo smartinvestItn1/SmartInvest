@@ -6,56 +6,29 @@
   <title>SmartInvest</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <script>
-// Load Google Translate
-function googleTranslateElementInit() {
-  new google.translate.TranslateElement({
-    pageLanguage: 'en',
-    includedLanguages: 'ar,fa,es,de,it,ms,tr',
-    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-    autoDisplay: false
-  }, 'google_translate_element');
-}
-
-// Load the Google Translate script
-(function() {
-  var script = document.createElement('script');
-  script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-  script.async = true;
-  document.head.appendChild(script);
-})();
-
-// Change language function
+<script>
+// Language redirect function - ALWAYS works
 function changeLanguage(lang) {
   // Save choice
   localStorage.setItem('si_lang', lang);
   
-  // If English, reload page to clear translation
+  // Get current page URL
+  var currentUrl = window.location.href;
+  
   if (lang === 'en') {
-    location.reload();
+    // English = just reload current page
+    window.location.href = currentUrl;
     return;
   }
   
-  // Try to find and change the Google Translate dropdown
-  var tryChange = function(attempts) {
-    var select = document.querySelector('.goog-te-combo');
-    if (select) {
-      select.value = lang;
-      select.dispatchEvent(new Event('change'));
-      console.log('Language changed to: ' + lang);
-    } else if (attempts > 0) {
-      // Try again in 500ms
-      setTimeout(function() {
-        tryChange(attempts - 1);
-      }, 500);
-    } else {
-      console.log('Google Translate not loaded yet');
-    }
-  };
+  // For other languages, redirect to Google Translate
+  // This opens your site translated by Google
+  var translateUrl = 'https://translate.google.com/translate?sl=en&tl=' + lang + '&u=' + encodeURIComponent(currentUrl);
   
-  tryChange(20); // Try for 10 seconds
+  // Open in same tab
+  window.location.href = translateUrl;
 }
-    </script>
+</script>
   
   
   
