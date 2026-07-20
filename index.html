@@ -515,33 +515,7 @@ body {
   <a href="contact.html"><i class="fas fa-headset"></i><span>Support</span></a>
   <a href="terms.html"><i class="fas fa-file-alt"></i><span>Terms</span></a>
   <a href="login.html"><i class="fas fa-user"></i><span>Account</span></a>
-  </div>
-  <script>
-// Force hide Google Translate bar
-function hideGoogleBar() {
-  var bar = document.querySelector('.goog-te-banner-frame');
-  if (bar) {
-    bar.style.display = 'none';
-    document.body.style.top = '0px';
-    document.body.style.position = 'static';
-  }
-  
-  // Also hide the gadget
-  var gadget = document.querySelector('.goog-te-gadget');
-  if (gadget) gadget.style.display = 'none';
-  
-  // Hide the menu value
-  var menu = document.querySelector('.goog-te-menu-value');
-  if (menu) menu.style.display = 'none';
-}
-
-// Run immediately and keep checking
-hideGoogleBar();
-setInterval(hideGoogleBar, 100);
-
-// Also run after page loads
-window.addEventListener('load', hideGoogleBar);
-  </script>
+</div>
   
   <script>
   // ===== REDIRECT FUNCTIONS =====
@@ -697,6 +671,33 @@ window.addEventListener('load', hideGoogleBar);
 
   setInterval(showLiveProfit, 2500);
 </script>
+  <script>
+// Force hide Google Translate bar
+function hideGoogleBar() {
+  var bar = document.querySelector('.goog-te-banner-frame');
+  if (bar) {
+    bar.style.display = 'none';
+    document.body.style.top = '0px';
+    document.body.style.position = 'static';
+  }
+  
+  // Also hide the gadget
+  var gadget = document.querySelector('.goog-te-gadget');
+  if (gadget) gadget.style.display = 'none';
+  
+  // Hide the menu value
+  var menu = document.querySelector('.goog-te-menu-value');
+  if (menu) menu.style.display = 'none';
+}
+
+// Run immediately and keep checking
+hideGoogleBar();
+setInterval(hideGoogleBar, 100);
+
+// Also run after page loads
+window.addEventListener('load', hideGoogleBar);
+  </script>
+  
 </body>
 </html>
 
