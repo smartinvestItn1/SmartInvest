@@ -6,8 +6,7 @@
   <title>Contact Support — SmartInvest</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="translations/lang.js"></script>
-  <script src="js/translator.js"></script>
+  
   
   <style>
     * {
@@ -255,44 +254,10 @@
       }
     }
 
-    .lang-switcher {
-      position: fixed;
-      top: 15px;
-      right: 15px;
-      z-index: 1000;
-    }
-
-    .lang-switcher select {
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid #ddd;
-      font-size: 14px;
-      background: white;
-      cursor: pointer;
-    }
-
-    html[dir="rtl"] .lang-switcher {
-      right: auto;
-      left: 15px;
-    }
   </style>
 </head>
 
 <body>
-  
-<!-- Language Switcher -->
-<div class="lang-switcher">
-  <select id="lang-select" onchange="setLanguage(this.value)">
-    <option value="en">🇺🇸 English</option>
-    <option value="ar">🇸🇦 العربية</option>
-    <option value="fa">🇮🇷 فارسی</option>
-    <option value="es">🇪🇸 Español</option>
-    <option value="de">🇩🇪 Deutsch</option>
-    <option value="it">🇮🇹 Italiano</option>
-    <option value="ms">🇲🇾 Melayu</option>
-    <option value="tr">🇹🇷 Türkçe</option>
-  </select>
-</div>
   
 <!-- Background Particles -->
 <div class="particles">
