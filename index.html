@@ -287,24 +287,38 @@ function changeLanguage(lang) {
   color: #fff;
 }
 
-/* Hide Google Translate banner */
+/* ========== GOOGLE TRANSLATE FIXES ========== */
+
+/* Hide the top banner bar */
 .goog-te-banner-frame {
   display: none !important;
 }
 
+/* Remove the 40px padding Google adds */
 body {
   top: 0 !important;
+  position: static !important;
 }
 
-/* Hide Google Translate element */
-#goog-gt-tt, .goog-te-balloon-frame, #goog-gt-tt, .goog-tooltip, .goog-tooltip:hover {
+/* Hide tooltips and popups */
+#goog-gt-tt, .goog-tooltip, .goog-tooltip:hover,
+.goog-te-balloon-frame, .goog-te-menu-value,
+.goog-te-gadget, .goog-te-gadget-simple {
   display: none !important;
 }
 
+/* Remove text highlight background */
 .goog-text-highlight {
   background: none !important;
   box-shadow: none !important;
-    }
+}
+
+/* Reset margins */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+    
     
   </style>
   </head>
