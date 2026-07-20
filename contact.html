@@ -6,9 +6,6 @@
   <title>Contact Support — SmartInvest</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Your existing stuff (keep everything) -->
-  
-  <!-- ADD THESE 2 LINES (put them near the bottom of <head>) -->
   <script src="translations/lang.js"></script>
   <script src="js/translator.js"></script>
   
@@ -31,7 +28,6 @@
       justify-content: center;
     }
 
-    /* Background particles */
     .particles {
       position: fixed;
       top: 0;
@@ -99,7 +95,6 @@
       font-size: 14px;
     }
 
-    /* WHATSAPP ICON - PULSE ANIMATION KEPT */
     .whatsapp-icon {
       width: 80px;
       height: 80px;
@@ -259,28 +254,27 @@
         width: 100%;
       }
     }
+
     .lang-switcher {
-  position: fixed;
-  top: 15px;
-  right: 15px;
-  z-index: 1000;
-}
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      z-index: 1000;
+    }
 
-.lang-switcher select {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  font-size: 14px;
-  background: white;
-  cursor: pointer;
-}
+    .lang-switcher select {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+      background: white;
+      cursor: pointer;
+    }
 
-/* For Arabic/Persian (RTL) - moves switcher to left */
-html[dir="rtl"] .lang-switcher {
-  right: auto;
-  left: 15px;
-}
-    
+    html[dir="rtl"] .lang-switcher {
+      right: auto;
+      left: 15px;
+    }
   </style>
 </head>
 
@@ -316,26 +310,26 @@ html[dir="rtl"] .lang-switcher {
 
   <div class="contact-card">
 
-    <h2>📞 Customer Support</h2>
-    <p class="subtitle">We're here to help you 24/7</p>
+    <h2 data-i18n="support_title">📞 Customer Support</h2>
+    <p class="subtitle" data-i18n="support_subtitle">We're here to help you 24/7</p>
 
     <div class="whatsapp-icon">💬</div>
 
-    <div class="availability">Available Now</div>
+    <div class="availability" data-i18n="support_available">Available Now</div>
 
     <div class="phone-number">+44 7393 659737</div>
 
     <div class="info-box">
-      <p>💡 Click the button below to chat with us directly on WhatsApp. We typically respond within minutes.</p>
+      <p data-i18n="support_info">💡 Click the button below to chat with us directly on WhatsApp. We typically respond within minutes.</p>
     </div>
 
-    <button class="whatsapp-btn" onclick="openWhatsApp()">
+    <button class="whatsapp-btn" onclick="openWhatsApp()" data-i18n="support_chat_btn">
       💬 Chat on WhatsApp
     </button>
 
     <div class="nav-buttons">
-      <button class="nav-btn" onclick="goHome()">🏠 Home</button>
-      <button class="nav-btn" onclick="goBack()">⬅ Dashboard</button>
+      <button class="nav-btn" onclick="goHome()" data-i18n="nav_home">🏠 Home</button>
+      <button class="nav-btn" onclick="goBack()" data-i18n="nav_dashboard">⬅ Dashboard</button>
     </div>
 
   </div>
@@ -345,13 +339,8 @@ html[dir="rtl"] .lang-switcher {
 <script>
 function openWhatsApp() {
   let number = "447393659737";
-
-  let message = encodeURIComponent(
-    "Hello SmartInvest Support, I need help with my account."
-  );
-
+  let message = encodeURIComponent("Hello SmartInvest Support, I need help with my account.");
   let url = `https://wa.me/${number}?text=${message}`;
-
   window.open(url, "_blank");
 }
 
@@ -366,3 +355,4 @@ function goBack() {
 
 </body>
 </html>
+
