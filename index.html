@@ -6,32 +6,7 @@
   <title>SmartInvest</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<script>
-// Language redirect function - ALWAYS works
-function changeLanguage(lang) {
-  // Save choice
-  localStorage.setItem('si_lang', lang);
-  
-  // Get current page URL
-  var currentUrl = window.location.href;
-  
-  if (lang === 'en') {
-    // English = just reload current page
-    window.location.href = currentUrl;
-    return;
-  }
-  
-  // For other languages, redirect to Google Translate
-  // This opens your site translated by Google
-  var translateUrl = 'https://translate.google.com/translate?sl=en&tl=' + lang + '&u=' + encodeURIComponent(currentUrl);
-  
-  // Open in same tab
-  window.location.href = translateUrl;
-}
-</script>
-  
-  
-  
+∆  
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
@@ -287,36 +262,36 @@ function changeLanguage(lang) {
   color: #fff;
 }
 
-/* ========== GOOGLE TRANSLATE FIXES ========== */
-
-/* Hide the top banner bar */
-.goog-te-banner-frame {
+/* ========== FORCE HIDE GOOGLE TRANSLATE BAR ========== */
+.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate,
+.goog-te-gadget,
+.goog-te-gadget-simple,
+.goog-te-menu-value,
+.goog-te-balloon-frame,
+#goog-gt-tt,
+.goog-tooltip,
+.goog-tooltip:hover {
   display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  overflow: hidden !important;
 }
 
-/* Remove the 40px padding Google adds */
+/* Force body back to top */
+body.goog-te-banner,
 body {
   top: 0 !important;
-  position: static !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
 }
 
-/* Hide tooltips and popups */
-#goog-gt-tt, .goog-tooltip, .goog-tooltip:hover,
-.goog-te-balloon-frame, .goog-te-menu-value,
-.goog-te-gadget, .goog-te-gadget-simple {
+/* Hide the "Translation" dropdown in top right */
+.VIpgJd-ZVi9kd-INgbqf-LgbsSe,
+.VIpgJd-ZVi9kd-INgbqf {
   display: none !important;
-}
-
-/* Remove text highlight background */
-.goog-text-highlight {
-  background: none !important;
-  box-shadow: none !important;
-}
-
-/* Reset margins */
-html, body {
-  margin: 0 !important;
-  padding: 0 !important;
 }
     
     
@@ -541,6 +516,33 @@ html, body {
   <a href="terms.html"><i class="fas fa-file-alt"></i><span>Terms</span></a>
   <a href="login.html"><i class="fas fa-user"></i><span>Account</span></a>
   </div>
+  <script>
+// Force hide Google Translate bar
+function hideGoogleBar() {
+  var bar = document.querySelector('.goog-te-banner-frame');
+  if (bar) {
+    bar.style.display = 'none';
+    document.body.style.top = '0px';
+    document.body.style.position = 'static';
+  }
+  
+  // Also hide the gadget
+  var gadget = document.querySelector('.goog-te-gadget');
+  if (gadget) gadget.style.display = 'none';
+  
+  // Hide the menu value
+  var menu = document.querySelector('.goog-te-menu-value');
+  if (menu) menu.style.display = 'none';
+}
+
+// Run immediately and keep checking
+hideGoogleBar();
+setInterval(hideGoogleBar, 100);
+
+// Also run after page loads
+window.addEventListener('load', hideGoogleBar);
+  </script>
+  
   <script>
   // ===== REDIRECT FUNCTIONS =====
   function goLogin(plan = null) {
