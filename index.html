@@ -230,21 +230,7 @@
 }
 .sideBar button:hover { background: var(--gold); color: #0c0c14; }
 
-iframe.goog-te-banner-frame,
-.goog-te-banner-frame,
-.goog-te-gadget,
-.goog-te-menu-value,
-#goog-gt-tt,
-.goog-tooltip,
-.VIpgJd-ZVi9kd-INgbqf {
-  display: none !important;
-  visibility: hidden !important;
-}
-body {
-  top: 0 !important;
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-}
+
 
   
     
@@ -252,18 +238,6 @@ body {
   </head>
 <body> 
 
-  <div class="lang-switcher">
-  <select onchange="changeLanguage(this.value)">
-    <option value="en">🇺🇸 English</option>
-    <option value="ar">🇸🇦 العربية</option>
-    <option value="fa">🇮🇷 فارسی</option>
-    <option value="es">🇪🇸 Español</option>
-    <option value="de">🇩🇪 Deutsch</option>
-    <option value="it">🇮🇹 Italiano</option>
-    <option value="ms">🇲🇾 Melayu</option>
-    <option value="tr">🇹🇷 Türkçe</option>
-  </select>
-  </div>
   
   <!-- MENU BUTTON -->
 <div class="menuBtn" onclick="toggleSidebar()">☰</div>
@@ -621,26 +595,6 @@ body {
 
   setInterval(showLiveProfit, 2500);
 </script>
-  <script>
-function changeLanguage(lang) {
-  localStorage.setItem('si_lang', lang);
-  if (lang === 'en') {
-    location.reload();
-    return;
-  }
-  window.location.href = 'https://translate.google.com/translate?sl=en&tl=' + lang + '&u=' + encodeURIComponent(window.location.href);
-}
-
-// Hide Google bar
-setInterval(function(){
-  var b = document.querySelector('.goog-te-banner-frame');
-  if(b) { b.style.display='none'; document.body.style.top='0'; }
-  document.querySelectorAll('.goog-te-gadget, .goog-te-menu-value').forEach(function(el){
-    el.style.display='none';
-  });
-}, 100);
-  </script>
-  
   
 </body>
 </html>
