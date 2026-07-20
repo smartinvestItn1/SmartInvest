@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script>
+// Load Google Translate
 function googleTranslateElementInit() {
   new google.translate.TranslateElement({
     pageLanguage: 'en',
@@ -16,26 +17,46 @@ function googleTranslateElementInit() {
   }, 'google_translate_element');
 }
 
-function changeLanguage(lang) {
-  var select = document.querySelector('.goog-te-combo');
-  if (select) {
-    select.value = lang;
-    select.dispatchEvent(new Event('change'));
-  } else {
-    // If Google Translate isn't loaded yet, wait and try again
-    setTimeout(function() {
-      changeLanguage(lang);
-    }, 500);
-  }
-}
-
-// Load Google Translate script
+// Load the Google Translate script
 (function() {
   var script = document.createElement('script');
-  script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+  script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+  script.async = true;
   document.head.appendChild(script);
 })();
+
+// Change language function
+function changeLanguage(lang) {
+  // Save choice
+  localStorage.setItem('si_lang', lang);
+  
+  // If English, reload page to clear translation
+  if (lang === 'en') {
+    location.reload();
+    return;
+  }
+  
+  // Try to find and change the Google Translate dropdown
+  var tryChange = function(attempts) {
+    var select = document.querySelector('.goog-te-combo');
+    if (select) {
+      select.value = lang;
+      select.dispatchEvent(new Event('change'));
+      console.log('Language changed to: ' + lang);
+    } else if (attempts > 0) {
+      // Try again in 500ms
+      setTimeout(function() {
+        tryChange(attempts - 1);
+      }, 500);
+    } else {
+      console.log('Google Translate not loaded yet');
+    }
+  };
+  
+  tryChange(20); // Try for 10 seconds
+}
   </script>
+  
   
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
