@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard — SmartInvest</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
+<script src="translations/lang.js"></script>
+<script src="js/translator.js"></script>
+ 
   <style>
     * {
       margin: 0;
@@ -537,6 +539,20 @@
 </head>
 <body>
 
+<!-- Language Switcher -->
+<div class="lang-switcher">
+  <select id="lang-select" onchange="setLanguage(this.value)">
+    <option value="en">🇺🇸 English</option>
+    <option value="ar">🇸🇦 العربية</option>
+    <option value="fa">🇮🇷 فارسی</option>
+    <option value="es">🇪🇸 Español</option>
+    <option value="de">🇩🇪 Deutsch</option>
+    <option value="it">🇮🇹 Italiano</option>
+    <option value="ms">🇲🇾 Melayu</option>
+    <option value="tr">🇹🇷 Türkçe</option>
+  </select>
+</div>
+
 <!-- TOP NAV -->
 <div class="top-nav">
   <div class="logo">SmartInvest</div>
@@ -554,7 +570,7 @@
 
 <!-- BALANCE CARD -->
 <div class="balance-card">
-  <div class="balance-label">Total Balance</div>
+  <div class="balance-label" data-i18n="dash_balance_label">Total Balance</div>
   <div class="balance-row">
     <div class="balance-amount" id="balanceDisplay">****</div>
     <button class="toggle-balance" onclick="toggleBalance()" title="Show/Hide Balance">
@@ -569,7 +585,7 @@
 <!-- REFERRAL LINK CARD -->
 <div style="background: rgba(25, 25, 40, 0.6); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 16px; padding: 14px 16px; margin: 0 16px 16px; display: flex; align-items: center; gap: 10px;">
   <input id="dashRefLink" style="flex: 1; background: rgba(10, 10, 20, 0.8); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 10px 12px; color: #e8e8ec; font-size: 12px; font-family: 'Courier New', monospace; outline: none;" type="text" readonly value="Loading..."/>
-  <button onclick="copyDashRefLink()" style="background: linear-gradient(135deg, #ffbb33, #ff8800); color: #0a0a14; border: none; border-radius: 10px; padding: 10px 16px; font-weight: 700; font-size: 12px; cursor: pointer;">COPY</button>
+  <button onclick="copyDashRefLink()" style="background: linear-gradient(135deg, #ffbb33, #ff8800); color: #0a0a14; border: none; border-radius: 10px; padding: 10px 16px; font-weight: 700; font-size: 12px; cursor: pointer;" data-i18n="btn_copy">COPY</button>
 </div>
 
 <!-- STATUS BANNER -->
@@ -577,7 +593,7 @@
 
 <!-- INVEST STATUS -->
 <div class="invest-status-bar">
-  <p>Investment Status</p>
+  <p data-i18n="dash_invest_status">Investment Status</p>
   <span id="investStatus">Loading...</span>
 </div>
 
@@ -585,19 +601,19 @@
 <div class="actions-grid">
   <button class="action-item" onclick="goDeposit()">
     <div class="action-icon deposit">💰</div>
-    <span class="action-label">Deposit</span>
+    <span class="action-label" data-i18n="nav_deposit">Deposit</span>
   </button>
   <button class="action-item" id="withdrawBtn" onclick="goWithdraw()">
     <div class="action-icon withdraw">🏧</div>
-    <span class="action-label">Withdraw</span>
+    <span class="action-label" data-i18n="nav_withdraw">Withdraw</span>
   </button>
   <button class="action-item" id="transferBtn" onclick="goTransfer()">
     <div class="action-icon transfer">💸</div>
-    <span class="action-label">Transfer</span>
+    <span class="action-label" data-i18n="dash_transfer">Transfer</span>
   </button>
   <button class="action-item" id="investBtn" onclick="goInvestPage()">
     <div class="action-icon invest">📈</div>
-    <span class="action-label">Invest</span>
+    <span class="action-label" data-i18n="nav_invest">Invest</span>
   </button>
 </div>
 
@@ -606,58 +622,58 @@
   <div style="display: flex; align-items: center; gap: 12px;">
     <div style="width: 44px; height: 44px; background: rgba(255,187,51,0.15); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px;">🎁</div>
     <div>
-      <div style="font-size: 14px; font-weight: 700; color: #fff;">Refer & Earn</div>
-      <div style="font-size: 12px; color: #8888a0;">Get <span style="color: #ffbb33; font-weight: 600;">$10</span> per friend invited</div>
+      <div style="font-size: 14px; font-weight: 700; color: #fff;" data-i18n="referral_title">Refer & Earn</div>
+      <div style="font-size: 12px; color: #8888a0;" data-i18n="referral_subtitle">Get <span style="color: #ffbb33; font-weight: 600;">$10</span> per friend invited</div>
     </div>
   </div>
   <div style="color: #ffbb33; font-size: 20px;">→</div>
 </div>
 
 <!-- PLANS SECTION -->
-<div class="section-title"><span>🔥</span> Investment Plans</div>
+<div class="section-title"><span>🔥</span> <span data-i18n="invest_title">Investment Plans</span></div>
 <div class="plans-row">
   <div class="plan-card">
-    <h3>Starter</h3>
+    <h3 data-i18n="invest_plan_starter">Starter</h3>
     <div class="plan-profit">10%</div>
-    <div class="plan-detail">48 hours</div>
-    <div class="plan-min">Min $100</div>
+    <div class="plan-detail" data-i18n="invest_plan_starter_time">48 hours</div>
+    <div class="plan-min" data-i18n="invest_plan_starter_range">Min $100</div>
   </div>
   <div class="plan-card">
-    <h3>Pro</h3>
+    <h3 data-i18n="invest_plan_pro">Pro</h3>
     <div class="plan-profit">20%</div>
-    <div class="plan-detail">96 hours</div>
-    <div class="plan-min">Min $1,000</div>
+    <div class="plan-detail" data-i18n="invest_plan_pro_time">96 hours</div>
+    <div class="plan-min" data-i18n="invest_plan_pro_range">Min $1,000</div>
   </div>
   <div class="plan-card">
-    <h3>Premium</h3>
+    <h3 data-i18n="invest_plan_premium">Premium</h3>
     <div class="plan-profit">40%</div>
-    <div class="plan-detail">120 hours</div>
-    <div class="plan-min">Min $5,000</div>
+    <div class="plan-detail" data-i18n="invest_plan_premium_time">120 hours</div>
+    <div class="plan-min" data-i18n="invest_plan_premium_range">Min $5,000</div>
   </div>
 </div>
 
 <!-- PENDING INFO -->
-<div class="section-title"><span>⏳</span> Pending</div>
+<div class="section-title"><span>⏳</span> <span data-i18n="dash_pending">Pending</span></div>
 <div class="info-grid">
   <div class="info-card">
-    <h4>Pending Deposit</h4>
+    <h4 data-i18n="dash_pending_deposit">Pending Deposit</h4>
     <div class="value green">$<span id="pendingDeposit">0.00</span></div>
   </div>
   <div class="info-card">
-    <h4>Pending Withdraw</h4>
+    <h4 data-i18n="dash_pending_withdraw">Pending Withdraw</h4>
     <div class="value red">$<span id="pendingWithdraw">0.00</span></div>
   </div>
 </div>
 
 <!-- ACCOUNT DETAILS -->
 <div class="details-card">
-  <h4>Account Details</h4>
+  <h4 data-i18n="dash_account_details">Account Details</h4>
   <div class="detail-row">
-    <span>Account ID</span>
+    <span data-i18n="dash_account_id">Account ID</span>
     <span id="accountIdDisplay">—</span>
   </div>
   <div class="detail-row">
-    <span>Current Plan</span>
+    <span data-i18n="profile_plan">Current Plan</span>
     <span id="planType">None</span>
   </div>
 </div>
@@ -668,39 +684,39 @@
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
       <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
     </svg>
-    Home
+    <span data-i18n="nav_home">Home</span>
   </button>
   <button onclick="goHistory()">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
       <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
-    History
+    <span data-i18n="nav_history">History</span>
   </button>
   <button onclick="window.location.href='referral.html'">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
       <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
     </svg>
-    Refer
+    <span data-i18n="nav_referral">Refer</span>
   </button>
   <button onclick="goSupport()">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
       <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
     </svg>
-    Support
+    <span data-i18n="nav_support">Support</span>
   </button>
   <button onclick="logout()">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
       <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
     </svg>
-    Logout
+    <span data-i18n="nav_logout">Logout</span>
   </button>
 </div>
 
 <!-- LOGOUT OVERLAY -->
 <div id="logoutOverlay" class="logout-overlay">
   <div class="loader"></div>
-  <p>Logging out...</p>
-  </div>
+  <p data-i18n="dash_logging_out">Logging out...</p>
+</div>
    <script type="module">
   import { auth, db } from "./firebase.js";
   import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
