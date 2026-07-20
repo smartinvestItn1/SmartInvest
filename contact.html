@@ -6,7 +6,12 @@
   <title>Contact Support — SmartInvest</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
+  <!-- Your existing stuff (keep everything) -->
+  
+  <!-- ADD THESE 2 LINES (put them near the bottom of <head>) -->
+  <script src="translations/lang.js"></script>
+  <script src="js/translator.js"></script>
+  
   <style>
     * {
       margin: 0;
@@ -254,11 +259,47 @@
         width: 100%;
       }
     }
+    .lang-switcher {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  z-index: 1000;
+}
+
+.lang-switcher select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+}
+
+/* For Arabic/Persian (RTL) - moves switcher to left */
+html[dir="rtl"] .lang-switcher {
+  right: auto;
+  left: 15px;
+}
+    
   </style>
 </head>
 
 <body>
-
+  
+<!-- Language Switcher -->
+<div class="lang-switcher">
+  <select id="lang-select" onchange="setLanguage(this.value)">
+    <option value="en">🇺🇸 English</option>
+    <option value="ar">🇸🇦 العربية</option>
+    <option value="fa">🇮🇷 فارسی</option>
+    <option value="es">🇪🇸 Español</option>
+    <option value="de">🇩🇪 Deutsch</option>
+    <option value="it">🇮🇹 Italiano</option>
+    <option value="ms">🇲🇾 Melayu</option>
+    <option value="tr">🇹🇷 Türkçe</option>
+  </select>
+</div>
+  
 <!-- Background Particles -->
 <div class="particles">
   <div class="particle"></div>
