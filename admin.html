@@ -262,6 +262,29 @@
       box-shadow: 0 0 30px rgba(255, 68, 68, 0.35);
     }
 
+    /* ===== TRANSFER TOGGLE - ORANGE GLOW ===== */
+    .toggle-btn.transfer-on {
+      background: rgba(255, 187, 51, 0.15);
+      color: #ffbb33;
+      border-color: rgba(255, 187, 51, 0.4);
+      box-shadow: 0 0 20px rgba(255, 187, 51, 0.2);
+    }
+
+    .toggle-btn.transfer-on:hover {
+      box-shadow: 0 0 30px rgba(255, 187, 51, 0.35);
+    }
+
+    .toggle-btn.transfer-off {
+      background: rgba(255, 68, 68, 0.15);
+      color: #ff4444;
+      border-color: rgba(255, 68, 68, 0.4);
+      box-shadow: 0 0 20px rgba(255, 68, 68, 0.2);
+    }
+
+    .toggle-btn.transfer-off:hover {
+      box-shadow: 0 0 30px rgba(255, 68, 68, 0.35);
+    }
+
     /* ===== DEPOSIT / WITHDRAW CARDS - GLASS ===== */
     .deposit-card, .withdraw-card {
       background: rgba(15, 15, 30, 0.5);
@@ -309,7 +332,7 @@
       border: 1px solid rgba(255, 68, 68, 0.3);
     }
 
-    /* ===== ACTION BUTTONS - GLASS GLOWING (like deposit/withdraw/transfer/invest) ===== */
+    /* ===== ACTION BUTTONS - GLASS GLOWING ===== */
     .action-btn {
       padding: 12px 22px;
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -448,6 +471,28 @@
         padding: 20px;
       }
     }
+    /* ===== TRANSFER TOGGLE - ORANGE GLOW ===== */
+.toggle-btn.transfer-on {
+  background: rgba(255, 187, 51, 0.15);
+  color: #ffbb33;
+  border-color: rgba(255, 187, 51, 0.4);
+  box-shadow: 0 0 20px rgba(255, 187, 51, 0.2);
+}
+
+.toggle-btn.transfer-on:hover {
+  box-shadow: 0 0 30px rgba(255, 187, 51, 0.35);
+}
+
+.toggle-btn.transfer-off {
+  background: rgba(255, 68, 68, 0.15);
+  color: #ff4444;
+  border-color: rgba(255, 68, 68, 0.4);
+  box-shadow: 0 0 20px rgba(255, 68, 68, 0.2);
+}
+
+.toggle-btn.transfer-off:hover {
+  box-shadow: 0 0 30px rgba(255, 68, 68, 0.35);
+}
   </style>
 </head>
 
@@ -469,10 +514,22 @@
     </div>
   </div>
 
-  <!-- USER CONTROL (NEW!) -->
+  <!-- USER CONTROL -->
   <div class="section-card">
     <h3>👥 User Control</h3>
-    <input id="searchUser" class="search-box" placeholder="Search users by username..." onkeyup="loadUsers()">
+
+    <!-- Search -->
+    <input id="searchUser" class="search-box" placeholder="Search users by username or email..." onkeyup="loadUsers()">
+
+    <!-- Filter Tabs for Users -->
+    <div class="filter-tabs" id="userFilterTabs">
+      <button class="filter-tab active" onclick="setUserFilter('all')">All Users</button>
+      <button class="filter-tab" onclick="setUserFilter('active')">Active</button>
+      <button class="filter-tab" onclick="setUserFilter('blocked')">Blocked</button>
+      <button class="filter-tab" onclick="setUserFilter('transferBlocked')">Transfer Blocked</button>
+    </div>
+
+    <!-- Users List -->
     <div id="usersList">
       <p class="no-data">Loading users...</p>
     </div>
@@ -513,7 +570,6 @@
       <p class="no-data">Loading investments...</p>
     </div>
   </div>
-
 </div>
 <script type="module">
 /////////////////////////////////////////////////////
@@ -530,14 +586,14 @@ onAuthStateChanged(auth, (user) => {
     window.location.href = "login.html";
     return;
   }
-  
+
   const role = sessionStorage.getItem("role");
   if (role !== "admin") {
     alert("Access denied. Admins only.");
     window.location.href = "dashboard.html";
     return;
   }
-  
+
   loadData();
 });
 
@@ -553,6 +609,9 @@ let investments = [];
 let filterStatus = "all";
 let withdrawFilterStatus = "all";
 
+// ✅ NEW: User filter status
+let userFilterStatus = "all";
+
 /////////////////////////////////////////////////////
 // LOAD DATA - EXACTLY AS YOU HAD IT
 /////////////////////////////////////////////////////
@@ -567,7 +626,7 @@ async function loadData() {
         users.push({ username: childSnap.key, ...childSnap.val() });
       });
     }
-    
+
     // Load deposits
     const depSnap = await get(ref(db, 'deposits'));
     deposits = [];
@@ -576,7 +635,7 @@ async function loadData() {
         deposits.push({ id: childSnap.key, ...childSnap.val() });
       });
     }
-    
+
     // Load withdrawals
     const witSnap = await get(ref(db, 'withdrawals'));
     withdrawals = [];
@@ -585,7 +644,7 @@ async function loadData() {
         withdrawals.push({ id: childSnap.key, ...childSnap.val() });
       });
     }
-    
+
     // Load investments
     const invSnap = await get(ref(db, 'investments'));
     investments = [];
@@ -594,7 +653,7 @@ async function loadData() {
         investments.push({ id: childSnap.key, ...childSnap.val() });
       });
     }
-    
+
     renderAll();
   } catch (error) {
     console.error("Load error:", error);
@@ -610,12 +669,26 @@ function loadUsers() {
   let search = document.getElementById("searchUser").value.toLowerCase();
   let filtered = users.filter(u => (u.username || "").toLowerCase().includes(search));
 
+  // ✅ NEW: Apply user status filter
+  if (userFilterStatus !== "all") {
+    filtered = filtered.filter(u => {
+      let f = u.adminFlags || { canInvest: true, canWithdraw: true, canTransfer: true };
+      let isBlocked = f.canInvest === false || f.canWithdraw === false || f.canTransfer === false;
+      let isTransferBlocked = f.canTransfer === false;
+
+      if (userFilterStatus === "active") return !isBlocked;
+      if (userFilterStatus === "blocked") return isBlocked;
+      if (userFilterStatus === "transferBlocked") return isTransferBlocked;
+      return true;
+    });
+  }
+
   document.getElementById("usersList").innerHTML =
     filtered.length === 0 ? '<p class="no-data">No users found.</p>' :
     filtered.map(u => {
-      // Get admin flags or default
-      let flags = u.adminFlags || { canInvest: true, canWithdraw: true, blockReason: "" };
-      
+      // Get admin flags or default — ✅ NEW: added canTransfer
+      let flags = u.adminFlags || { canInvest: true, canWithdraw: true, canTransfer: true, blockReason: "" };
+
       return `
       <div class="user-card">
         <h4>👤 ${u.username}</h4>
@@ -624,21 +697,27 @@ function loadUsers() {
         <p>🏷️ Role: ${u.role || 'user'}</p>
         <p>🆔 Account ID: ${u.accountId || 'N/A'}</p>
         <p>💼 Wallet: ${u.wallet ? '<span class="wallet-address">' + u.wallet + '</span>' : '<span style="color:#ff4444;">❌ Not set</span>'}</p>
-        
+
         <div class="toggle-row">
           <button class="toggle-btn ${flags.canInvest !== false ? 'enabled' : 'disabled'}" 
             onclick="toggleInvest('${u.username}', ${flags.canInvest !== false})">
             ${flags.canInvest !== false ? '✅ Invest ON' : '❌ Invest OFF'}
           </button>
-          
+
           <button class="toggle-btn ${flags.canWithdraw !== false ? 'enabled' : 'disabled'}" 
             onclick="toggleWithdraw('${u.username}', ${flags.canWithdraw !== false})">
             ${flags.canWithdraw !== false ? '✅ Withdraw ON' : '❌ Withdraw OFF'}
           </button>
+
+          <!-- ✅ NEW: Transfer toggle button -->
+          <button class="toggle-btn ${flags.canTransfer !== false ? 'transfer-on' : 'transfer-off'}" 
+            onclick="toggleTransfer('${u.username}', ${flags.canTransfer !== false})">
+            ${flags.canTransfer !== false ? '✅ Transfer ON' : '❌ Transfer OFF'}
+          </button>
         </div>
-        
+
         ${flags.blockReason ? `<p style="color:#ff4444; margin-top:10px;">📝 Reason: ${flags.blockReason}</p>` : ''}
-        
+
         <div style="margin-top:15px;">
           <input type="text" id="blockReason_${u.username}" placeholder="Block reason (optional)" 
             style="padding:8px; border-radius:5px; border:1px solid #333; background:#0f3460; color:white; width:200px;">
@@ -658,15 +737,15 @@ function loadUsers() {
 window.toggleInvest = async function(username, currentState) {
   let newState = !currentState;
   let reason = prompt(newState ? "Enable investing for " + username + "?" : "Disable investing for " + username + "?\n\nEnter reason (optional):");
-  
+
   if (reason === null) return; // Cancelled
-  
+
   try {
     await update(ref(db, 'users/' + username + '/adminFlags'), {
       canInvest: newState,
       blockReason: reason || ""
     });
-    
+
     alert(newState ? `✅ Investing enabled for ${username}` : `❌ Investing disabled for ${username}`);
     loadData();
   } catch (error) {
@@ -681,16 +760,39 @@ window.toggleInvest = async function(username, currentState) {
 window.toggleWithdraw = async function(username, currentState) {
   let newState = !currentState;
   let reason = prompt(newState ? "Enable withdrawal for " + username + "?" : "Disable withdrawal for " + username + "?\n\nEnter reason (optional):");
-  
+
   if (reason === null) return; // Cancelled
-  
+
   try {
     await update(ref(db, 'users/' + username + '/adminFlags'), {
       canWithdraw: newState,
       blockReason: reason || ""
     });
-    
+
     alert(newState ? `✅ Withdrawal enabled for ${username}` : `❌ Withdrawal disabled for ${username}`);
+    loadData();
+  } catch (error) {
+    alert("Error: " + error.message);
+  }
+};
+
+/////////////////////////////////////////////////////
+// ✅ NEW: TOGGLE TRANSFER
+/////////////////////////////////////////////////////
+
+window.toggleTransfer = async function(username, currentState) {
+  let newState = !currentState;
+  let reason = prompt(newState ? "Enable transfers for " + username + "?" : "Disable transfers for " + username + "?\n\nEnter reason (optional):");
+
+  if (reason === null) return; // Cancelled
+
+  try {
+    await update(ref(db, 'users/' + username + '/adminFlags'), {
+      canTransfer: newState,
+      blockReason: reason || ""
+    });
+
+    alert(newState ? `✅ Transfers enabled for ${username}` : `❌ Transfers disabled for ${username}`);
     loadData();
   } catch (error) {
     alert("Error: " + error.message);
@@ -703,12 +805,12 @@ window.toggleWithdraw = async function(username, currentState) {
 
 window.saveBlockReason = async function(username) {
   let reason = document.getElementById('blockReason_' + username).value;
-  
+
   try {
     await update(ref(db, 'users/' + username + '/adminFlags'), {
       blockReason: reason
     });
-    
+
     alert(`✅ Block reason saved for ${username}`);
     loadData();
   } catch (error) {
@@ -732,7 +834,7 @@ function loadDeposits() {
         <p><b>🪙 Coin:</b> ${d.coin}</p>
         <p><b>📊 Status:</b> <span class="status-badge ${d.status}">${d.status.toUpperCase()}</span></p>
         <p><b>📅 Time:</b> ${new Date(d.time).toLocaleString()}</p>
-        
+
         ${d.status === "pending" ? `
           <button class="action-btn approve-btn" onclick="approveDeposit('${d.id}', '${d.user}', ${d.amount})">✅ Approve</button>
           <button class="action-btn reject-btn" onclick="rejectDeposit('${d.id}')">❌ Reject</button>
@@ -747,25 +849,25 @@ function loadDeposits() {
 
 window.approveDeposit = async function(depositId, username, amount) {
   if (!confirm(`Approve deposit of $${amount} for ${username}?`)) return;
-  
+
   try {
     await update(ref(db, 'deposits/' + depositId), {
       status: "approved"
     });
-    
+
     const userSnap = await get(ref(db, 'users/' + username));
     if (userSnap.exists()) {
       let currentBalance = userSnap.val().balance || 0;
       let newBalance = currentBalance + Number(amount);
-      
+
       await update(ref(db, 'users/' + username), {
         balance: newBalance
       });
     }
-    
+
     alert(`✅ Deposit approved! $${amount} added to ${username}'s balance.`);
     loadData();
-    
+
   } catch (error) {
     alert("Error approving deposit: " + error.message);
     console.error(error);
@@ -778,15 +880,15 @@ window.approveDeposit = async function(depositId, username, amount) {
 
 window.rejectDeposit = async function(depositId) {
   if (!confirm("Reject this deposit?")) return;
-  
+
   try {
     await update(ref(db, 'deposits/' + depositId), {
       status: "rejected"
     });
-    
+
     alert("❌ Deposit rejected.");
     loadData();
-    
+
   } catch (error) {
     alert("Error rejecting deposit: " + error.message);
     console.error(error);
@@ -810,7 +912,7 @@ function loadWithdrawals() {
         <p><b>💼 Wallet:</b> <span class="wallet-address">${w.wallet}</span></p>
         <p><b>📊 Status:</b> <span class="status-badge ${w.status}">${w.status.toUpperCase()}</span></p>
         <p><b>📅 Time:</b> ${new Date(w.time).toLocaleString()}</p>
-        
+
         ${w.status === "pending" ? `
           <button class="action-btn approve-btn" onclick="approveWithdraw('${w.id}', '${w.user}', ${w.amount})">✅ Approve</button>
           <button class="action-btn reject-btn" onclick="rejectWithdraw('${w.id}', '${w.user}', ${w.amount})">❌ Reject</button>
@@ -825,16 +927,16 @@ function loadWithdrawals() {
 
 window.approveWithdraw = async function(withdrawId, username, amount) {
   if (!confirm(`Approve withdrawal of $${amount} for ${username}?`)) return;
-  
+
   try {
     // Just mark as approved — balance was ALREADY deducted on withdrawal page
     await update(ref(db, 'withdrawals/' + withdrawId), {
       status: "approved"
     });
-    
+
     alert(`✅ Withdrawal approved! $${amount} was already deducted from ${username}'s balance.`);
     loadData();
-    
+
   } catch (error) {
     alert("Error approving withdrawal: " + error.message);
     console.error(error);
@@ -847,27 +949,27 @@ window.approveWithdraw = async function(withdrawId, username, amount) {
 
 window.rejectWithdraw = async function(withdrawId, username, amount) {
   if (!confirm("Reject this withdrawal? The amount will be refunded to the user.")) return;
-  
+
   try {
     // Mark as rejected
     await update(ref(db, 'withdrawals/' + withdrawId), {
       status: "rejected"
     });
-    
+
     // REFUND: Add the amount back to user's balance
     const userSnap = await get(ref(db, 'users/' + username));
     if (userSnap.exists()) {
       let currentBalance = userSnap.val().balance || 0;
       let newBalance = currentBalance + Number(amount);
-      
+
       await update(ref(db, 'users/' + username), {
         balance: newBalance
       });
     }
-    
+
     alert(`❌ Withdrawal rejected. $${amount} has been refunded to ${username}'s balance.`);
     loadData();
-    
+
   } catch (error) {
     alert("Error rejecting withdrawal: " + error.message);
     console.error(error);
@@ -896,7 +998,8 @@ function loadInvestments() {
       </div>
     `).join("");
 }
-  /////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////
 // NOTIFICATIONS (NEW!)
 /////////////////////////////////////////////////////
 
@@ -933,19 +1036,19 @@ function loadNotifications() {
 
   document.getElementById("notifications").innerHTML = notifHTML;
 }
-  ///////////////////////////////////////////////////////
-// FILTERS - EXACTLY AS YOU HAD IT
+
+/////////////////////////////////////////////////////
+// FILTERS - EXACTLY AS YOU HAD IT (with fix for multiple tab groups)
 /////////////////////////////////////////////////////
 
 function setFilter(status) {
   filterStatus = status;
 
-  // Update active tab
-  document.querySelectorAll('.filter-tabs')[0]
-    .querySelectorAll('.filter-tab')
-    .forEach(tab => {
-      tab.classList.remove('active');
-    });
+  // ✅ FIXED: Use closest parent instead of index (so user tabs don't break this)
+  let container = event.target.closest('.filter-tabs');
+  container.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
 
   event.target.classList.add('active');
 
@@ -955,18 +1058,32 @@ function setFilter(status) {
 function setWithdrawFilter(status) {
   withdrawFilterStatus = status;
 
-  // Update active tab
-  document.querySelectorAll('.filter-tabs')[1]
-    .querySelectorAll('.filter-tab')
-    .forEach(tab => {
-      tab.classList.remove('active');
-    });
+  // ✅ FIXED: Use closest parent instead of index
+  let container = event.target.closest('.filter-tabs');
+  container.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
 
   event.target.classList.add('active');
 
   loadWithdrawals();
-  }
-  /////////////////////////////////////////////////////
+}
+
+// ✅ NEW: User filter function
+function setUserFilter(status) {
+  userFilterStatus = status;
+
+  let container = event.target.closest('.filter-tabs');
+  container.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
+
+  event.target.classList.add('active');
+
+  loadUsers();
+}
+
+/////////////////////////////////////////////////////
 // LOGOUT
 /////////////////////////////////////////////////////
 
@@ -979,6 +1096,7 @@ async function logout() {
     console.error("Logout error:", error);
    }
   }
+
 /////////////////////////////////////////////////////
 // RENDER ALL
 /////////////////////////////////////////////////////
@@ -993,9 +1111,11 @@ function renderAll() {
 
 window.setFilter = setFilter;
 window.setWithdrawFilter = setWithdrawFilter;
-window.logout = logout;
 
-  </script>
-  
+// ✅ NEW: Expose user filter & transfer toggle to window
+window.setUserFilter = setUserFilter;
+window.toggleTransfer = toggleTransfer;
+
+</script>
 </body>
 </html>
