@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -11,6 +11,7 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      font-weight: 700 !important;
     }
 
     body {
@@ -19,6 +20,7 @@
       font-family: 'Inter', 'Segoe UI', sans-serif;
       min-height: 100vh;
       padding-bottom: 80px;
+      font-weight: 700;
     }
 
     /* ===== TOP NAV ===== */
@@ -662,6 +664,25 @@
   </div>
 </div>
 
+<!-- IFRAMES SECTION -->
+<div style="padding: 0 16px; margin-bottom: 100px;">
+  <div class="section-title"><span>🌐</span> <span>External Content</span></div>
+  <div style="display: grid; grid-template-columns: 1fr; gap: 16px;">
+    <iframe 
+      src="https://example.com" 
+      style="width: 100%; height: 300px; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; background: rgba(25,25,40,0.6);"
+      title="External Frame 1"
+      loading="lazy">
+    </iframe>
+    <iframe 
+      src="https://example.com" 
+      style="width: 100%; height: 300px; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; background: rgba(25,25,40,0.6);"
+      title="External Frame 2"
+      loading="lazy">
+    </iframe>
+  </div>
+</div>
+
 <!-- BOTTOM NAV -->
 <div class="bottom-nav">
   <button onclick="goHome()">
@@ -701,6 +722,7 @@
   <div class="loader"></div>
   <p data-i18n="dash_logging_out">Logging out...</p>
 </div>
+
    <script type="module">
   import { auth, db } from "./firebase.js";
   import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
