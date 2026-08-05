@@ -4,21 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login — SmartInvest</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #0a0a14;
+      background: #000000;
       color: #e8e8ec;
       font-family: 'Inter', 'Segoe UI', sans-serif;
+      font-weight: 700;
       min-height: 100vh;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 20px;
@@ -26,609 +24,572 @@
       overflow-x: hidden;
     }
 
-    /* Animated background glow */
     body::before {
       content: "";
       position: fixed;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle at 50% 50%, rgba(255, 187, 51, 0.03) 0%, transparent 50%),
-                  radial-gradient(circle at 20% 80%, rgba(255, 136, 0, 0.02) 0%, transparent 40%);
-      pointer-events: none;
-      z-index: 0;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle at 50% 50%, rgba(212, 160, 23, 0.03) 0%, transparent 50%),
+                  radial-gradient(circle at 20% 80%, rgba(255, 107, 0, 0.02) 0%, transparent 40%);
+      pointer-events: none; z-index: 0;
       animation: bgPulse 8s ease-in-out infinite;
     }
-
     @keyframes bgPulse {
       0%, 100% { transform: scale(1); opacity: 1; }
       50% { transform: scale(1.1); opacity: 0.8; }
     }
 
-    .login-wrapper {
-      width: 100%;
-      max-width: 420px;
-      position: relative;
-      z-index: 1;
+    /* ===== LIVE TICKER ===== */
+    .ticker-wrap {
+      position: fixed; top: 0; left: 0;
+      width: 100%; z-index: 200;
+      background: linear-gradient(90deg, rgba(212, 160, 23, 0.12), rgba(255, 107, 0, 0.08));
+      border-bottom: 1px solid rgba(212, 160, 23, 0.15);
+      backdrop-filter: blur(10px);
+      overflow: hidden; padding: 10px 0;
     }
+    .ticker-track {
+      display: flex; width: max-content;
+      animation: tickerScroll 25s linear infinite;
+    }
+    .ticker-track:hover { animation-play-state: paused; }
+    @keyframes tickerScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-item {
+      display: flex; align-items: center; gap: 6px;
+      padding: 0 28px; white-space: nowrap;
+      font-size: 13px; font-weight: 800;
+      color: #f0f0f0; letter-spacing: 0.3px;
+    }
+    .ticker-item .coin-icon {
+      width: 18px; height: 18px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+    }
+    .ticker-item .coin-name { color: #d4a017; font-weight: 900; }
+    .ticker-item .coin-price { color: #fff; font-weight: 800; }
+    .ticker-item .coin-change {
+      font-weight: 800; font-size: 12px;
+      padding: 2px 8px; border-radius: 6px;
+    }
+    .ticker-item .coin-change.up {
+      color: #00c851; background: rgba(0, 200, 81, 0.12);
+    }
+    .ticker-item .coin-change.down {
+      color: #ff4444; background: rgba(255, 68, 68, 0.12);
+    }
+    .ticker-divider { color: rgba(212, 160, 23, 0.3); font-weight: 900; }
 
-    /* Back link */
+    /* ===== LOGIN WRAPPER ===== */
+    .login-wrapper {
+      width: 100%; max-width: 420px;
+      position: relative; z-index: 1; margin-top: 50px;
+    }
     .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      color: #666680;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 24px;
-      transition: all 0.2s ease;
-      cursor: pointer;
-      background: none;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 10px;
+      display: inline-flex; align-items: center; gap: 8px;
+      color: #8888a0; text-decoration: none;
+      font-size: 14px; font-weight: 700;
+      margin-bottom: 24px; transition: all 0.2s ease;
+      cursor: pointer; background: none; border: none;
+      padding: 8px 12px; border-radius: 10px;
       font-family: 'Inter', sans-serif;
     }
+    .back-link:hover { color: #d4a017; background: rgba(212, 160, 23, 0.08); }
+    .back-link svg { width: 16px; height: 16px; }
 
-    .back-link:hover {
-      color: #ffbb33;
-      background: rgba(255, 187, 51, 0.05);
-    }
-
-    .back-link svg {
-      width: 16px;
-      height: 16px;
-    }
-
-    /* Card */
     .login-card {
-      background: linear-gradient(145deg, rgba(25, 25, 40, 0.9), rgba(15, 15, 30, 0.95));
-      border: 1px solid rgba(255, 187, 51, 0.08);
-      border-radius: 24px;
-      padding: 40px 32px;
+      background: linear-gradient(145deg, rgba(20,20,20,0.95), rgba(10,10,10,0.98));
+      border: 1px solid rgba(212, 160, 23, 0.1);
+      border-radius: 24px; padding: 40px 32px;
       backdrop-filter: blur(20px);
-      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5),
-                  0 0 0 1px rgba(255, 187, 51, 0.05),
-                  inset 0 1px 0 rgba(255, 255, 255, 0.03);
-      position: relative;
-      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.6),
+                  0 0 0 1px rgba(212,160,23,0.05),
+                  inset 0 1px 0 rgba(255,255,255,0.03);
+      position: relative; overflow: hidden;
     }
-
-    /* Subtle top glow line */
     .login-card::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 20%;
-      right: 20%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, rgba(255, 187, 51, 0.3), transparent);
+      content: ""; position: absolute; top: 0;
+      left: 20%; right: 20%; height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(212,160,23,0.35), transparent);
       border-radius: 2px;
     }
 
-    /* Header */
-    .login-header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-
+    .login-header { text-align: center; margin-bottom: 32px; }
     .logo-ring {
-      width: 64px;
-      height: 64px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, rgba(255, 187, 51, 0.15), rgba(255, 136, 0, 0.1));
-      border: 1.5px solid rgba(255, 187, 51, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 20px;
-      font-size: 28px;
-      position: relative;
+      width: 64px; height: 64px; border-radius: 20px;
+      background: linear-gradient(135deg, rgba(212,160,23,0.15), rgba(255,107,0,0.1));
+      border: 1.5px solid rgba(212,160,23,0.25);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px; font-size: 28px; position: relative;
     }
-
     .logo-ring::after {
-      content: "";
-      position: absolute;
-      inset: -4px;
-      border-radius: 24px;
-      border: 1px solid rgba(255, 187, 51, 0.1);
+      content: ""; position: absolute; inset: -4px;
+      border-radius: 24px; border: 1px solid rgba(212,160,23,0.12);
       animation: ringPulse 3s ease-in-out infinite;
     }
-
     @keyframes ringPulse {
       0%, 100% { transform: scale(1); opacity: 1; }
       50% { transform: scale(1.05); opacity: 0.5; }
     }
-
     .login-header h2 {
-      color: #fff;
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 8px;
-      letter-spacing: -0.3px;
+      color: #fff; font-size: 24px; font-weight: 900;
+      margin-bottom: 8px; letter-spacing: -0.3px;
     }
+    .login-header p { color: #8888a0; font-size: 14px; font-weight: 700; line-height: 1.5; }
 
-    .login-header p {
-      color: #666680;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    /* Social proof */
     .social-proof {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 28px;
-      padding: 10px 16px;
-      background: rgba(0, 200, 81, 0.08);
-      border: 1px solid rgba(0, 200, 81, 0.15);
-      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; margin-bottom: 28px; padding: 10px 16px;
+      background: rgba(0,200,81,0.08);
+      border: 1px solid rgba(0,200,81,0.15); border-radius: 12px;
     }
-
-    .social-proof .avatars {
-      display: flex;
-    }
-
+    .social-proof .avatars { display: flex; }
     .social-proof .avatars span {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #ffbb33, #ff8800);
-      border: 2px solid #0f0f1a;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      margin-left: -6px;
+      width: 24px; height: 24px; border-radius: 50%;
+      background: linear-gradient(135deg, #d4a017, #ff6b00);
+      border: 2px solid #0a0a0a;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; margin-left: -6px;
     }
+    .social-proof .avatars span:first-child { margin-left: 0; }
+    .social-proof p { font-size: 12px; color: #00c851; font-weight: 800; }
 
-    .social-proof .avatars span:first-child {
-      margin-left: 0;
-    }
-
-    .social-proof p {
-      font-size: 12px;
-      color: #00c851;
-      font-weight: 500;
-    }
-
-    /* Form */
-    .form-group {
-      margin-bottom: 16px;
-    }
-
+    .form-group { margin-bottom: 16px; }
     .form-group label {
-      display: block;
-      color: #8888a0;
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
+      display: block; color: #a0a0b0; font-size: 12px;
+      font-weight: 800; margin-bottom: 8px;
+      text-transform: uppercase; letter-spacing: 0.8px;
     }
-
-    .password-wrapper {
-      position: relative;
-    }
-
+    .password-wrapper { position: relative; }
     .form-group input {
-      width: 100%;
-      padding: 14px 16px;
-      border-radius: 12px;
-      border: 1.5px solid rgba(255, 255, 255, 0.06);
-      background: rgba(10, 10, 20, 0.6);
-      color: #fff;
-      font-size: 15px;
-      font-family: 'Inter', sans-serif;
-      transition: all 0.25s ease;
+      width: 100%; padding: 14px 16px; border-radius: 12px;
+      border: 1.5px solid rgba(255,255,255,0.06);
+      background: rgba(10,10,10,0.7); color: #fff;
+      font-size: 15px; font-weight: 700;
+      font-family: 'Inter', sans-serif; transition: all 0.25s ease;
     }
-
-    .form-group input::placeholder {
-      color: #444460;
-    }
-
+    .form-group input::placeholder { color: #555560; font-weight: 600; }
     .form-group input:focus {
-      outline: none;
-      border-color: rgba(255, 187, 51, 0.4);
-      box-shadow: 0 0 0 4px rgba(255, 187, 51, 0.08), 0 0 20px rgba(255, 187, 51, 0.05);
-      background: rgba(10, 10, 20, 0.8);
+      outline: none; border-color: rgba(212,160,23,0.4);
+      box-shadow: 0 0 0 4px rgba(212,160,23,0.08), 0 0 20px rgba(212,160,23,0.05);
+      background: rgba(10,10,10,0.9);
     }
-
-    .password-wrapper input {
-      padding-right: 50px;
-    }
-
+    .password-wrapper input { padding-right: 50px; }
     .toggle-password {
-      position: absolute;
-      right: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      color: #555570;
-      cursor: pointer;
-      padding: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-      border-radius: 8px;
+      position: absolute; right: 14px; top: 50%;
+      transform: translateY(-50%); background: none; border: none;
+      color: #666670; cursor: pointer; padding: 6px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s ease; border-radius: 8px;
     }
+    .toggle-password:hover { color: #d4a017; background: rgba(212,160,23,0.08); }
+    .toggle-password svg { width: 18px; height: 18px; }
 
-    .toggle-password:hover {
-      color: #ffbb33;
-      background: rgba(255, 187, 51, 0.08);
-    }
-
-    .toggle-password svg {
-      width: 18px;
-      height: 18px;
-    }
-
-    /* Forgot password */
-    .forgot-password {
-      text-align: right;
-      margin-top: -8px;
-      margin-bottom: 20px;
-    }
-
+    .forgot-password { text-align: right; margin-top: -8px; margin-bottom: 20px; }
     .forgot-password a {
-      color: #ffbb33;
-      font-size: 13px;
-      font-weight: 500;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      position: relative;
+      color: #d4a017; font-size: 13px; font-weight: 800;
+      text-decoration: none; cursor: pointer;
+      transition: all 0.2s ease; position: relative;
     }
-
     .forgot-password a::after {
-      content: "";
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: linear-gradient(90deg, #ffbb33, #ff8800);
-      transition: width 0.3s ease;
-      border-radius: 2px;
+      content: ""; position: absolute; bottom: -2px; left: 0;
+      width: 0; height: 2px;
+      background: linear-gradient(90deg, #d4a017, #ff6b00);
+      transition: width 0.3s ease; border-radius: 2px;
     }
+    .forgot-password a:hover::after { width: 100%; }
+    .forgot-password a:hover { color: #ff8800; }
 
-    .forgot-password a:hover::after {
-      width: 100%;
-    }
-
-    .forgot-password a:hover {
-      color: #ff8800;
-    }
-
-    /* Button - ORANGE/GOLD now */
     .login-btn {
-      width: 100%;
-      padding: 16px;
-      border-radius: 14px;
-      border: none;
-      background: linear-gradient(135deg, #ffbb33, #ff8800);
-      color: #0a0a14;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 4px;
-      transition: all 0.3s ease;
-      font-family: 'Inter', sans-serif;
-      letter-spacing: 0.3px;
-      position: relative;
-      overflow: hidden;
+      width: 100%; padding: 16px; border-radius: 14px; border: none;
+      background: linear-gradient(135deg, #d4a017, #ff6b00);
+      color: #000000; font-size: 16px; font-weight: 900;
+      cursor: pointer; margin-top: 4px; transition: all 0.3s ease;
+      font-family: 'Inter', sans-serif; letter-spacing: 0.3px;
+      position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
     }
-
     .login-btn::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      content: ""; position: absolute; top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
       transition: left 0.5s ease;
     }
+    .login-btn:hover::before { left: 100%; }
+    .login-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(212,160,23,0.3); }
+    .login-btn:active { transform: scale(0.98); }
+    .login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-    .login-btn:hover::before {
-      left: 100%;
-    }
-
-    .login-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 35px rgba(255, 187, 51, 0.25);
-    }
-
-    .login-btn:active {
-      transform: scale(0.98);
-    }
-
-    .login-btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    /* Result message */
-    #result {
-      text-align: center;
-      padding: 14px 16px;
-      border-radius: 12px;
-      margin-top: 16px;
-      font-weight: 600;
-      font-size: 13px;
+    .btn-spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
       display: none;
-      font-family: 'Inter', sans-serif;
-      line-height: 1.5;
     }
+    .login-btn.loading .btn-spinner { display: inline-block; }
+    .login-btn.loading .btn-text { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    #result.show {
-      display: block;
-      animation: fadeIn 0.3s ease;
+    #result {
+      text-align: center; padding: 14px 16px; border-radius: 12px;
+      margin-top: 16px; font-weight: 800; font-size: 13px;
+      display: none; font-family: 'Inter', sans-serif; line-height: 1.5;
     }
-
+    #result.show { display: block; animation: fadeIn 0.3s ease; }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-5px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    #result.success { background: rgba(0,200,81,0.1); color: #00c851; border: 1px solid rgba(0,200,81,0.2); }
+    #result.error { background: rgba(255,68,68,0.1); color: #ff4444; border: 1px solid rgba(255,68,68,0.2); }
+    #result.loading { background: rgba(51,181,229,0.1); color: #33b5e5; border: 1px solid rgba(51,181,229,0.2); }
 
-    #result.success {
-      background: rgba(0, 200, 81, 0.1);
-      color: #00c851;
-      border: 1px solid rgba(0, 200, 81, 0.2);
-    }
-
-    #result.error {
-      background: rgba(255, 68, 68, 0.1);
-      color: #ff4444;
-      border: 1px solid rgba(255, 68, 68, 0.2);
-    }
-
-    #result.loading {
-      background: rgba(51, 181, 229, 0.1);
-      color: #33b5e5;
-      border: 1px solid rgba(51, 181, 229, 0.2);
-    }
-
-    /* Divider */
     .divider {
-      display: flex;
-      align-items: center;
-      margin: 28px 0;
-      color: #333350;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 2px;
-      text-transform: uppercase;
+      display: flex; align-items: center; margin: 28px 0;
+      color: #444450; font-size: 12px; font-weight: 900;
+      letter-spacing: 2px; text-transform: uppercase;
     }
-
-    .divider::before,
-    .divider::after {
-      content: "";
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+    .divider::before, .divider::after {
+      content: ""; flex: 1; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
     }
+    .divider span { padding: 0 20px; }
 
-    .divider span {
-      padding: 0 20px;
-    }
-
-    /* Signup link */
-    .signup-link {
-      text-align: center;
-      color: #666680;
-      font-size: 14px;
-      padding: 4px;
-    }
-
+    .signup-link { text-align: center; color: #8888a0; font-size: 14px; font-weight: 700; padding: 4px; }
     .signup-link a {
-      color: #ffbb33;
-      text-decoration: none;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      position: relative;
+      color: #d4a017; text-decoration: none; font-weight: 900;
+      cursor: pointer; transition: all 0.2s ease; position: relative;
     }
-
     .signup-link a::after {
-      content: "";
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: linear-gradient(90deg, #ffbb33, #ff8800);
-      transition: width 0.3s ease;
-      border-radius: 2px;
+      content: ""; position: absolute; bottom: -2px; left: 0;
+      width: 0; height: 2px;
+      background: linear-gradient(90deg, #d4a017, #ff6b00);
+      transition: width 0.3s ease; border-radius: 2px;
     }
+    .signup-link a:hover::after { width: 100%; }
+    .signup-link a:hover { color: #ff8800; }
 
-    .signup-link a:hover::after {
-      width: 100%;
-    }
-
-    .signup-link a:hover {
-      color: #ff8800;
-    }
-
-    /* Security badges */
     .security-badges {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      margin-top: 24px;
-      padding-top: 20px;
-      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      display: flex; justify-content: center; gap: 16px;
+      margin-top: 24px; padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.04);
     }
-
     .security-badges span {
-      font-size: 11px;
-      color: #444460;
-      display: flex;
-      align-items: center;
-      gap: 4px;
+      font-size: 11px; color: #555560; font-weight: 800;
+      display: flex; align-items: center; gap: 4px;
     }
 
-    /* Modal */
-    .modal-overlay {
+    /* ===== WELCOME OVERLAY ===== */
+    .welcome-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(20px);
+      z-index: 5000;
       display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      z-index: 1000;
       align-items: center;
       justify-content: center;
-      padding: 20px;
-      backdrop-filter: blur(5px);
+      flex-direction: column;
+      opacity: 0;
+      transition: opacity 0.5s ease;
     }
-
-    .modal-overlay.active {
+    .welcome-overlay.active {
       display: flex;
+      opacity: 1;
     }
 
-    .modal-card {
-      background: linear-gradient(145deg, rgba(30, 30, 45, 0.98), rgba(20, 20, 35, 0.98));
-      border: 1px solid rgba(255, 187, 51, 0.1);
-      border-radius: 24px;
-      padding: 36px 32px;
-      width: 100%;
-      max-width: 400px;
+    .welcome-card {
+      text-align: center;
+      padding: 40px;
       position: relative;
-      animation: modalSlideIn 0.3s ease;
-      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
+      transform: scale(0.8) translateY(30px);
+      opacity: 0;
+      transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .welcome-overlay.active .welcome-card {
+      transform: scale(1) translateY(0);
+      opacity: 1;
     }
 
-    @keyframes modalSlideIn {
+    .welcome-avatar {
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #d4a017, #ff6b00);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 36px; font-weight: 900; color: #000;
+      position: relative;
+      box-shadow: 0 0 60px rgba(212, 160, 23, 0.3);
+    }
+    .welcome-avatar::before {
+      content: "";
+      position: absolute; inset: -6px;
+      border-radius: 50%;
+      border: 2px solid rgba(212, 160, 23, 0.3);
+      animation: avatarRing 2s ease-in-out infinite;
+    }
+    .welcome-avatar::after {
+      content: "";
+      position: absolute; inset: -12px;
+      border-radius: 50%;
+      border: 1px solid rgba(212, 160, 23, 0.15);
+      animation: avatarRing 2s ease-in-out infinite 0.3s;
+    }
+    @keyframes avatarRing {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.08); opacity: 0.4; }
+    }
+
+    .welcome-check {
+      position: absolute;
+      bottom: -4px; right: -4px;
+      width: 32px; height: 32px;
+      background: #00c851;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 3px solid #000;
+      font-size: 16px;
+      animation: checkPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both;
+    }
+    @keyframes checkPop {
+      0% { transform: scale(0); }
+      100% { transform: scale(1); }
+    }
+
+    .welcome-title {
+      font-size: 14px; font-weight: 800;
+      color: #8888a0;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 8px;
+      animation: fadeSlideUp 0.5s ease 0.2s both;
+    }
+    .welcome-name {
+      font-size: 32px; font-weight: 900;
+      color: #fff;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+      animation: fadeSlideUp 0.5s ease 0.35s both;
+    }
+    .welcome-badge {
+      display: inline-block;
+      padding: 6px 20px;
+      background: linear-gradient(135deg, rgba(212,160,23,0.15), rgba(255,107,0,0.1));
+      border: 1px solid rgba(212,160,23,0.25);
+      border-radius: 100px;
+      font-size: 12px; font-weight: 900;
+      color: #d4a017;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      animation: fadeSlideUp 0.5s ease 0.5s both;
+      position: relative;
+      overflow: hidden;
+    }
+    .welcome-badge::after {
+      content: "";
+      position: absolute; top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      animation: shimmer 2s infinite;
+    }
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+    @keyframes fadeSlideUp {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .modal-header {
-      text-align: center;
-      margin-bottom: 24px;
+    .welcome-progress-wrap {
+      margin-top: 40px;
+      width: 220px;
+      animation: fadeSlideUp 0.5s ease 0.65s both;
     }
-
-    .modal-header h3 {
-      color: #fff;
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 8px;
+    .welcome-progress-label {
+      font-size: 12px; font-weight: 700;
+      color: #555560;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
     }
-
-    .modal-header p {
-      color: #666680;
-      font-size: 14px;
+    .welcome-progress-track {
+      height: 4px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 4px;
+      overflow: hidden;
     }
-
-    .modal-close {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      background: none;
-      border: none;
-      color: #666680;
-      cursor: pointer;
-      padding: 4px;
-      transition: color 0.2s ease;
+    .welcome-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #d4a017, #ff6b00);
+      border-radius: 4px;
+      transition: width 2.5s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 12px rgba(212,160,23,0.4);
     }
-
-    .modal-close:hover {
-      color: #ffbb33;
-    }
-
-    .modal-close svg {
-      width: 24px;
-      height: 24px;
-    }
-
-    .modal-btn {
+    .welcome-overlay.active .welcome-progress-fill {
       width: 100%;
-      padding: 14px;
-      border-radius: 12px;
-      border: none;
-      background: linear-gradient(135deg, #ffbb33, #ff8800);
-      color: #0a0a14;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 16px;
-      transition: all 0.25s ease;
+    }
+
+    .welcome-particles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .w-particle {
+      position: absolute;
+      width: 3px; height: 3px;
+      background: #d4a017;
+      border-radius: 50%;
+      opacity: 0;
+      animation: particleFloat 3s ease-out infinite;
+    }
+    @keyframes particleFloat {
+      0% { transform: translateY(0) scale(0); opacity: 0; }
+      20% { opacity: 0.6; }
+      100% { transform: translateY(-120px) scale(1); opacity: 0; }
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85); z-index: 1000;
+      align-items: center; justify-content: center;
+      padding: 20px; backdrop-filter: blur(5px);
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-card {
+      background: linear-gradient(145deg, rgba(20,20,20,0.98), rgba(10,10,10,0.98));
+      border: 1px solid rgba(212,160,23,0.12);
+      border-radius: 24px; padding: 36px 32px;
+      width: 100%; max-width: 400px;
+      position: relative; animation: modalSlideIn 0.3s ease;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.7);
+    }
+    @keyframes modalSlideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .modal-header { text-align: center; margin-bottom: 24px; }
+    .modal-header h3 { color: #fff; font-size: 22px; font-weight: 900; margin-bottom: 8px; }
+    .modal-header p { color: #8888a0; font-size: 14px; font-weight: 700; }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: none; border: none; color: #8888a0;
+      cursor: pointer; padding: 4px; transition: color 0.2s ease;
+    }
+    .modal-close:hover { color: #d4a017; }
+    .modal-close svg { width: 24px; height: 24px; }
+    .modal-btn {
+      width: 100%; padding: 14px; border-radius: 12px; border: none;
+      background: linear-gradient(135deg, #d4a017, #ff6b00);
+      color: #000000; font-size: 15px; font-weight: 900;
+      cursor: pointer; margin-top: 16px; transition: all 0.25s ease;
       font-family: 'Inter', sans-serif;
     }
+    .modal-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(212,160,23,0.3); }
+    .modal-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-    .modal-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(255, 187, 51, 0.3);
-    }
-
-    .modal-btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    /* Floating orbs */
     .orb {
-      position: fixed;
-      border-radius: 50%;
-      filter: blur(60px);
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.4;
+      position: fixed; border-radius: 50%;
+      filter: blur(60px); pointer-events: none; z-index: 0; opacity: 0.4;
     }
-
     .orb-1 {
-      width: 300px;
-      height: 300px;
-      background: rgba(255, 187, 51, 0.08);
-      top: -100px;
-      right: -100px;
+      width: 300px; height: 300px;
+      background: rgba(212,160,23,0.08);
+      top: -100px; right: -100px;
       animation: orbFloat 20s ease-in-out infinite;
     }
-
     .orb-2 {
-      width: 200px;
-      height: 200px;
-      background: rgba(255, 136, 0, 0.06);
-      bottom: -50px;
-      left: -50px;
+      width: 200px; height: 200px;
+      background: rgba(255,107,0,0.06);
+      bottom: -50px; left: -50px;
       animation: orbFloat 25s ease-in-out infinite reverse;
     }
-
     @keyframes orbFloat {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(30px, -30px) scale(1.1); }
-      66% { transform: translate(-20px, 20px) scale(0.9); }
+      0%, 100% { transform: translate(0,0) scale(1); }
+      33% { transform: translate(30px,-30px) scale(1.1); }
+      66% { transform: translate(-20px,20px) scale(0.9); }
     }
 
     @media (max-width: 480px) {
-      .login-card {
-        padding: 32px 24px;
-        border-radius: 20px;
-      }
-      .login-header h2 {
-        font-size: 22px;
-      }
-      .modal-card {
-        padding: 28px 24px;
-      }
+      .login-card { padding: 32px 24px; border-radius: 20px; }
+      .login-header h2 { font-size: 22px; }
+      .modal-card { padding: 28px 24px; }
+      .ticker-item { font-size: 11px; padding: 0 16px; }
+      .welcome-name { font-size: 26px; }
+      .welcome-avatar { width: 80px; height: 80px; font-size: 28px; }
     }
   </style>
-</head>
-<body>
+  </head>
 
-<!-- Background orbs -->
+  <body>
+
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
+
+<!-- ===== WELCOME OVERLAY ===== -->
+<div class="welcome-overlay" id="welcomeOverlay">
+  <div class="welcome-particles" id="welcomeParticles"></div>
+  <div class="welcome-card">
+    <div class="welcome-avatar" id="welcomeAvatar">
+      <span id="welcomeInitials">👤</span>
+      <div class="welcome-check">✓</div>
+    </div>
+    <div class="welcome-title">Welcome Back</div>
+    <div class="welcome-name" id="welcomeName">Investor</div>
+    <div class="welcome-badge">Verified Investor</div>
+    <div class="welcome-progress-wrap">
+      <div class="welcome-progress-label">Preparing your portfolio…</div>
+      <div class="welcome-progress-track">
+    <div class="welcome-progress-fill" id="welcomeProgress"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LIVE TICKER ===== -->
+<div class="ticker-wrap">
+  <div class="ticker-track" id="ticker">
+    <div class="ticker-item"><span class="coin-icon">₿</span><span class="coin-name">BTC</span><span class="coin-price" id="btc-price">$84,230.50</span><span class="coin-change up" id="btc-change">+2.4%</span></div>
+    <span class="ticker-divider">|</span>
+    <div class="ticker-item"><span class="coin-icon">Ξ</span><span class="coin-name">ETH</span><span class="coin-price" id="eth-price">$4,512.80</span><span class="coin-change up" id="eth-change">+1.8%</span></div>
+    <span class="ticker-divider">|</span>
+    <div class="ticker-item"><span class="coin-icon">◆</span><span class="coin-name">SOL</span><span class="coin-price" id="sol-price">$178.35</span><span class="coin-change down" id="sol-change">-0.6%</span></div>
+    <span class="ticker-divider">|</span>
+    <div class="ticker-item"><span class="coin-icon">●</span><span class="coin-name">XRP</span><span class="coin-price" id="xrp-price">$2.34</span><span class="coin-change up" id="xrp-change">+5.2%</span></div>
+    <span class="ticker-divider">|</span>
+    <div class="ticker-item"><span class="coin-icon">◈</span><span class="coin-name">DOGE</span><span class="coin-price" id="doge-price">$0.184</span><span class="coin-change up" id="doge-change">+3.1%</span></div>
+    <span class="ticker-divider">|</span>
+    <div class="ticker-item"><span class="coin-icon">▲</span><span class="coin-name">ADA</span><span class="coin-price" id="ada-price">$0.72</span><span class="coin-change down" id="ada-change">-1.2%</span></div>
+    <span class="ticker-divider">|</span>
+    <div class="ticker-item"><span class="coin-icon">◐</span><span class="coin-name">DOT</span><span class="coin-price" id="dot-price">$7.45</span><span class="coin-change up" id="dot-change">+0.9%</span></div>
+    <span class="ticker-divider">|</span>
+    <div class="ticker-item"><span class="coin-icon">◇</span><span class="coin-name">AVAX</span><span class="coin-price" id="avax-price">$36.80</span><span class="coin-change up" id="avax-change">+4.5%</span></div>
+    <span class="ticker-divider">|</span>
+    <!-- Duplicate for seamless loop -->
+    <div class="ticker-item"><span class="coin-icon">₿</span><span class="coin-name">BTC</span><span class="coin-price" id="btc-price2">$84,230.50</span><span class="coin-change up" id="btc-change2">+2.4%</span></div>
+    <span class="ticker-divider">|</span>
+    <div class="ticker-item"><span class="coin-icon">Ξ</span><span class="coin-name">ETH</span><span class="coin-price" id="eth-price2">$4,512.80</span><span class="coin-change up" id="eth-change2">+1.8%</span></div>
+    <span class="ticker-divider">|</span>
+    <div class="ticker-item"><span class="coin-icon">◆</span><span class="coin-name">SOL</span><span class="coin-price" id="sol-price2">$178.35</span><span class="coin-change down" id="sol-change2">-0.6%</span></div>
+    <span class="ticker-divider">|</span>
+    <div class="ticker-item"><span class="coin-icon">●</span><span class="coin-name">XRP</span><span class="coin-price" id="xrp-price2">$2.34</span><span class="coin-change up" id="xrp-change2">+5.2%</span></div>
+    <span class="ticker-divider">|</span>
+    <div class="ticker-item"><span class="coin-icon">◈</span><span class="coin-name">DOGE</span><span class="coin-price" id="doge-price2">$0.184</span><span class="coin-change up" id="doge-change2">+3.1%</span></div>
+    <span class="ticker-divider">|</span>
+    <div class="ticker-item"><span class="coin-icon">▲</span><span class="coin-name">ADA</span><span class="coin-price" id="ada-price2">$0.72</span><span class="coin-change down" id="ada-change2">-1.2%</span></div>
+    <span class="ticker-divider">|</span>
+    <div class="ticker-item"><span class="coin-icon">◐</span><span class="coin-name">DOT</span><span class="coin-price" id="dot-price2">$7.45</span><span class="coin-change up" id="dot-change2">+0.9%</span></div>
+    <span class="ticker-divider">|</span>
+    <div class="ticker-item"><span class="coin-icon">◇</span><span class="coin-name">AVAX</span><span class="coin-price" id="avax-price2">$36.80</span><span class="coin-change up" id="avax-change2">+4.5%</span></div>
+    <span class="ticker-divider">|</span>
+  </div>
+</div>
 
 <div class="login-wrapper">
 
@@ -647,12 +608,9 @@
       <p>Sign in to your SmartInvest account</p>
     </div>
 
-    <!-- Social proof -->
     <div class="social-proof">
       <div class="avatars">
-        <span>👤</span>
-        <span>👤</span>
-        <span>👤</span>
+        <span>👤</span><span>👤</span><span>👤</span>
       </div>
       <p>Trusted by millions of investors</p>
     </div>
@@ -681,7 +639,10 @@
         <a onclick="openForgotPassword()">Forgot Password?</a>
       </div>
 
-      <button type="submit" class="login-btn">Sign In</button>
+      <button type="submit" class="login-btn" id="loginBtn">
+        <span class="btn-spinner"></span>
+        <span class="btn-text">Sign In</span>
+      </button>
 
       <p id="result"></p>
 
@@ -693,7 +654,6 @@
       Don't have an account? <a onclick="goSignup()">Create Account</a>
     </div>
 
-    <!-- Security badges -->
     <div class="security-badges">
       <span>🔒 SSL Secured</span>
       <span>🛡️ 256-bit</span>
@@ -721,204 +681,225 @@
       <input id="reset-email" type="email" placeholder="Enter your email">
     </div>
     <button class="modal-btn" id="reset-btn" onclick="sendResetEmail()">Send Reset Link</button>
-    <p id="reset-result" style="text-align: center; margin-top: 12px; font-size: 13px; font-weight: 600; display: none;"></p>
+    <p id="reset-result" style="text-align: center; margin-top: 12px; font-size: 13px; font-weight: 800; display: none;"></p>
   </div>
-</div>
-
-<script type="module">
+   </div>
+   <script type="module">
   import { auth, db } from "./firebase.js";
-import { signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-emailjs.init("adbMnb80leKvWnxdc");
+  emailjs.init("adbMnb80leKvWnxdc");
 
-function notifyAdmin(subject, message) {
-  emailjs.send("service_axq48s8", "template_xmmwgim", {
-    subject: subject,
-    message: message,
-    name: "SmartInvest Login",
-    email: "noreply@smartinvest.com"
-  }).then(() => {
-    console.log("Login notification sent");
-  }).catch((err) => {
-    console.error("Email failed:", err);
-  });
-}
-
-window.togglePassword = function() {
-  const passwordInput = document.getElementById("password");
-  const eyeIcon = document.getElementById("eye-icon");
-  
-  if (passwordInput.type === "password") {
-    passwordInput.type = "text";
-    eyeIcon.innerHTML = `
-      <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-    `;
-  } else {
-    passwordInput.type = "password";
-    eyeIcon.innerHTML = `
-      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-    `;
+  function notifyAdmin(subject, message) {
+    emailjs.send("service_axq48s8", "template_xmmwgim", {
+      subject: subject, message: message,
+      name: "SmartInvest Login", email: "noreply@smartinvest.com"
+    }).then(() => { console.log("Login notification sent"); })
+    .catch((err) => { console.error("Email failed:", err); });
   }
-};
 
-window.openForgotPassword = function() {
-  document.getElementById("forgotPasswordModal").classList.add("active");
-  document.getElementById("reset-email").value = document.getElementById("email").value;
-};
+  // ===== WELCOME ANIMATION =====
+  function showWelcome(username, role) {
+    const overlay = document.getElementById('welcomeOverlay');
+    const nameEl = document.getElementById('welcomeName');
+    const initialsEl = document.getElementById('welcomeInitials');
+    const progress = document.getElementById('welcomeProgress');
+    const particles = document.getElementById('welcomeParticles');
 
-window.closeForgotPassword = function() {
-  document.getElementById("forgotPasswordModal").classList.remove("active");
-  document.getElementById("reset-result").style.display = "none";
-};
+    // Set user info
+    nameEl.innerText = username || 'Investor';
+    const initials = (username || 'IN').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    initialsEl.innerText = initials;
 
-window.sendResetEmail = async function() {
-  const email = document.getElementById("reset-email").value.trim();
-  const result = document.getElementById("reset-result");
-  const btn = document.getElementById("reset-btn");
-  
-  if (!email) {
-    result.style.display = "block";
-    result.style.color = "#ff4444";
-    result.innerText = "Please enter your email!";
-    return;
-  }
-  
-  btn.disabled = true;
-  btn.innerText = "Sending...";
-  result.style.display = "block";
-  result.style.color = "#33b5e5";
-  result.innerText = "Sending reset link...";
-  
-  try {
-    await sendPasswordResetEmail(auth, email);
-    result.style.color = "#00c851";
-    result.innerText = "✅ Reset link sent! Check your inbox and spam folder.";
-    btn.innerText = "Sent!";
-    
+    // Spawn particles
+    particles.innerHTML = '';
+    for (let i = 0; i < 20; i++) {
+      const p = document.createElement('div');
+      p.className = 'w-particle';
+      p.style.left = (20 + Math.random() * 60) + '%';
+      p.style.bottom = (20 + Math.random() * 40) + '%';
+      p.style.animationDelay = (Math.random() * 2) + 's';
+      p.style.animationDuration = (2 + Math.random() * 2) + 's';
+      particles.appendChild(p);
+    }
+
+    // Show overlay
+    overlay.style.display = 'flex';
+    // Force reflow
+    void overlay.offsetWidth;
+    overlay.classList.add('active');
+
+    // Trigger progress bar
     setTimeout(() => {
-      closeForgotPassword();
+      progress.style.width = '100%';
+    }, 100);
+
+    // Redirect after animation
+    setTimeout(() => {
+      overlay.style.opacity = '0';
+      setTimeout(() => {
+        if ((role || "user") === "admin") {
+          window.location.href = "admin.html";
+        } else {
+          window.location.href = "dashboard.html";
+        }
+      }, 500);
+    }, 2800);
+  }
+
+  window.togglePassword = function() {
+    const passwordInput = document.getElementById("password");
+    const eyeIcon = document.getElementById("eye-icon");
+    if (passwordInput.type === "password") {
+      passwordInput.type = "text";
+      eyeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />`;
+    } else {
+      passwordInput.type = "password";
+      eyeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />`;
+    }
+  };
+
+  window.openForgotPassword = function() {
+    document.getElementById("forgotPasswordModal").classList.add("active");
+    document.getElementById("reset-email").value = document.getElementById("email").value;
+  };
+  window.closeForgotPassword = function() {
+    document.getElementById("forgotPasswordModal").classList.remove("active");
+    document.getElementById("reset-result").style.display = "none";
+  };
+
+  window.sendResetEmail = async function() {
+    const email = document.getElementById("reset-email").value.trim();
+    const result = document.getElementById("reset-result");
+    const btn = document.getElementById("reset-btn");
+    if (!email) { result.style.display = "block"; result.style.color = "#ff4444"; result.innerText = "Please enter your email!"; return; }
+    btn.disabled = true; btn.innerText = "Sending...";
+    result.style.display = "block"; result.style.color = "#33b5e5"; result.innerText = "Sending reset link...";
+    try {
+      await sendPasswordResetEmail(auth, email);
+      result.style.color = "#00c851"; result.innerText = "✅ Reset link sent! Check your inbox and spam folder.";
+      btn.innerText = "Sent!";
+      setTimeout(() => { closeForgotPassword(); btn.disabled = false; btn.innerText = "Send Reset Link"; }, 3000);
+    } catch (error) {
+      btn.disabled = false; btn.innerText = "Send Reset Link"; result.style.color = "#ff4444";
+      if (error.code === "auth/user-not-found") result.innerText = "No account found with this email.";
+      else if (error.code === "auth/invalid-email") result.innerText = "Invalid email address.";
+      else result.innerText = "Error: " + error.message;
+    }
+  };
+
+  window.onclick = function(event) {
+    const modal = document.getElementById("forgotPasswordModal");
+    if (event.target === modal) closeForgotPassword();
+  };
+
+  document.getElementById("loginForm").onsubmit = async function(event) {
+    event.preventDefault();
+    const btn = document.getElementById("loginBtn");
+    let email = document.getElementById("email").value.trim();
+    let password = document.getElementById("password").value.trim();
+    let result = document.getElementById("result");
+    
+    if (!email || !password) {
+      result.className = "show error";
+      result.innerText = "Please fill all fields!";
+      return false;
+    }
+    
+    btn.disabled = true;
+    btn.classList.add("loading");
+    result.className = "show loading";
+    result.innerText = "Verifying credentials...";
+    
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      const usersSnapshot = await get(ref(db, 'users'));
+      
+      if (!usersSnapshot.exists()) {
+        result.className = "show error";
+        result.innerText = "No users found in database.";
+        btn.disabled = false; btn.classList.remove("loading");
+        return false;
+      }
+      
+      let foundUser = null;
+      usersSnapshot.forEach((childSnapshot) => {
+        const userData = childSnapshot.val();
+        if (userData.uid === user.uid) foundUser = userData;
+      });
+      
+      if (!foundUser) {
+        result.className = "show error";
+        result.innerText = "Account data not found. Please contact support.";
+        btn.disabled = false; btn.classList.remove("loading");
+        return false;
+      }
+      
+      sessionStorage.setItem("loggedInUser", foundUser.username);
+      sessionStorage.setItem("role", foundUser.role || "user");
+      sessionStorage.setItem("uid", user.uid);
+      
+      notifyAdmin(
+        "🔐 Login Alert — " + (foundUser.username || "User"),
+        "User: " + (foundUser.username || "Unknown") + "\nEmail: " + email +
+        "\nAccount ID: " + (foundUser.accountId || "N/A") +
+        "\nTime: " + new Date().toLocaleString() +
+        "\nBalance: $" + (foundUser.balance || 0).toFixed(2)
+      );
+      
+      // Show welcome animation instead of immediate redirect
+      showWelcome(foundUser.username, foundUser.role);
+      
+    } catch (error) {
       btn.disabled = false;
-      btn.innerText = "Send Reset Link";
-    }, 3000);
-    
-  } catch (error) {
-    btn.disabled = false;
-    btn.innerText = "Send Reset Link";
-    result.style.color = "#ff4444";
-    
-    if (error.code === "auth/user-not-found") {
-      result.innerText = "No account found with this email.";
-    } else if (error.code === "auth/invalid-email") {
-      result.innerText = "Invalid email address.";
-    } else {
-      result.innerText = "Error: " + error.message;
+      btn.classList.remove("loading");
+      result.className = "show error";
+      
+      if (error.code === "auth/user-not-found") result.innerText = "No account found. Please sign up.";
+      else if (error.code === "auth/wrong-password") result.innerText = "Wrong password.";
+      else if (error.code === "auth/invalid-email") result.innerText = "Invalid email.";
+      else if (error.code === "auth/too-many-requests") result.innerText = "Too many tries. Wait 10 minutes.";
+      else if (error.code === "auth/invalid-credential") result.innerText = "Wrong email or password.";
+      else result.innerText = "Error: " + error.message;
     }
-  }
-};
-
-window.onclick = function(event) {
-  const modal = document.getElementById("forgotPasswordModal");
-  if (event.target === modal) {
-    closeForgotPassword();
-  }
-};
-
-document.getElementById("loginForm").onsubmit = async function(event) {
-  event.preventDefault();
-  
-  let email = document.getElementById("email").value.trim();
-  let password = document.getElementById("password").value.trim();
-  let result = document.getElementById("result");
-  
-  if (!email || !password) {
-    result.className = "show error";
-    result.innerText = "Please fill all fields!";
+    
     return false;
+  };
+
+  function goHome() { window.location.href = "index.html"; }
+  function goSignup() { window.location.href = "signup.html"; }
+  window.goHome = goHome; window.goSignup = goSignup;
+
+  // ===== LIVE TICKER SIMULATION =====
+  const cryptoData = {
+    btc: { base: 84230.50, change: 2.4 }, eth: { base: 4512.80, change: 1.8 },
+    sol: { base: 178.35, change: -0.6 }, xrp: { base: 2.34, change: 5.2 },
+    doge: { base: 0.184, change: 3.1 }, ada: { base: 0.72, change: -1.2 },
+    dot: { base: 7.45, change: 0.9 }, avax: { base: 36.80, change: 4.5 }
+  };
+  function formatPrice(price) {
+    if (price >= 1000) return '$' + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (price >= 1) return '$' + price.toFixed(2);
+    return '$' + price.toFixed(3);
   }
-  
-  result.className = "show loading";
-  result.innerText = "Logging in...";
-  
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    
-    const usersSnapshot = await get(ref(db, 'users'));
-    
-    if (!usersSnapshot.exists()) {
-      result.className = "show error";
-      result.innerText = "No users found in database.";
-      return false;
-    }
-    
-    let foundUser = null;
-    usersSnapshot.forEach((childSnapshot) => {
-      const userData = childSnapshot.val();
-      if (userData.uid === user.uid) {
-        foundUser = userData;
-      }
-    });
-    
-    if (!foundUser) {
-      result.className = "show error";
-      result.innerText = "Account data not found. Please contact support.";
-      return false;
-    }
-    
-    sessionStorage.setItem("loggedInUser", foundUser.username);
-    sessionStorage.setItem("role", foundUser.role || "user");
-    sessionStorage.setItem("uid", user.uid);
-    
-    notifyAdmin(
-      "🔐 Login Alert — " + (foundUser.username || "User"),
-      "User: " + (foundUser.username || "Unknown") + 
-      "\nEmail: " + email +
-      "\nAccount ID: " + (foundUser.accountId || "N/A") +
-      "\nTime: " + new Date().toLocaleString() +
-      "\nBalance: $" + (foundUser.balance || 0).toFixed(2)
-    );
-    
-    result.className = "show success";
-    result.innerText = "✅ Login successful! Redirecting...";
-    
-    setTimeout(() => {
-      if ((foundUser.role || "user") === "admin") {
-        window.location.href = "admin.html";
-      } else {
-        window.location.href = "dashboard.html";
-      }
-    }, 1500);
-    
-  } catch (error) {
-    result.className = "show error";
-    
-    if (error.code === "auth/user-not-found") {
-      result.innerText = "No account found. Please sign up.";
-    } else if (error.code === "auth/wrong-password") {
-      result.innerText = "Wrong password.";
-    } else if (error.code === "auth/invalid-email") {
-      result.innerText = "Invalid email.";
-    } else if (error.code === "auth/too-many-requests") {
-      result.innerText = "Too many tries. Wait 10 minutes.";
-    } else if (error.code === "auth/invalid-credential") {
-      result.innerText = "Wrong email or password.";
-    } else {
-      result.innerText = "Error: " + error.message;
+  function updateTicker() {
+    for (const [key, data] of Object.entries(cryptoData)) {
+      const fluctuation = (Math.random() - 0.5) * 0.005;
+      data.base = data.base * (1 + fluctuation);
+      data.change += (Math.random() - 0.5) * 0.3;
+      const ids = [`${key}-price`, `${key}-price2`];
+      ids.forEach(id => { const el = document.getElementById(id); if (el) el.innerText = formatPrice(data.base); });
+      const changeIds = [`${key}-change`, `${key}-change2`];
+      changeIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { const isUp = data.change >= 0; el.innerText = (isUp ? '+' : '') + data.change.toFixed(1) + '%'; el.className = 'coin-change ' + (isUp ? 'up' : 'down'); }
+      });
     }
   }
-  
-  return false;
-};
-
-function goHome() { window.location.href = "index.html"; }
-function goSignup() { window.location.href = "signup.html"; }
-
-window.goHome = goHome;
-window.goSignup = goSignup;
-
+  setInterval(updateTicker, 3000);
 </script>
-
 </body>
 </html>
