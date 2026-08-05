@@ -850,7 +850,8 @@ body{background:#0a0a14;color:#e8e8ec;font-family:Inter,sans-serif;padding:20px;
     adminFlags = userData.adminFlags || { canInvest: true, canWithdraw: true, blockReason: "" };
 
     await updateUI();
-    await loadDashRefLink();
+    await loadRecentActivity();   // ← ADD THIS
+    await loadDashRefLink(); 
   });
      /////////////////////////////////////////////////////
 // REAL ACTIVITY FEED
@@ -858,7 +859,7 @@ body{background:#0a0a14;color:#e8e8ec;font-family:Inter,sans-serif;padding:20px;
 
 async function loadRecentActivity() {
   // Get current user's username from however you store it
-  let username = sessionStorage.getItem("username") || "unknown";
+  let username = currentUsername;
 
   try {
     let allActivity = [];
