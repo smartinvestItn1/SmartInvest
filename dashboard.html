@@ -711,46 +711,16 @@ body{background:#0a0a14;color:#e8e8ec;font-family:Inter,sans-serif;padding:20px;
       title="Market Overview"
       loading="lazy">
     </iframe>
-
-    <!-- IFRAME 2: Recent Activity -->
-    <iframe 
-      srcdoc='
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0a14;color:#e8e8ec;font-family:Inter,sans-serif;padding:20px;min-height:100%}
-.header{font-size:14px;font-weight:700;color:#ffbb33;margin-bottom:16px;text-transform:uppercase;letter-spacing:1px}
-.row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
-.row:last-child{border-bottom:none}
-.left{display:flex;align-items:center;gap:10px}
-.icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
-.deposit{background:rgba(0,200,81,0.15)}
-.withdraw{background:rgba(255,68,68,0.15)}
-.invest{background:rgba(255,187,51,0.15)}
-.name{font-size:13px;font-weight:600;color:#fff}
-.time{font-size:11px;color:#666680}
-.amount{font-size:13px;font-weight:700}
-.green{color:#00c851}
-.red{color:#ff4444}
-.orange{color:#ffbb33}
-</style>
-</head>
-<body>
-<div class="header">&#128276; Recent Activity</div>
-<div class="row"><div class="left"><div class="icon deposit">&#128176;</div><div><div class="name">Deposit</div><div class="time">2 mins ago</div></div></div><div class="amount green">+$500.00</div></div>
-<div class="row"><div class="left"><div class="icon invest">&#128200;</div><div><div class="name">Investment</div><div class="time">15 mins ago</div></div></div><div class="amount orange">-$1,000.00</div></div>
-<div class="row"><div class="left"><div class="icon withdraw">&#127975;</div><div><div class="name">Withdrawal</div><div class="time">1 hour ago</div></div></div><div class="amount red">-$250.00</div></div>
-<div class="row"><div class="left"><div class="icon deposit">&#128176;</div><div><div class="name">Deposit</div><div class="time">3 hours ago</div></div></div><div class="amount green">+$2,500.00</div></div>
-</body>
-</html>'
-      style="width:100%;height:280px;border:1px solid rgba(255,255,255,0.08);border-radius:16px;background:#0a0a14;"
-      title="Recent Activity"
-      loading="lazy">
-    </iframe>
+    
+    <!-- REAL ACTIVITY FEED -->
+    <div style="width:100%;min-height:200px;border:1px solid rgba(255,255,255,0.08);border-radius:16px;background:#0a0a14;padding:20px;">
+      <div class="section-title" style="padding:0;margin-bottom:16px;">
+        <span>🔔</span> <span>Recent Activity</span>
+      </div>
+      <div id="activityList">
+        <p style="text-align:center;color:#444460;padding:20px;">Loading activity...</p>
+      </div>
+    </div>
 
   </div>
 </div>
@@ -882,6 +852,121 @@ body{background:#0a0a14;color:#e8e8ec;font-family:Inter,sans-serif;padding:20px;
     await updateUI();
     await loadDashRefLink();
   });
+     /////////////////////////////////////////////////////
+// REAL ACTIVITY FEED
+/////////////////////////////////////////////////////
+
+async function loadRecentActivity() {
+  // Get current user's username from however you store it
+  let username = sessionStorage.getItem("username") || "unknown";
+
+  try {
+    let allActivity = [];
+
+    // Deposits
+    const depSnap = await get(ref(db, 'deposits'));
+    if (depSnap.exists()) {
+      depSnap.forEach((child) => {
+        let d = child.val();
+        if (d.user === username) {
+          allActivity.push({
+            title: 'Deposit',
+            amount: d.amount,
+            time: d.time,
+            icon: '💰',
+            bg: 'rgba(0,200,81,0.15)',
+            color: '#00c851',
+            sign: '+'
+          });
+        }
+      });
+    }
+
+    // Withdrawals
+    const witSnap = await get(ref(db, 'withdrawals'));
+    if (witSnap.exists()) {
+      witSnap.forEach((child) => {
+        let w = child.val();
+        if (w.user === username) {
+          allActivity.push({
+            title: 'Withdrawal',
+            amount: w.amount,
+            time: w.time,
+            icon: '🏧',
+            bg: 'rgba(255,68,68,0.15)',
+            color: '#ff4444',
+            sign: '-'
+          });
+        }
+      });
+    }
+
+    // Investments
+    const invSnap = await get(ref(db, 'investments'));
+    if (invSnap.exists()) {
+      invSnap.forEach((child) => {
+        let i = child.val();
+        if (i.user === username) {
+          allActivity.push({
+            title: 'Investment',
+            amount: i.amount,
+            time: i.investTime,
+            icon: '📈',
+            bg: 'rgba(255,187,51,0.15)',
+            color: '#ffbb33',
+            sign: '-'
+          });
+        }
+      });
+    }
+
+    // Sort newest first, take last 6
+    allActivity.sort((a, b) => (b.time || 0) - (a.time || 0));
+    let recent = allActivity.slice(0, 6);
+
+    // Render
+    let html = '';
+    if (recent.length === 0) {
+      html = '<p style="text-align:center;color:#444460;padding:20px;">No activity yet</p>';
+    } else {
+      recent.forEach(item => {
+        let timeAgo = getTimeAgo(item.time);
+        html += `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;background:${item.bg};">${item.icon}</div>
+              <div>
+                <div style="font-size:13px;font-weight:700;color:#fff;">${item.title}</div>
+                <div style="font-size:11px;color:#666680;">${timeAgo}</div>
+              </div>
+            </div>
+            <div style="font-size:13px;font-weight:700;color:${item.color};">${item.sign}$${Number(item.amount).toFixed(2)}</div>
+          </div>
+        `;
+      });
+    }
+
+    document.getElementById('activityList').innerHTML = html;
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById('activityList').innerHTML = '<p style="text-align:center;color:#444460;padding:20px;">No activity</p>';
+  }
+}
+
+// Helper: convert timestamp to "2m ago", "1h ago", etc.
+function getTimeAgo(timestamp) {
+  if (!timestamp) return 'Just now';
+  let seconds = Math.floor((Date.now() - timestamp) / 1000);
+  if (seconds < 60) return seconds + 's ago';
+  let minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return minutes + 'm ago';
+  let hours = Math.floor(minutes / 60);
+  if (hours < 24) return hours + 'h ago';
+  let days = Math.floor(hours / 24);
+  return days + 'd ago';
+     }
+                     
 
   // ✅ ORIGINAL animateBalance — counts from 0, updates display only when visible
   function animateBalance(value) {
