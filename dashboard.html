@@ -668,18 +668,90 @@
 <div style="padding: 0 16px; margin-bottom: 100px;">
   <div class="section-title"><span>🌐</span> <span>External Content</span></div>
   <div style="display: grid; grid-template-columns: 1fr; gap: 16px;">
+
+    <!-- IFRAME 1: Market Overview -->
     <iframe 
-      src="https://example.com" 
-      style="width: 100%; height: 300px; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; background: rgba(25,25,40,0.6);"
-      title="External Frame 1"
+      srcdoc='
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a14;color:#e8e8ec;font-family:Inter,sans-serif;padding:20px;min-height:100%}
+.header{font-size:14px;font-weight:700;color:#ffbb33;margin-bottom:16px;text-transform:uppercase;letter-spacing:1px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.box{background:rgba(25,25,40,0.8);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px}
+.label{font-size:11px;color:#8888a0;margin-bottom:6px}
+.value{font-size:18px;font-weight:700;color:#fff}
+.up{color:#00c851}
+.down{color:#ff4444}
+.sparkline{height:30px;margin-top:8px;border-radius:4px;position:relative;overflow:hidden}
+.s1{background:linear-gradient(90deg,rgba(0,200,81,0.2),rgba(0,200,81,0.05))}
+.s2{background:linear-gradient(90deg,rgba(0,200,81,0.2),rgba(0,200,81,0.05))}
+.s3{background:linear-gradient(90deg,rgba(255,68,68,0.2),rgba(255,68,68,0.05))}
+.s4{background:linear-gradient(90deg,rgba(255,187,51,0.2),rgba(255,187,51,0.05))}
+.sparkline::after{content:"";position:absolute;bottom:0;left:0;right:0;height:2px;background:#00c851}
+.s3::after{background:#ff4444}
+.s4::after{background:#ffbb33}
+</style>
+</head>
+<body>
+<div class="header">&#128202; Market Overview</div>
+<div class="grid">
+<div class="box"><div class="label">BTC/USDT</div><div class="value up">$67,245.00</div><div class="sparkline s1"></div></div>
+<div class="box"><div class="label">ETH/USDT</div><div class="value up">$3,512.80</div><div class="sparkline s2"></div></div>
+<div class="box"><div class="label">SOL/USDT</div><div class="value down">$142.30</div><div class="sparkline s3"></div></div>
+<div class="box"><div class="label">Total Vol</div><div class="value">$42.8B</div><div class="sparkline s4"></div></div>
+</div>
+</body>
+</html>'
+      style="width:100%;height:260px;border:1px solid rgba(255,255,255,0.08);border-radius:16px;background:#0a0a14;"
+      title="Market Overview"
       loading="lazy">
     </iframe>
+
+    <!-- IFRAME 2: Recent Activity -->
     <iframe 
-      src="https://example.com" 
-      style="width: 100%; height: 300px; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; background: rgba(25,25,40,0.6);"
-      title="External Frame 2"
+      srcdoc='
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a14;color:#e8e8ec;font-family:Inter,sans-serif;padding:20px;min-height:100%}
+.header{font-size:14px;font-weight:700;color:#ffbb33;margin-bottom:16px;text-transform:uppercase;letter-spacing:1px}
+.row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.row:last-child{border-bottom:none}
+.left{display:flex;align-items:center;gap:10px}
+.icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.deposit{background:rgba(0,200,81,0.15)}
+.withdraw{background:rgba(255,68,68,0.15)}
+.invest{background:rgba(255,187,51,0.15)}
+.name{font-size:13px;font-weight:600;color:#fff}
+.time{font-size:11px;color:#666680}
+.amount{font-size:13px;font-weight:700}
+.green{color:#00c851}
+.red{color:#ff4444}
+.orange{color:#ffbb33}
+</style>
+</head>
+<body>
+<div class="header">&#128276; Recent Activity</div>
+<div class="row"><div class="left"><div class="icon deposit">&#128176;</div><div><div class="name">Deposit</div><div class="time">2 mins ago</div></div></div><div class="amount green">+$500.00</div></div>
+<div class="row"><div class="left"><div class="icon invest">&#128200;</div><div><div class="name">Investment</div><div class="time">15 mins ago</div></div></div><div class="amount orange">-$1,000.00</div></div>
+<div class="row"><div class="left"><div class="icon withdraw">&#127975;</div><div><div class="name">Withdrawal</div><div class="time">1 hour ago</div></div></div><div class="amount red">-$250.00</div></div>
+<div class="row"><div class="left"><div class="icon deposit">&#128176;</div><div><div class="name">Deposit</div><div class="time">3 hours ago</div></div></div><div class="amount green">+$2,500.00</div></div>
+</body>
+</html>'
+      style="width:100%;height:280px;border:1px solid rgba(255,255,255,0.08);border-radius:16px;background:#0a0a14;"
+      title="Recent Activity"
       loading="lazy">
     </iframe>
+
   </div>
 </div>
 
