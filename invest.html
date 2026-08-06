@@ -377,6 +377,116 @@
       color: #ffbb33;
     }
 
+    /* ===== SUCCESS OVERLAY ===== */
+    .success-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 10, 20, 0.95);
+      backdrop-filter: blur(20px);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 99999;
+      animation: fadeInOverlay 0.4s ease;
+    }
+
+    .success-overlay.active {
+      display: flex;
+    }
+
+    @keyframes fadeInOverlay {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .checkmark-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(0, 200, 81, 0.1);
+      border: 3px solid #00c851;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      opacity: 0;
+      transform: scale(0.5);
+    }
+
+    .checkmark-circle svg {
+      width: 40px;
+      height: 40px;
+      color: #00c851;
+      stroke-dasharray: 48;
+      stroke-dashoffset: 48;
+      animation: drawCheck 0.4s ease 0.3s forwards;
+    }
+
+    @keyframes scaleIn {
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes drawCheck {
+      to { stroke-dashoffset: 0; }
+    }
+
+    .success-text {
+      margin-top: 24px;
+      color: #fff;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: slideUp 0.5s ease 0.5s forwards;
+    }
+
+    .success-subtext {
+      margin-top: 8px;
+      color: #8888a0;
+      font-size: 14px;
+      opacity: 0;
+      animation: fadeIn 0.5s ease 0.8s forwards;
+    }
+
+    .redirect-bar {
+      margin-top: 30px;
+      width: 200px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      overflow: hidden;
+      opacity: 0;
+      animation: fadeIn 0.3s ease 1s forwards;
+    }
+
+    .redirect-bar::after {
+      content: "";
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00c851, #00ff66);
+      border-radius: 3px;
+      animation: fillBar 2s ease 1.2s forwards;
+    }
+
+    @keyframes slideUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    @keyframes fillBar {
+      to { width: 100%; }
+    }
+
     @media (max-width: 480px) {
       .invest-card {
         padding: 28px 20px;
@@ -461,7 +571,20 @@
   </div>
 
 </div>
-  <script type="module">
+
+<!-- SUCCESS OVERLAY -->
+<div id="successOverlay" class="success-overlay">
+  <div class="checkmark-circle">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+    </svg>
+  </div>
+  <div class="success-text">Investment Registered</div>
+  <div class="success-subtext">Redirecting to dashboard...</div>
+  <div class="redirect-bar"></div>
+</div>
+
+<script type="module">
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { ref, get, update, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -475,14 +598,13 @@ onAuthStateChanged(auth, async (user) => {
     window.location.href = "login.html";
     return;
   }
-  
+
   currentUsername = sessionStorage.getItem("loggedInUser");
   if (!currentUsername) {
     window.location.href = "login.html";
     return;
   }
-  
-  // Load user data
+
   const userSnap = await get(ref(db, 'users/' + currentUsername));
   if (userSnap.exists()) {
     userData = userSnap.val();
@@ -499,33 +621,29 @@ function checkPlan() {
   let errorBox = document.getElementById("errorBox");
   let errorText = document.getElementById("errorText");
   let investBtn = document.getElementById("investBtn");
-  
-  // Reset
+
   planInfo.classList.remove("show");
   errorBox.classList.remove("show");
   investBtn.disabled = true;
-  
+
   if (!amount || amount <= 0) {
     planName.innerText = "Enter amount";
     planDetails.innerText = "Minimum investment is $100";
     return;
   }
-  
-  // Check minimum
+
   if (amount < 100) {
     errorBox.classList.add("show");
     errorText.innerText = "❌ Minimum investment is $100";
     return;
   }
-  
-  // Check balance
+
   if (amount > userBalance) {
     errorBox.classList.add("show");
     errorText.innerText = `❌ Insufficient balance! You have $${userBalance.toFixed(2)}, need $${amount.toFixed(2)}`;
     return;
   }
-  
-  // Determine plan
+
   let plan = {};
   if (amount >= 100 && amount <= 999) {
     plan = { name: "Starter", profit: 0.10, hours: 48, min: 100, max: 999 };
@@ -534,37 +652,34 @@ function checkPlan() {
   } else if (amount >= 5000) {
     plan = { name: "Premium", profit: 0.40, hours: 120, min: 5000, max: "Unlimited" };
   }
-  
-  // Show plan info
+
   planInfo.classList.add("show");
   planName.innerText = `✅ ${plan.name} Plan Selected`;
   planDetails.innerText = `Invest $${amount} → Profit $${(amount * plan.profit).toFixed(2)} (${plan.profit * 100}%) in ${plan.hours} hours`;
-  
-  // Enable button
+
   investBtn.disabled = false;
 }
 
 async function submitInvest() {
   let amount = Number(document.getElementById("investAmount").value);
   let result = document.getElementById("result");
-  
+
   if (!amount || amount < 100) {
     result.className = "show error";
     result.innerText = "Minimum investment is $100";
     return;
   }
-  
+
   if (amount > userBalance) {
     result.className = "show error";
     result.innerText = "Insufficient balance!";
     return;
   }
-  
-  // Determine plan
+
   let planName = "";
   let profitPercent = 0;
   let hours = 0;
-  
+
   if (amount >= 100 && amount <= 999) {
     planName = "Starter";
     profitPercent = 0.10;
@@ -578,19 +693,18 @@ async function submitInvest() {
     profitPercent = 0.40;
     hours = 120;
   }
-  
+
   if (!confirm(`Confirm investment:\n\nPlan: ${planName}\nAmount: $${amount}\nProfit: ${(profitPercent * 100)}%\nDuration: ${hours} hours\n\nProceed?`)) {
     return;
   }
-  
+
   try {
     result.className = "show success";
     result.innerText = "⏳ Processing investment...";
-    
+
     let newBalance = userBalance - amount;
     let investTime = Date.now();
-    
-    // Update user - SAVE EVERYTHING CORRECTLY
+
     await update(ref(db, 'users/' + currentUsername), {
       balance: newBalance,
       plan: planName,
@@ -599,8 +713,7 @@ async function submitInvest() {
       investProfitPercent: profitPercent,
       investHours: hours
     });
-    
-    // Save to investments history
+
     await push(ref(db, 'investments'), {
       user: currentUsername,
       plan: planName,
@@ -611,17 +724,15 @@ async function submitInvest() {
       investTime: investTime,
       claimTime: null
     });
-    
-    result.className = "show success";
-    result.innerText = `✅ Investment successful! $${amount} invested in ${planName} plan.`;
-    
-    // Update display
-    userBalance = newBalance;
-    document.getElementById("userBalance").innerText = userBalance.toFixed(2);
-    document.getElementById("investAmount").value = "";
-    document.getElementById("planInfo").classList.remove("show");
-    document.getElementById("investBtn").disabled = true;
-    
+
+    // Show success overlay animation
+    document.getElementById("successOverlay").classList.add("active");
+
+    // Redirect to dashboard after animation
+    setTimeout(() => {
+      window.location.href = "dashboard.html";
+    }, 2800);
+
   } catch (error) {
     result.className = "show error";
     result.innerText = "❌ Error: " + error.message;
@@ -635,6 +746,8 @@ function goBack() {
 window.goBack = goBack;
 window.checkPlan = checkPlan;
 window.submitInvest = submitInvest;
-  </script>
+</script>
+
 </body>
-    </html>
+  </html>
+  
