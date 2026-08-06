@@ -3,263 +3,512 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contact Support — SmartInvest</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  
-  
+  <title>Help Center — SmartInvest</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      font-weight: 700 !important;
+    }
+
+    :root {
+      --bg: #0a0805;
+      --surface: #14100c;
+      --surface-light: #1e1912;
+      --border: rgba(255,200,100,0.08);
+      --text: #f5e6c8;
+      --text-muted: #a89070;
+      --text-dim: #5c4e38;
+      --gold: #d4af37;
+      --gold-light: #e8c84a;
+      --gold-glow: rgba(212,175,55,0.15);
+      --orange: #ff8c00;
+      --orange-light: #ffaa33;
+      --orange-glow: rgba(255,140,0,0.15);
+      --success: #00c851;
+      --danger: #ff4444;
     }
 
     body {
-      background: #0f0f1a;
-      color: #e8e8ec;
+      background: var(--bg);
+      color: var(--text);
       font-family: 'Inter', 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 0;
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      line-height: 1.6;
     }
 
+    /* ===== PARTICLES ===== */
     .particles {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       pointer-events: none;
       z-index: 0;
       overflow: hidden;
     }
-
     .particle {
       position: absolute;
-      width: 4px;
-      height: 4px;
-      background: rgba(0, 200, 81, 0.12);
+      width: 3px; height: 3px;
+      background: rgba(212,175,55,0.1);
       border-radius: 50%;
-      animation: float 15s infinite ease-in-out;
+      animation: float 20s infinite ease-in-out;
     }
-
-    .particle:nth-child(1) { left: 10%; top: 80%; animation-delay: 0s; }
-    .particle:nth-child(2) { left: 20%; top: 20%; animation-delay: 2s; }
-    .particle:nth-child(3) { left: 35%; top: 60%; animation-delay: 4s; }
-    .particle:nth-child(4) { left: 50%; top: 10%; animation-delay: 6s; }
-    .particle:nth-child(5) { left: 65%; top: 70%; animation-delay: 8s; }
-    .particle:nth-child(6) { left: 80%; top: 30%; animation-delay: 10s; }
-    .particle:nth-child(7) { left: 90%; top: 85%; animation-delay: 12s; }
-    .particle:nth-child(8) { left: 15%; top: 40%; animation-delay: 14s; }
-
+    .particle:nth-child(1) { left: 8%; top: 85%; animation-delay: 0s; }
+    .particle:nth-child(2) { left: 18%; top: 15%; animation-delay: 3s; }
+    .particle:nth-child(3) { left: 32%; top: 55%; animation-delay: 6s; }
+    .particle:nth-child(4) { left: 48%; top: 8%; animation-delay: 9s; }
+    .particle:nth-child(5) { left: 62%; top: 72%; animation-delay: 12s; }
+    .particle:nth-child(6) { left: 78%; top: 28%; animation-delay: 15s; }
+    .particle:nth-child(7) { left: 88%; top: 88%; animation-delay: 18s; }
+    .particle:nth-child(8) { left: 12%; top: 42%; animation-delay: 21s; }
     @keyframes float {
-      0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; }
-      50% { transform: translateY(-40px) scale(1.5); opacity: 0.8; }
+      0%,100% { transform: translateY(0) scale(1); opacity: 0.2; }
+      50% { transform: translateY(-50px) scale(1.4); opacity: 0.6; }
     }
 
-    .contact-wrapper {
+    /* ===== WRAPPER ===== */
+    .wrapper {
       position: relative;
       z-index: 1;
-      max-width: 420px;
-      width: 100%;
-      padding: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 20px 60px;
     }
 
-    .contact-card {
-      background: rgba(25, 25, 40, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 24px;
-      padding: 40px 32px;
-      text-align: center;
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    /* ===== NAV ===== */
+    .top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 0;
+      margin-bottom: 8px;
     }
-
-    .contact-card h2 {
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
       color: #fff;
-      margin: 0 0 8px 0;
-      font-size: 26px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
+      font-size: 18px;
+      letter-spacing: -0.3px;
     }
-
-    .contact-card .subtitle {
-      color: #666680;
-      margin: 0 0 30px 0;
-      font-size: 14px;
-    }
-
-    .whatsapp-icon {
-      width: 80px;
-      height: 80px;
-      margin: 20px auto;
-      background: linear-gradient(135deg, #25d366, #128c7e);
-      border-radius: 50%;
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--gold), var(--orange));
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 40px;
-      box-shadow: 0 5px 20px rgba(37, 211, 102, 0.3);
-      animation: pulse 2s infinite;
+      font-size: 18px;
+      box-shadow: 0 0 15px rgba(212,175,55,0.2);
     }
-
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
-    }
-
-    .availability {
-      color: #00c851;
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 20px;
+    .nav-links {
       display: flex;
-      align-items: center;
-      justify-content: center;
       gap: 8px;
     }
-
-    .availability::before {
-      content: "";
-      width: 8px;
-      height: 8px;
-      background: #00c851;
-      border-radius: 50%;
-      box-shadow: 0 0 10px rgba(0, 200, 81, 0.6);
-      animation: blink 1.5s infinite;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
-    .phone-number {
-      color: #ffbb33;
-      font-size: 22px;
-      font-weight: 700;
-      margin: 15px 0 25px;
-      letter-spacing: 1px;
-      font-family: 'Courier New', monospace;
-    }
-
-    .info-box {
-      background: rgba(51, 181, 229, 0.08);
-      border: 1px solid rgba(51, 181, 229, 0.25);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 24px;
-    }
-
-    .info-box p {
-      margin: 0;
-      color: #33b5e5;
+    .nav-link {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
       font-size: 13px;
-      line-height: 1.6;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: 'Inter', sans-serif;
+    }
+    .nav-link:hover {
+      color: var(--gold);
+      border-color: rgba(212,175,55,0.2);
+      background: var(--surface-light);
     }
 
-    .whatsapp-btn {
+    /* ===== HERO WITH BACKGROUND IMAGE ===== */
+    .hero-bg {
+      position: relative;
       width: 100%;
-      padding: 16px;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(15, 15, 30, 0.8);
+      border-radius: 24px;
+      overflow: hidden;
+      margin-bottom: 44px;
+      /* 
+        🖼️ REPLACE THIS BACKGROUND IMAGE WITH YOUR OWN!
+        Change the url() below to your image path.
+        Recommended: dark professional support/call center image
+      */
+      background: 
+        linear-gradient(180deg, rgba(10,8,5,0.3) 0%, rgba(10,8,5,0.85) 100%),
+        linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(255,140,0,0.08) 100%),
+        url('images-support-bg.jpg');
+      background-size: cover;
+      background-position: center;
+      border: 1px solid var(--border);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 80px 32px 60px;
+    }
+
+    .hero-content h1 {
+      font-size: 40px;
       color: #fff;
+      margin-bottom: 12px;
+      letter-spacing: -1px;
+      line-height: 1.15;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+    }
+
+    .hero-content p {
+      color: var(--text-muted);
       font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
+      max-width: 480px;
+      margin: 0 auto 32px;
+      line-height: 1.6;
+      text-shadow: 0 1px 10px rgba(0,0,0,0.5);
+    }
+
+    /* Search inside hero */
+    .search-box {
+      position: relative;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 16px 20px 16px 52px;
+      border-radius: 14px;
+      border: 1.5px solid rgba(212,175,55,0.2);
+      background: rgba(20,16,12,0.85);
+      backdrop-filter: blur(12px);
+      color: #fff;
+      font-size: 15px;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.25s ease;
+      outline: none;
+    }
+    .search-box input::placeholder {
+      color: var(--text-dim);
+    }
+    .search-box input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 4px var(--gold-glow);
+      background: rgba(20,16,12,0.95);
+    }
+    .search-box svg {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px; height: 20px;
+      color: var(--gold);
+      pointer-events: none;
+    }
+
+    /* ===== STATUS BAR ===== */
+    .status-bar {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
-      margin-bottom: 24px;
-      font-family: 'Inter', sans-serif;
-      position: relative;
-      overflow: hidden;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 0 15px rgba(37, 211, 102, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
-    }
-
-    .whatsapp-btn::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
-      transition: left 0.5s ease;
-    }
-
-    .whatsapp-btn:hover::before {
-      left: 100%;
-    }
-
-    .whatsapp-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 25px rgba(37, 211, 102, 0.3), 0 8px 25px rgba(0,0,0,0.2);
-      border-color: rgba(37, 211, 102, 0.4);
-    }
-
-    .whatsapp-btn:active {
-      transform: scale(0.98);
-    }
-
-    .nav-buttons {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-    }
-
-    .nav-btn {
-      padding: 12px 24px;
+      padding: 14px;
+      background: rgba(0,200,81,0.06);
+      border: 1px solid rgba(0,200,81,0.15);
       border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(15, 15, 30, 0.6);
-      color: #8888a0;
-      font-size: 14px;
-      font-weight: 500;
+      margin-bottom: 44px;
+    }
+    .status-bar .dot {
+      width: 8px; height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(0,200,81,0.5);
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+    }
+    .status-bar span {
+      color: var(--success);
+      font-size: 13px;
+    }
+
+    /* ===== SECTION TITLE ===== */
+    .section-title {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 16px;
+    }
+
+    /* ===== CATEGORY CARDS ===== */
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 44px;
+    }
+    .cat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 20px;
       cursor: pointer;
-      transition: all 0.3s ease;
-      font-family: 'Inter', sans-serif;
-      backdrop-filter: blur(10px);
+      transition: all 0.25s ease;
+      text-align: center;
     }
-
-    .nav-btn:hover {
-      background: rgba(255, 255, 255, 0.05);
+    .cat-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(212,175,55,0.2);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+      background: var(--surface-light);
+    }
+    .cat-icon {
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px;
+      font-size: 22px;
+    }
+    .cat-card:nth-child(1) .cat-icon { background: rgba(212,175,55,0.12); }
+    .cat-card:nth-child(2) .cat-icon { background: rgba(255,140,0,0.12); }
+    .cat-card:nth-child(3) .cat-icon { background: rgba(255,170,51,0.12); }
+    .cat-card:nth-child(4) .cat-icon { background: rgba(212,175,55,0.12); }
+    .cat-card:nth-child(5) .cat-icon { background: rgba(255,140,0,0.12); }
+    .cat-card:nth-child(6) .cat-icon { background: rgba(255,170,51,0.12); }
+    .cat-card h3 {
       color: #fff;
-      border-color: rgba(255, 255, 255, 0.15);
-      transform: translateY(-2px);
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    .cat-card p {
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.5;
+      margin: 0;
     }
 
-    @media (max-width: 480px) {
-      .contact-card {
-        padding: 32px 24px;
-      }
-      .contact-card h2 {
-        font-size: 22px;
-      }
-      .nav-buttons {
-        flex-direction: column;
-      }
-      .nav-btn {
-        width: 100%;
-      }
+    /* ===== POPULAR ARTICLES ===== */
+    .articles-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 44px;
+    }
+    .article-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .article-item:hover {
+      border-color: rgba(212,175,55,0.2);
+      background: var(--surface-light);
+      transform: translateX(4px);
+    }
+    .article-item .doc-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: rgba(212,175,55,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .article-item .doc-text {
+      flex: 1;
+    }
+    .article-item .doc-text h4 {
+      color: #fff;
+      font-size: 13px;
+      margin-bottom: 3px;
+    }
+    .article-item .doc-text span {
+      color: var(--text-dim);
+      font-size: 11px;
+    }
+    .article-item .arrow {
+      color: var(--text-dim);
+      font-size: 12px;
+      transition: transform 0.2s ease;
+    }
+    .article-item:hover .arrow {
+      transform: translateX(4px);
+      color: var(--gold);
     }
 
+    /* ===== CONTACT SECTION ===== */
+    .contact-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 44px;
+    }
+    .contact-section h2 {
+      color: #fff;
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+    .contact-section .contact-desc {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .contact-option {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .contact-option:hover {
+      transform: translateY(-3px);
+      border-color: rgba(212,175,55,0.25);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    }
+    .contact-option .c-icon {
+      width: 50px; height: 50px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px;
+    }
+    .contact-option.whatsapp .c-icon {
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      box-shadow: 0 4px 15px rgba(37,211,102,0.25);
+    }
+    .contact-option.email .c-icon {
+      background: linear-gradient(135deg, var(--gold), var(--orange));
+      box-shadow: 0 4px 15px rgba(212,175,55,0.25);
+    }
+    .contact-option.phone .c-icon {
+      background: linear-gradient(135deg, var(--orange), #e67e00);
+      box-shadow: 0 4px 15px rgba(255,140,0,0.25);
+    }
+    .contact-option h4 {
+      color: #fff;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .contact-option p {
+      color: var(--text-muted);
+      font-size: 12px;
+      margin: 0 0 10px 0;
+    }
+    .contact-option .c-action {
+      color: var(--gold);
+      font-size: 12px;
+      letter-spacing: 0.3px;
+    }
+
+    /* ===== FAQ ===== */
+    .faq-section {
+      margin-bottom: 44px;
+    }
+    .faq-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 10px;
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+    .faq-item:hover {
+      border-color: rgba(212,175,55,0.15);
+    }
+    .faq-item.active {
+      border-color: rgba(212,175,55,0.25);
+    }
+    .faq-q {
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      cursor: pointer;
+      color: #fff;
+      font-size: 14px;
+      transition: background 0.2s ease;
+    }
+    .faq-q:hover {
+      background: rgba(255,255,255,0.02);
+    }
+    .faq-q .faq-toggle {
+      width: 24px; height: 24px;
+      border-radius: 6px;
+      background: var(--surface-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 12px;
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+    .faq-item.active .faq-toggle {
+      background: var(--gold);
+      color: #000;
+      transform: rotate(180deg);
+    }
+    .faq-a {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.35s ease;
+    }
+    .faq-item.active .faq-a {
+      max-height: 300px;
+      padding: 0 22px 18px 22px;
+    }
+    .faq-a p {
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      text-align: center;
+      padding: 20px 0;
+      color: var(--text-dim);
+      font-size: 12px;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 640px) {
+      .hero-content { padding: 60px 24px 48px; }
+      .hero-content h1 { font-size: 28px; }
+      .categories { grid-template-columns: 1fr 1fr; }
+      .articles-grid { grid-template-columns: 1fr; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .top-nav { flex-direction: column; gap: 12px; }
+    }
   </style>
 </head>
 
 <body>
-  
-<!-- Background Particles -->
+
 <div class="particles">
   <div class="particle"></div>
   <div class="particle"></div>
@@ -271,53 +520,287 @@
   <div class="particle"></div>
 </div>
 
-<div class="contact-wrapper">
+<div class="wrapper">
 
-  <div class="contact-card">
-
-    <h2 data-i18n="support_title">📞 Customer Support</h2>
-    <p class="subtitle" data-i18n="support_subtitle">We're here to help you 24/7</p>
-
-    <div class="whatsapp-icon">💬</div>
-
-    <div class="availability" data-i18n="support_available">Available Now</div>
-
-    <div class="phone-number">+44 7393 659737</div>
-
-    <div class="info-box">
-      <p data-i18n="support_info">💡 Click the button below to chat with us directly on WhatsApp. We typically respond within minutes.</p>
+  <!-- NAV -->
+  <div class="top-nav">
+    <div class="logo">
+      <div class="logo-icon">💎</div>
+      <span>SmartInvest</span>
     </div>
-
-    <button class="whatsapp-btn" onclick="openWhatsApp()" data-i18n="support_chat_btn">
-      💬 Chat on WhatsApp
-    </button>
-
-    <div class="nav-buttons">
-      <button class="nav-btn" onclick="goHome()" data-i18n="nav_home">🏠 Home</button>
-      <button class="nav-btn" onclick="goBack()" data-i18n="nav_dashboard">⬅ Dashboard</button>
+    <div class="nav-links">
+      <button class="nav-link" onclick="window.location.href='dashboard.html'">Dashboard</button>
+      <button class="nav-link" onclick="window.location.href='index.html'">Home</button>
     </div>
+  </div>
 
+  <!-- ===== HERO WITH BACKGROUND IMAGE ===== -->
+  <!-- 
+    🖼️ TO ADD YOUR BACKGROUND IMAGE:
+    Replace the background property in .hero-bg CSS above.
+    Change url('images/support-bg.jpg') to your actual image path.
+    Recommended: dark professional support/call center photo.
+  -->
+  <div class="hero-bg">
+    <div class="hero-content">
+      <h1>How can we help you?</h1>
+      <p>Search our knowledge base, browse topics, or reach out to our support team directly. We're here 24/7.</p>
+
+      <!-- SEARCH -->
+      <div class="search-box">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search for articles, topics, or questions..." onkeyup="filterContent()">
+      </div>
+    </div>
+  </div>
+
+  <!-- STATUS -->
+  <div class="status-bar">
+    <div class="dot"></div>
+    <span>All systems operational — Support team online now</span>
+  </div>
+
+  <!-- CATEGORIES -->
+  <div class="section-title">Browse by Topic</div>
+  <div class="categories" id="categories">
+    <div class="cat-card" onclick="alert('Account & Security articles coming soon!')">
+      <div class="cat-icon">🔐</div>
+      <h3>Account & Security</h3>
+      <p>Login issues, 2FA, password resets, account recovery</p>
+    </div>
+    <div class="cat-card" onclick="alert('Deposits & Withdrawals articles coming soon!')">
+      <div class="cat-icon">💳</div>
+      <h3>Deposits & Withdrawals</h3>
+      <p>Payment methods, processing times, limits, fees</p>
+    </div>
+    <div class="cat-card" onclick="alert('Investments articles coming soon!')">
+      <div class="cat-icon">📈</div>
+      <h3>Investments</h3>
+      <p>Plans, returns, portfolio management, rebalancing</p>
+    </div>
+    <div class="cat-card" onclick="alert('Referrals & Rewards articles coming soon!')">
+      <div class="cat-icon">🎁</div>
+      <h3>Referrals & Rewards</h3>
+      <p>Invite codes, bonuses, commission structure</p>
+    </div>
+    <div class="cat-card" onclick="alert('Technical Issues articles coming soon!')">
+      <div class="cat-icon">⚙️</div>
+      <h3>Technical Issues</h3>
+      <p>App bugs, loading errors, browser compatibility</p>
+    </div>
+    <div class="cat-card" onclick="alert('Billing & Subscriptions articles coming soon!')">
+      <div class="cat-icon">📋</div>
+      <h3>Billing & Plans</h3>
+      <p>Invoices, subscriptions, upgrades, cancellations</p>
+    </div>
+  </div>
+
+  <!-- POPULAR ARTICLES -->
+  <div class="section-title">Popular Articles</div>
+  <div class="articles-grid" id="articles">
+    <div class="article-item" onclick="alert('Article: How to verify your account')">
+      <div class="doc-icon">📄</div>
+      <div class="doc-text">
+        <h4>How to Verify Your Account</h4>
+        <span>Account & Security · 2 min read</span>
+      </div>
+      <div class="arrow">→</div>
+    </div>
+    <div class="article-item" onclick="alert('Article: Understanding investment returns')">
+      <div class="doc-icon">📄</div>
+      <div class="doc-text">
+        <h4>Understanding Your Investment Returns</h4>
+        <span>Investments · 4 min read</span>
+      </div>
+      <div class="arrow">→</div>
+    </div>
+    <div class="article-item" onclick="alert('Article: How to make a deposit')">
+      <div class="doc-icon">📄</div>
+      <div class="doc-text">
+        <h4>How to Make Your First Deposit</h4>
+        <span>Deposits · 3 min read</span>
+      </div>
+      <div class="arrow">→</div>
+    </div>
+    <div class="article-item" onclick="alert('Article: Withdrawal processing times')">
+      <div class="doc-icon">📄</div>
+      <div class="doc-text">
+        <h4>Withdrawal Processing Times & Limits</h4>
+        <span>Withdrawals · 3 min read</span>
+      </div>
+      <div class="arrow">→</div>
+    </div>
+    <div class="article-item" onclick="alert('Article: How the referral program works')">
+      <div class="doc-icon">📄</div>
+      <div class="doc-text">
+        <h4>How the Referral Program Works</h4>
+        <span>Referrals · 2 min read</span>
+      </div>
+      <div class="arrow">→</div>
+    </div>
+    <div class="article-item" onclick="alert('Article: Resetting your password')">
+      <div class="doc-icon">📄</div>
+      <div class="doc-text">
+        <h4>Resetting Your Password</h4>
+        <span>Account & Security · 1 min read</span>
+      </div>
+      <div class="arrow">→</div>
+    </div>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="contact-section">
+    <h2>Still need help?</h2>
+    <p class="contact-desc">Our support team is available around the clock. Choose the method that works best for you.</p>
+    <div class="contact-grid">
+      <!-- WhatsApp with actual WhatsApp icon -->
+      <div class="contact-option whatsapp" onclick="openWhatsApp()">
+        <div class="c-icon">
+          <!-- WhatsApp SVG Icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="white">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+        </div>
+        <h4>WhatsApp</h4>
+        <p>Fastest response</p>
+        <div class="c-action">Chat Now →</div>
+      </div>
+      <div class="contact-option email" onclick="sendEmail()">
+        <div class="c-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+        </div>
+        <h4>Email</h4>
+        <p>support@smartinvest.com</p>
+        <div class="c-action">Send Email →</div>
+      </div>
+      <div class="contact-option phone" onclick="callSupport()">
+        <div class="c-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
+          </svg>
+        </div>
+        <h4>Phone</h4>
+        <p>+44 7393 659737</p>
+        <div class="c-action">Call Now →</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="section-title">Frequently Asked Questions</div>
+  <div class="faq-section" id="faqSection">
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">
+        <span>How do I deposit money into my SmartInvest account?</span>
+        <div class="faq-toggle">▼</div>
+      </div>
+      <div class="faq-a">
+        <p>Go to your Dashboard and click the "Deposit" button. Choose your preferred payment method (bank transfer, card, or crypto), enter the amount, and follow the on-screen instructions. Most deposits are credited instantly. If you experience any delays, please contact our support team.</p>
+      </div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">
+        <span>How long do withdrawals take to process?</span>
+        <div class="faq-toggle">▼</div>
+      </div>
+      <div class="faq-a">
+        <p>Withdrawals are typically processed within 24–48 hours. Once approved, funds will reach your bank account or wallet within 1–3 business days depending on your payment provider. VIP members enjoy same-day withdrawal processing.</p>
+      </div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">
+        <span>Is my money safe with SmartInvest?</span>
+        <div class="faq-toggle">▼</div>
+      </div>
+      <div class="faq-a">
+        <p>Absolutely. We use bank-grade 256-bit SSL encryption, two-factor authentication (2FA), and cold storage for digital assets. Your funds are held in segregated accounts with regulated financial institutions. We also conduct regular third-party security audits.</p>
+      </div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">
+        <span>Can I change my investment plan after signing up?</span>
+        <div class="faq-toggle">▼</div>
+      </div>
+      <div class="faq-a">
+        <p>Yes! You can upgrade or switch your investment plan at any time from your Dashboard. Changes take effect immediately, and our support team can help you choose the best option based on your financial goals and risk appetite.</p>
+      </div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">
+        <span>What should I do if I forget my password?</span>
+        <div class="faq-toggle">▼</div>
+      </div>
+      <div class="faq-a">
+        <p>Click "Forgot Password" on the login page and follow the instructions sent to your registered email. For security, the reset link expires after 1 hour. If you don't receive the email, check your spam folder or contact support.</p>
+      </div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">
+        <span>How does the referral program work?</span>
+        <div class="faq-toggle">▼</div>
+      </div>
+      <div class="faq-a">
+        <p>Share your unique referral code from your Dashboard. When someone signs up and makes their first deposit, you earn a commission on their investment activity. There's no limit to how many people you can refer — the more you invite, the more you earn.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    © 2026 SmartInvest. All rights reserved. Trusted by thousands of investors worldwide.
   </div>
 
 </div>
 
 <script>
+function toggleFaq(item) {
+  document.querySelectorAll('.faq-item').forEach(faq => {
+    if (faq !== item) faq.classList.remove('active');
+  });
+  item.classList.toggle('active');
+}
+
+function filterContent() {
+  const query = document.getElementById('searchInput').value.toLowerCase();
+  const articles = document.querySelectorAll('.article-item');
+  const faqs = document.querySelectorAll('.faq-item');
+  const cats = document.querySelectorAll('.cat-card');
+
+  articles.forEach(item => {
+    const text = item.innerText.toLowerCase();
+    item.style.display = text.includes(query) ? 'flex' : 'none';
+  });
+
+  faqs.forEach(item => {
+    const text = item.innerText.toLowerCase();
+    item.style.display = text.includes(query) ? 'block' : 'none';
+  });
+
+  cats.forEach(item => {
+    const text = item.innerText.toLowerCase();
+    item.style.display = text.includes(query) ? 'block' : 'none';
+  });
+}
+
 function openWhatsApp() {
-  let number = "447393659737";
-  let message = encodeURIComponent("Hello SmartInvest Support, I need help with my account.");
-  let url = `https://wa.me/${number}?text=${message}`;
-  window.open(url, "_blank");
+  const number = "447393659737";
+  const message = encodeURIComponent("Hello SmartInvest Support, I need help with my account.");
+  window.open(`https://wa.me/${number}?text=${message}`, "_blank");
 }
 
-function goHome() {
-  window.location.href = "index.html";
+function sendEmail() {
+  window.location.href = "mailto:support@smartinvest.com?subject=Support%20Request";
 }
 
-function goBack() {
-  window.location.href = "dashboard.html";
+function callSupport() {
+  window.location.href = "tel:+447393659737";
 }
 </script>
 
 </body>
 </html>
-
