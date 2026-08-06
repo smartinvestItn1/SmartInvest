@@ -21,6 +21,7 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      font-weight: 700 !important;
     }
 
     body {
@@ -82,7 +83,7 @@
       color: #666680;
       text-decoration: none;
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 700;
       margin-bottom: 28px;
       transition: color 0.2s ease;
       cursor: pointer;
@@ -158,7 +159,7 @@
       font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 1px;
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .balance-display p {
@@ -191,7 +192,7 @@
       display: block;
       color: #8888a0;
       font-size: 13px;
-      font-weight: 500;
+      font-weight: 700;
       margin-bottom: 8px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -229,7 +230,7 @@
       background: rgba(15, 15, 30, 0.8);
       color: #fff;
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       transition: all 0.3s ease;
       margin-top: 10px;
@@ -282,7 +283,7 @@
       padding: 14px 16px;
       border-radius: 10px;
       margin-top: 20px;
-      font-weight: 600;
+      font-weight: 700;
       font-size: 13px;
       display: none;
       font-family: 'Inter', sans-serif;
@@ -316,12 +317,147 @@
       border: 1px solid rgba(51, 181, 229, 0.25);
     }
 
+    /* ===== SUCCESS ANIMATION OVERLAY ===== */
+    .success-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 15, 26, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 24px;
+      animation: overlayIn 0.4s ease forwards;
+    }
+
+    .success-overlay.active {
+      display: flex;
+    }
+
+    @keyframes overlayIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .success-circle {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00c851, #00a844);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 40px rgba(0, 200, 81, 0.4), 0 0 80px rgba(0, 200, 81, 0.2);
+      animation: circlePop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      position: relative;
+    }
+
+    @keyframes circlePop {
+      0% { transform: scale(0); opacity: 0; }
+      60% { transform: scale(1.15); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .success-circle svg {
+      width: 48px;
+      height: 48px;
+      color: #fff;
+      stroke-dasharray: 50;
+      stroke-dashoffset: 50;
+      animation: checkDraw 0.5s ease 0.4s forwards;
+    }
+
+    @keyframes checkDraw {
+      to { stroke-dashoffset: 0; }
+    }
+
+    .success-text {
+      color: #fff;
+      font-size: 22px;
+      font-weight: 700;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: textSlide 0.5s ease 0.6s forwards;
+    }
+
+    .success-subtext {
+      color: #8888a0;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: textSlide 0.5s ease 0.8s forwards;
+    }
+
+    @keyframes textSlide {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Confetti particles */
+    .confetti-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: -1;
+    }
+
+    .confetti {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      opacity: 0;
+      animation: confettiFall 2.5s ease-out forwards;
+    }
+
+    .confetti:nth-child(1) { left: 10%; background: #00c851; animation-delay: 0s; transform: rotate(45deg); }
+    .confetti:nth-child(2) { left: 20%; background: #33b5e5; animation-delay: 0.1s; transform: rotate(15deg); }
+    .confetti:nth-child(3) { left: 30%; background: #ffbb33; animation-delay: 0.2s; transform: rotate(75deg); }
+    .confetti:nth-child(4) { left: 40%; background: #ff4444; animation-delay: 0.15s; transform: rotate(30deg); }
+    .confetti:nth-child(5) { left: 50%; background: #00c851; animation-delay: 0.25s; transform: rotate(60deg); }
+    .confetti:nth-child(6) { left: 60%; background: #33b5e5; animation-delay: 0.05s; transform: rotate(20deg); }
+    .confetti:nth-child(7) { left: 70%; background: #ffbb33; animation-delay: 0.3s; transform: rotate(50deg); }
+    .confetti:nth-child(8) { left: 80%; background: #ff4444; animation-delay: 0.1s; transform: rotate(80deg); }
+    .confetti:nth-child(9) { left: 90%; background: #00c851; animation-delay: 0.2s; transform: rotate(10deg); }
+    .confetti:nth-child(10) { left: 15%; background: #33b5e5; animation-delay: 0.35s; transform: rotate(40deg); }
+    .confetti:nth-child(11) { left: 25%; background: #ffbb33; animation-delay: 0.15s; transform: rotate(65deg); }
+    .confetti:nth-child(12) { left: 75%; background: #ff4444; animation-delay: 0.25s; transform: rotate(25deg); }
+
+    @keyframes confettiFall {
+      0% { top: -10%; opacity: 1; transform: translateX(0) rotate(0deg); }
+      100% { top: 110%; opacity: 0; transform: translateX(60px) rotate(720deg); }
+    }
+
+    .redirect-hint {
+      margin-top: 12px;
+      color: #444460;
+      font-size: 12px;
+      font-weight: 700;
+      opacity: 0;
+      animation: textSlide 0.5s ease 1s forwards;
+    }
+
     @media (max-width: 480px) {
       .transfer-card {
         padding: 28px 20px;
       }
       .transfer-header h2 {
         font-size: 20px;
+      }
+      .success-text {
+        font-size: 18px;
       }
     }
   </style>
@@ -339,6 +475,32 @@
   <div class="particle"></div>
   <div class="particle"></div>
   <div class="particle"></div>
+</div>
+
+<!-- Success Animation Overlay -->
+<div class="success-overlay" id="successOverlay">
+  <div class="confetti-container">
+    <div class="confetti"></div>
+    <div class="confetti"></div>
+    <div class="confetti"></div>
+    <div class="confetti"></div>
+    <div class="confetti"></div>
+    <div class="confetti"></div>
+    <div class="confetti"></div>
+    <div class="confetti"></div>
+    <div class="confetti"></div>
+    <div class="confetti"></div>
+    <div class="confetti"></div>
+    <div class="confetti"></div>
+  </div>
+  <div class="success-circle">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 13l4 4L19 7" />
+    </svg>
+  </div>
+  <div class="success-text" id="successText">Transfer Successful!</div>
+  <div class="success-subtext" id="successSubtext">Your money has been sent</div>
+  <div class="redirect-hint">Redirecting to dashboard...</div>
 </div>
 
 <div class="transfer-wrapper">
@@ -399,13 +561,13 @@ onAuthStateChanged(auth, async (user) => {
     window.location.href = "login.html";
     return;
   }
-  
+
   currentUsername = sessionStorage.getItem("loggedInUser");
   if (!currentUsername) {
     window.location.href = "login.html";
     return;
   }
-  
+
   const userSnap = await get(ref(db, 'users/' + currentUsername));
   if (userSnap.exists()) {
     userData = userSnap.val();
@@ -418,40 +580,40 @@ async function submitTransfer() {
   let recipientId = document.getElementById("recipientId").value.trim();
   let amount = Number(document.getElementById("transferAmount").value);
   let result = document.getElementById("result");
-  
+
   if (!recipientId) {
     result.className = "show error";
     result.innerText = "❌ Enter recipient Account ID";
     return;
   }
-  
+
   if (!amount || amount <= 0) {
     result.className = "show error";
     result.innerText = "❌ Enter valid amount";
     return;
   }
-  
+
   if (amount > userBalance) {
     result.className = "show error";
     result.innerText = `❌ Insufficient balance! You have $${userBalance.toFixed(2)}`;
     return;
   }
-  
+
   if (recipientId === (userData.accountId || "")) {
     result.className = "show error";
     result.innerText = "❌ Cannot transfer to yourself";
     return;
   }
-  
+
   try {
-    result.className = "show success";
+    result.className = "show loading";
     result.innerText = "⏳ Processing transfer...";
-    
+
     // Find recipient by account ID
     const usersSnap = await get(ref(db, 'users'));
     let recipientUsername = null;
     let recipientData = null;
-    
+
     usersSnap.forEach((childSnap) => {
       let data = childSnap.val();
       if (data.accountId === recipientId) {
@@ -459,26 +621,26 @@ async function submitTransfer() {
         recipientData = data;
       }
     });
-    
+
     if (!recipientUsername) {
       result.className = "show error";
       result.innerText = "❌ Account ID not found";
       return;
     }
-    
+
     if (!confirm(`Send $${amount} to ${recipientData.username || recipientId}?\n\nThis cannot be undone.`)) {
       result.style.display = "none";
       return;
     }
-    
+
     // Perform transfer
     let senderNewBalance = userBalance - amount;
     let recipientNewBalance = (recipientData.balance || 0) + amount;
-    
+
     let updates = {};
     updates['users/' + currentUsername + '/balance'] = senderNewBalance;
     updates['users/' + recipientUsername + '/balance'] = recipientNewBalance;
-    
+
     // Save transfer record
     let transferRecord = {
       from: currentUsername,
@@ -489,25 +651,41 @@ async function submitTransfer() {
       timestamp: Date.now(),
       status: "completed"
     };
-    
+
     let transferRef = push(ref(db, 'transfers'));
     updates['transfers/' + transferRef.key] = transferRecord;
-    
+
     await update(ref(db), updates);
-    
+
     // Update local
     userBalance = senderNewBalance;
     document.getElementById("userBalance").innerText = userBalance.toFixed(2);
     document.getElementById("recipientId").value = "";
     document.getElementById("transferAmount").value = "";
-    
-    result.className = "show success";
-    result.innerText = `✅ Transfer successful! $${amount} sent to ${recipientData.username || recipientId}`;
-    
+
+    // Show success animation overlay
+    showSuccessAnimation(amount, recipientData.username || recipientId);
+
   } catch (error) {
     result.className = "show error";
     result.innerText = "❌ Error: " + error.message;
   }
+}
+
+function showSuccessAnimation(amount, recipientName) {
+  const overlay = document.getElementById("successOverlay");
+  const successText = document.getElementById("successText");
+  const successSubtext = document.getElementById("successSubtext");
+
+  successText.innerText = `Transfer Successful!`;
+  successSubtext.innerText = `$${amount} sent to ${recipientName}`;
+
+  overlay.classList.add("active");
+
+  // Redirect to dashboard after 3 seconds
+  setTimeout(() => {
+    window.location.href = "dashboard.html";
+  }, 3000);
 }
 
 function goBack() {
@@ -519,4 +697,4 @@ window.submitTransfer = submitTransfer;
 </script>
 
 </body>
-  </html>
+    </html>
