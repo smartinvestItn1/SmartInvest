@@ -526,6 +526,7 @@
   </style>
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
 
@@ -844,22 +845,40 @@
       <p style="color:var(--text-muted);margin-bottom:20px;font-size:13px;">Update the wallet addresses users see on the deposit page.</p>
       
       <div class="form-group">
-        <label>Bitcoin (BTC) Address</label>
-        <input type="text" id="walletBTC" placeholder="Enter BTC wallet address...">
-      </div>
-      <div class="form-group">
-        <label>Ethereum (ETH) Address</label>
-        <input type="text" id="walletETH" placeholder="Enter ETH wallet address...">
-      </div>
-      <div class="form-group">
         <label>USDT (TRC20) Address</label>
-        <input type="text" id="walletUSDT" placeholder="Enter USDT wallet address...">
+        <input type="text" id="walletUSDT" placeholder="Enter USDT TRC20 wallet address...">
+      </div>
+      <div class="form-group">
+        <label>USDT (BEP20) Address</label>
+        <input type="text" id="walletUSDT_BEP20" placeholder="Enter USDT BEP20 wallet address...">
       </div>
       <button class="btn btn-primary" onclick="saveWallets()">💾 Save Wallet Addresses</button>
       
       <div style="margin-top:24px;">
         <div class="card-title">Current Addresses</div>
         <div id="currentWallets">
+          <p style="color:var(--text-dim);font-size:13px;">Loading...</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Website Contact Information</div>
+      <p style="color:var(--text-muted);margin-bottom:20px;font-size:13px;">Update the contact details shown on the website.</p>
+
+      <div class="form-group">
+        <label>Contact Phone Number</label>
+        <input type="text" id="contactPhone" placeholder="Enter contact phone number...">
+      </div>
+      <div class="form-group">
+        <label>Contact Email</label>
+        <input type="text" id="contactEmail" placeholder="Enter contact email...">
+      </div>
+      <button class="btn btn-primary" onclick="saveContactInfo()">💾 Save Contact Info</button>
+
+      <div style="margin-top:24px;">
+        <div class="card-title">Current Contact Details</div>
+        <div id="currentContactInfo">
           <p style="color:var(--text-dim);font-size:13px;">Loading...</p>
         </div>
       </div>
@@ -1066,12 +1085,22 @@ async function loadAllData() {
     const walSnap = await get(ref(db, 'settings/wallets'));
     if (walSnap.exists()) {
       const w = walSnap.val();
-      document.getElementById('walletBTC').value = w.btc || '';
-      document.getElementById('walletETH').value = w.eth || '';
       document.getElementById('walletUSDT').value = w.usdt || '';
+      document.getElementById('walletUSDT_BEP20').value = w.usdt_bep20 || '';
       renderCurrentWallets(w);
     } else {
       renderCurrentWallets({});
+    }
+
+    // Contact Info
+    const contactSnap = await get(ref(db, 'settings/contact'));
+    if (contactSnap.exists()) {
+      const c = contactSnap.val();
+      document.getElementById('contactPhone').value = c.phone || '';
+      document.getElementById('contactEmail').value = c.email || '';
+      renderCurrentContactInfo(c);
+    } else {
+      renderCurrentContactInfo({});
     }
 
     renderAll();
@@ -1457,14 +1486,25 @@ function renderInvestments() {
 // ===== WALLETS =====
 function renderCurrentWallets(w) {
   const el = document.getElementById('currentWallets');
-  if (!w || (!w.btc && !w.eth && !w.usdt)) {
+  if (!w || (!w.usdt && !w.usdt_bep20)) {
     el.innerHTML = '<p style="color:var(--text-dim);font-size:13px;">No wallet addresses set yet.</p>';
     return;
   }
   el.innerHTML = `
-    ${w.btc ? `<div style="margin-bottom:12px;"><label style="font-size:11px;color:var(--text-muted);text-transform:uppercase;">Bitcoin</label><div class="wallet-box">${escapeHtml(w.btc)}</div></div>` : ''}
-    ${w.eth ? `<div style="margin-bottom:12px;"><label style="font-size:11px;color:var(--text-muted);text-transform:uppercase;">Ethereum</label><div class="wallet-box">${escapeHtml(w.eth)}</div></div>` : ''}
     ${w.usdt ? `<div style="margin-bottom:12px;"><label style="font-size:11px;color:var(--text-muted);text-transform:uppercase;">USDT TRC20</label><div class="wallet-box">${escapeHtml(w.usdt)}</div></div>` : ''}
+    ${w.usdt_bep20 ? `<div style="margin-bottom:12px;"><label style="font-size:11px;color:var(--text-muted);text-transform:uppercase;">USDT BEP20</label><div class="wallet-box">${escapeHtml(w.usdt_bep20)}</div></div>` : ''}
+  `;
+}
+
+function renderCurrentContactInfo(c) {
+  const el = document.getElementById('currentContactInfo');
+  if (!c || (!c.phone && !c.email)) {
+    el.innerHTML = '<p style="color:var(--text-dim);font-size:13px;">No contact information set yet.</p>';
+    return;
+  }
+  el.innerHTML = `
+    ${c.phone ? `<div style="margin-bottom:12px;"><label style="font-size:11px;color:var(--text-muted);text-transform:uppercase;">Phone Number</label><div class="wallet-box">${escapeHtml(c.phone)}</div></div>` : ''}
+    ${c.email ? `<div style="margin-bottom:12px;"><label style="font-size:11px;color:var(--text-muted);text-transform:uppercase;">Email</label><div class="wallet-box">${escapeHtml(c.email)}</div></div>` : ''}
   `;
 }
 
@@ -1472,14 +1512,28 @@ window.saveWallets = async function() {
   showLoader(true);
   try {
     const data = {
-      btc: document.getElementById('walletBTC').value.trim(),
-      eth: document.getElementById('walletETH').value.trim(),
       usdt: document.getElementById('walletUSDT').value.trim(),
+      usdt_bep20: document.getElementById('walletUSDT_BEP20').value.trim(),
       updatedAt: Date.now()
     };
     await update(ref(db, 'settings/wallets'), data);
     renderCurrentWallets(data);
     showToast("Wallet addresses saved", "success");
+  } catch (e) { showToast("Error: " + e.message, "error"); }
+  showLoader(false);
+};
+
+window.saveContactInfo = async function() {
+  showLoader(true);
+  try {
+    const data = {
+      phone: document.getElementById('contactPhone').value.trim(),
+      email: document.getElementById('contactEmail').value.trim(),
+      updatedAt: Date.now()
+    };
+    await update(ref(db, 'settings/contact'), data);
+    renderCurrentContactInfo(data);
+    showToast("Contact information saved", "success");
   } catch (e) { showToast("Error: " + e.message, "error"); }
   showLoader(false);
 };
