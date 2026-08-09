@@ -868,28 +868,6 @@
         </div>
       </div>
     </div>
-
-    <div class="card">
-      <div class="card-title">Website Contact Information</div>
-      <p style="color:var(--text-muted);margin-bottom:20px;font-size:13px;">Update the contact details shown on the website.</p>
-
-      <div class="form-group">
-        <label>Contact Phone Number</label>
-        <input type="text" id="contactPhone" placeholder="Enter contact phone number...">
-      </div>
-      <div class="form-group">
-        <label>Contact Email</label>
-        <input type="text" id="contactEmail" placeholder="Enter contact email...">
-      </div>
-      <button class="btn btn-primary" onclick="saveContactInfo()">💾 Save Contact Info</button>
-
-      <div style="margin-top:24px;">
-        <div class="card-title">Current Contact Details</div>
-        <div id="currentContactInfo">
-          <p style="color:var(--text-dim);font-size:13px;">Loading...</p>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- TOP UP SECTION -->
@@ -1001,7 +979,7 @@
 <script type="module">
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { ref, get, update, remove, onValue,push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { ref, get, update, remove, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 // ===== DATA STATE =====
 let users = [];
@@ -1031,12 +1009,13 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // ===== LOAD ALL DATA =====
+let refreshInterval = null;
+
 async function loadAllData() {
   showLoader(true);
   let debugInfo = [];
 
   try {
-    // Users
     debugInfo.push("📡 Reading users/...");
     const uSnap = await get(ref(db, 'users'));
     users = []; let totalBal = 0;
@@ -1048,73 +1027,53 @@ async function loadAllData() {
       });
       debugInfo.push(`✅ users/: ${users.length} users found`);
     } else {
-      debugInfo.push("⚠️ users/: EMPTY (no users found)");
+      debugInfo.push("⚠️ users/: EMPTY");
     }
     document.getElementById('statTotalUsers').innerText = users.length;
     document.getElementById('statTotalBalance').innerText = '$' + totalBal.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
     document.getElementById('badgeAccounts').innerText = users.length;
 
-    // Deposits — CRITICAL CHECK
     debugInfo.push("📡 Reading deposits/...");
     const dSnap = await get(ref(db, 'deposits'));
     deposits = [];
     if (dSnap.exists()) {
       dSnap.forEach(c => {
         const val = c.val();
-        debugInfo.push(`   💰 deposit key=${c.key} user=${val.user} amount=${val.amount} status=${val.status}`);
         deposits.push({ id: c.key, ...val });
       });
-      debugInfo.push(`✅ deposits/: ${deposits.length} deposits found (${deposits.filter(d => d.status === 'pending').length} pending)`);
+      debugInfo.push(`✅ deposits/: ${deposits.length} found (${deposits.filter(d => d.status === 'pending').length} pending)`);
     } else {
-      debugInfo.push("❌ deposits/: DOES NOT EXIST — no deposit data at this path!");
-      // Try alternative paths
-      debugInfo.push("📡 Trying alternative: depositRequests/...");
-      const altDep = await get(ref(db, 'depositRequests'));
-      if (altDep.exists()) debugInfo.push("   ⚠️ Found data at depositRequests/ instead!");
-      debugInfo.push("📡 Trying alternative: users/{user}/deposits/...");
-      let foundNested = false;
-      for (const u of users.slice(0, 3)) {
-        const nested = await get(ref(db, 'users/' + u.username + '/deposits'));
-        if (nested.exists()) { foundNested = true; debugInfo.push(`   ⚠️ Found nested deposits under users/${u.username}/deposits/`); }
-      }
-      if (!foundNested) debugInfo.push("   ❌ No nested deposits found under first 3 users");
+      debugInfo.push("❌ deposits/: EMPTY");
     }
     const pendingDep = deposits.filter(d => d.status === 'pending').length;
     document.getElementById('statPendingDeposits').innerText = pendingDep;
     document.getElementById('badgeDeposits').innerText = pendingDep;
 
-    // Withdrawals — CRITICAL CHECK
     debugInfo.push("📡 Reading withdrawals/...");
     const wSnap = await get(ref(db, 'withdrawals'));
     withdrawals = [];
     if (wSnap.exists()) {
       wSnap.forEach(c => {
         const val = c.val();
-        debugInfo.push(`   💸 withdrawal key=${c.key} user=${val.user} amount=${val.amount} status=${val.status}`);
         withdrawals.push({ id: c.key, ...val });
       });
-      debugInfo.push(`✅ withdrawals/: ${withdrawals.length} withdrawals found (${withdrawals.filter(w => w.status === 'pending').length} pending)`);
+      debugInfo.push(`✅ withdrawals/: ${withdrawals.length} found (${withdrawals.filter(w => w.status === 'pending').length} pending)`);
     } else {
-      debugInfo.push("❌ withdrawals/: DOES NOT EXIST — no withdrawal data at this path!");
-      const altWit = await get(ref(db, 'withdrawalRequests'));
-      if (altWit.exists()) debugInfo.push("   ⚠️ Found data at withdrawalRequests/ instead!");
+      debugInfo.push("❌ withdrawals/: EMPTY");
     }
     const pendingWit = withdrawals.filter(w => w.status === 'pending').length;
     document.getElementById('statPendingWithdrawals').innerText = pendingWit;
     document.getElementById('badgeWithdrawals').innerText = pendingWit;
 
-    // Investments
     const iSnap = await get(ref(db, 'investments'));
     investments = [];
     if (iSnap.exists()) { iSnap.forEach(c => investments.push({ id: c.key, ...c.val() })); }
     updateInvestmentStats();
 
-    // Transfers
     const tSnap = await get(ref(db, 'transfers'));
     transfers = [];
     if (tSnap.exists()) { tSnap.forEach(c => transfers.push({ id: c.key, ...c.val() })); }
 
-    // KYC
     const kSnap = await get(ref(db, 'kycRequests'));
     kycData = [];
     if (kSnap.exists()) { kSnap.forEach(c => kycData.push({ key: c.key, ...c.val() })); }
@@ -1122,12 +1081,10 @@ async function loadAllData() {
     document.getElementById('statPendingKyc').innerText = pendingKyc;
     document.getElementById('badgeKyc').innerText = pendingKyc;
 
-    // Global Settings
     const gSnap = await get(ref(db, 'settings/global'));
     if (gSnap.exists()) globalSettings = gSnap.val() || {};
     updateGlobalLockUI();
 
-    // Wallets
     const walSnap = await get(ref(db, 'settings/wallets'));
     if (walSnap.exists()) {
       const w = walSnap.val();
@@ -1138,7 +1095,6 @@ async function loadAllData() {
       renderCurrentWallets({});
     }
 
-    // Contact Info
     const contactSnap = await get(ref(db, 'settings/contact'));
     if (contactSnap.exists()) {
       const c = contactSnap.val();
@@ -1150,17 +1106,76 @@ async function loadAllData() {
     }
 
     renderAll();
-    setupRealtimeListeners();
+
+    if (!refreshInterval) {
+      refreshInterval = setInterval(refreshData, 10000);
+    }
 
   } catch (e) {
     debugInfo.push("🔴 FATAL ERROR: " + e.message);
-    debugInfo.push("Stack: " + (e.stack || "N/A"));
     console.error(e);
     showToast("Error loading data: " + e.message, "error");
   }
 
   document.getElementById('debugPanel').innerHTML = debugInfo.join('<br>');
   showLoader(false);
+}
+
+async function refreshData() {
+  try {
+    const dSnap = await get(ref(db, 'deposits'));
+    deposits = [];
+    if (dSnap.exists()) dSnap.forEach(c => deposits.push({ id: c.key, ...c.val() }));
+    const pendingDep = deposits.filter(d => d.status === 'pending').length;
+    document.getElementById('statPendingDeposits').innerText = pendingDep;
+    document.getElementById('badgeDeposits').innerText = pendingDep;
+    renderDeposits();
+
+    const wSnap = await get(ref(db, 'withdrawals'));
+    withdrawals = [];
+    if (wSnap.exists()) wSnap.forEach(c => withdrawals.push({ id: c.key, ...c.val() }));
+    const pendingWit = withdrawals.filter(w => w.status === 'pending').length;
+    document.getElementById('statPendingWithdrawals').innerText = pendingWit;
+    document.getElementById('badgeWithdrawals').innerText = pendingWit;
+    renderWithdrawals();
+
+    const uSnap = await get(ref(db, 'users'));
+    users = []; let totalBal = 0;
+    if (uSnap.exists()) {
+      uSnap.forEach(c => {
+        const v = c.val();
+        users.push({ username: c.key, ...v });
+        totalBal += Number(v.balance || 0);
+      });
+    }
+    document.getElementById('statTotalUsers').innerText = users.length;
+    document.getElementById('statTotalBalance').innerText = '$' + totalBal.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('badgeAccounts').innerText = users.length;
+    renderAccounts();
+
+    const kSnap = await get(ref(db, 'kycRequests'));
+    kycData = [];
+    if (kSnap.exists()) kSnap.forEach(c => kycData.push({ key: c.key, ...c.val() }));
+    const pendingKyc = kycData.filter(k => k.status === 'pending').length;
+    document.getElementById('statPendingKyc').innerText = pendingKyc;
+    document.getElementById('badgeKyc').innerText = pendingKyc;
+    renderKyc();
+
+    const iSnap = await get(ref(db, 'investments'));
+    investments = [];
+    if (iSnap.exists()) iSnap.forEach(c => investments.push({ id: c.key, ...c.val() }));
+    updateInvestmentStats();
+    renderInvestments();
+
+    const tSnap = await get(ref(db, 'transfers'));
+    transfers = [];
+    if (tSnap.exists()) tSnap.forEach(c => transfers.push({ id: c.key, ...c.val() }));
+    renderTransfers();
+
+    renderDashboardActivity();
+  } catch (e) {
+    console.error("Refresh error:", e);
+  }
 }
 
 function updateInvestmentStats() {
@@ -1172,116 +1187,30 @@ function updateInvestmentStats() {
 window.runDebugCheck = async function() {
   document.getElementById('debugPanel').innerHTML = "Running debug check...";
   let debugInfo = ["🔄 Manual Debug Check — " + new Date().toLocaleTimeString()];
-
   try {
-    // Check deposits
     const dSnap = await get(ref(db, 'deposits'));
     if (dSnap.exists()) {
-      let count = 0;
-      dSnap.forEach(() => count++);
-      debugInfo.push(`✅ deposits/ exists with ${count} records`);
-      dSnap.forEach(c => {
-        const v = c.val();
-        debugInfo.push(`   → ${c.key}: user=${v.user}, amount=$${v.amount}, status=${v.status}, method=${v.method || v.network || 'N/A'}`);
-      });
+      let count = 0, pending = 0;
+      dSnap.forEach(c => { count++; if (c.val().status === 'pending') pending++; });
+      debugInfo.push(`✅ deposits/: ${count} records (${pending} pending)`);
     } else {
-      debugInfo.push("❌ deposits/ path is EMPTY or does not exist");
+      debugInfo.push("❌ deposits/: EMPTY");
     }
-
-    // Check withdrawals
     const wSnap = await get(ref(db, 'withdrawals'));
     if (wSnap.exists()) {
-      let count = 0;
-      wSnap.forEach(() => count++);
-      debugInfo.push(`✅ withdrawals/ exists with ${count} records`);
-      wSnap.forEach(c => {
-        const v = c.val();
-        debugInfo.push(`   → ${c.key}: user=${v.user}, amount=$${v.amount}, status=${v.status}, address=${(v.address || v.wallet || 'N/A').substring(0, 20)}...`);
-      });
+      let count = 0, pending = 0;
+      wSnap.forEach(c => { count++; if (c.val().status === 'pending') pending++; });
+      debugInfo.push(`✅ withdrawals/: ${count} records (${pending} pending)`);
     } else {
-      debugInfo.push("❌ withdrawals/ path is EMPTY or does not exist");
+      debugInfo.push("❌ withdrawals/: EMPTY");
     }
-
-    // Check if data is under users
-    debugInfo.push("📡 Checking for nested data under users/...");
-    const uSnap = await get(ref(db, 'users'));
-    if (uSnap.exists()) {
-      uSnap.forEach(c => {
-        const v = c.val();
-        if (v.deposits) debugInfo.push(`   ⚠️ users/${c.key} has nested 'deposits' object!`);
-        if (v.withdrawals) debugInfo.push(`   ⚠️ users/${c.key} has nested 'withdrawals' object!`);
-      });
-    }
-
+    debugInfo.push(`📊 Current arrays: deposits=${deposits.length}, withdrawals=${withdrawals.length}`);
+    debugInfo.push(`📊 Pending: deposits=${deposits.filter(d=>d.status==='pending').length}, withdrawals=${withdrawals.filter(w=>w.status==='pending').length}`);
   } catch (e) {
     debugInfo.push("🔴 ERROR: " + e.message);
   }
-
   document.getElementById('debugPanel').innerHTML = debugInfo.join('<br>');
 };
-
-function setupRealtimeListeners() {
-  onValue(ref(db, 'users'), (snapshot) => {
-    users = []; let totalBal = 0;
-    if (snapshot.exists()) {
-      snapshot.forEach(c => {
-        const v = c.val();
-        users.push({ username: c.key, ...v });
-        totalBal += Number(v.balance || 0);
-      });
-    }
-    document.getElementById('statTotalUsers').innerText = users.length;
-    document.getElementById('statTotalBalance').innerText = '$' + totalBal.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
-    document.getElementById('badgeAccounts').innerText = users.length;
-    renderAccounts();
-    renderDashboardActivity();
-    updateInvestmentStats();
-  });
-
-  onValue(ref(db, 'deposits'), (snapshot) => {
-    deposits = [];
-    if (snapshot.exists()) snapshot.forEach(c => deposits.push({ id: c.key, ...c.val() }));
-    const pendingDep = deposits.filter(d => d.status === 'pending').length;
-    document.getElementById('statPendingDeposits').innerText = pendingDep;
-    document.getElementById('badgeDeposits').innerText = pendingDep;
-    renderDeposits();
-    renderDashboardActivity();
-  });
-
-  onValue(ref(db, 'withdrawals'), (snapshot) => {
-    withdrawals = [];
-    if (snapshot.exists()) snapshot.forEach(c => withdrawals.push({ id: c.key, ...c.val() }));
-    const pendingWit = withdrawals.filter(w => w.status === 'pending').length;
-    document.getElementById('statPendingWithdrawals').innerText = pendingWit;
-    document.getElementById('badgeWithdrawals').innerText = pendingWit;
-    renderWithdrawals();
-    renderDashboardActivity();
-  });
-
-  onValue(ref(db, 'investments'), (snapshot) => {
-    investments = [];
-    if (snapshot.exists()) snapshot.forEach(c => investments.push({ id: c.key, ...c.val() }));
-    updateInvestmentStats();
-    renderInvestments();
-    renderDashboardActivity();
-  });
-
-  onValue(ref(db, 'transfers'), (snapshot) => {
-    transfers = [];
-    if (snapshot.exists()) snapshot.forEach(c => transfers.push({ id: c.key, ...c.val() }));
-    renderTransfers();
-    renderDashboardActivity();
-  });
-
-  onValue(ref(db, 'kycRequests'), (snapshot) => {
-    kycData = [];
-    if (snapshot.exists()) snapshot.forEach(c => kycData.push({ key: c.key, ...c.val() }));
-    const pendingKyc = kycData.filter(k => k.status === 'pending').length;
-    document.getElementById('statPendingKyc').innerText = pendingKyc;
-    document.getElementById('badgeKyc').innerText = pendingKyc;
-    renderKyc();
-  });
-}
 
 function renderAll() {
   renderAccounts();
