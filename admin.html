@@ -675,6 +675,13 @@
 
   <!-- DASHBOARD SECTION -->
   <div class="section active" id="sec-dashboard">
+    <div class="card" style="margin-bottom:20px;background:rgba(255,68,68,0.05);border-color:rgba(255,68,68,0.15);">
+      <div class="card-title" style="color:#ff6666;">🔍 Debug Panel — Firebase Data Status</div>
+      <div id="debugPanel" style="font-family:monospace;font-size:12px;color:var(--text-muted);line-height:1.8;">
+        Loading debug info...
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="runDebugCheck()" style="margin-top:12px;">🔄 Refresh Debug Check</button>
+    </div>
     <div class="stats-grid">
       <div class="stat-card blue">
         <div class="stat-value" id="statTotalUsers">0</div>
@@ -1026,8 +1033,11 @@ onAuthStateChanged(auth, (user) => {
 // ===== LOAD ALL DATA =====
 async function loadAllData() {
   showLoader(true);
+  let debugInfo = [];
+
   try {
     // Users
+    debugInfo.push("📡 Reading users/...");
     const uSnap = await get(ref(db, 'users'));
     users = []; let totalBal = 0;
     if (uSnap.exists()) {
@@ -1036,23 +1046,59 @@ async function loadAllData() {
         users.push({ username: c.key, ...v });
         totalBal += Number(v.balance || 0);
       });
+      debugInfo.push(`✅ users/: ${users.length} users found`);
+    } else {
+      debugInfo.push("⚠️ users/: EMPTY (no users found)");
     }
     document.getElementById('statTotalUsers').innerText = users.length;
     document.getElementById('statTotalBalance').innerText = '$' + totalBal.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
     document.getElementById('badgeAccounts').innerText = users.length;
 
-    // Deposits
+    // Deposits — CRITICAL CHECK
+    debugInfo.push("📡 Reading deposits/...");
     const dSnap = await get(ref(db, 'deposits'));
     deposits = [];
-    if (dSnap.exists()) { dSnap.forEach(c => deposits.push({ id: c.key, ...c.val() })); }
+    if (dSnap.exists()) {
+      dSnap.forEach(c => {
+        const val = c.val();
+        debugInfo.push(`   💰 deposit key=${c.key} user=${val.user} amount=${val.amount} status=${val.status}`);
+        deposits.push({ id: c.key, ...val });
+      });
+      debugInfo.push(`✅ deposits/: ${deposits.length} deposits found (${deposits.filter(d => d.status === 'pending').length} pending)`);
+    } else {
+      debugInfo.push("❌ deposits/: DOES NOT EXIST — no deposit data at this path!");
+      // Try alternative paths
+      debugInfo.push("📡 Trying alternative: depositRequests/...");
+      const altDep = await get(ref(db, 'depositRequests'));
+      if (altDep.exists()) debugInfo.push("   ⚠️ Found data at depositRequests/ instead!");
+      debugInfo.push("📡 Trying alternative: users/{user}/deposits/...");
+      let foundNested = false;
+      for (const u of users.slice(0, 3)) {
+        const nested = await get(ref(db, 'users/' + u.username + '/deposits'));
+        if (nested.exists()) { foundNested = true; debugInfo.push(`   ⚠️ Found nested deposits under users/${u.username}/deposits/`); }
+      }
+      if (!foundNested) debugInfo.push("   ❌ No nested deposits found under first 3 users");
+    }
     const pendingDep = deposits.filter(d => d.status === 'pending').length;
     document.getElementById('statPendingDeposits').innerText = pendingDep;
     document.getElementById('badgeDeposits').innerText = pendingDep;
 
-    // Withdrawals
+    // Withdrawals — CRITICAL CHECK
+    debugInfo.push("📡 Reading withdrawals/...");
     const wSnap = await get(ref(db, 'withdrawals'));
     withdrawals = [];
-    if (wSnap.exists()) { wSnap.forEach(c => withdrawals.push({ id: c.key, ...c.val() })); }
+    if (wSnap.exists()) {
+      wSnap.forEach(c => {
+        const val = c.val();
+        debugInfo.push(`   💸 withdrawal key=${c.key} user=${val.user} amount=${val.amount} status=${val.status}`);
+        withdrawals.push({ id: c.key, ...val });
+      });
+      debugInfo.push(`✅ withdrawals/: ${withdrawals.length} withdrawals found (${withdrawals.filter(w => w.status === 'pending').length} pending)`);
+    } else {
+      debugInfo.push("❌ withdrawals/: DOES NOT EXIST — no withdrawal data at this path!");
+      const altWit = await get(ref(db, 'withdrawalRequests'));
+      if (altWit.exists()) debugInfo.push("   ⚠️ Found data at withdrawalRequests/ instead!");
+    }
     const pendingWit = withdrawals.filter(w => w.status === 'pending').length;
     document.getElementById('statPendingWithdrawals').innerText = pendingWit;
     document.getElementById('badgeWithdrawals').innerText = pendingWit;
@@ -1104,13 +1150,16 @@ async function loadAllData() {
     }
 
     renderAll();
-
-    // Set up real-time listeners so data updates automatically
     setupRealtimeListeners();
+
   } catch (e) {
+    debugInfo.push("🔴 FATAL ERROR: " + e.message);
+    debugInfo.push("Stack: " + (e.stack || "N/A"));
     console.error(e);
     showToast("Error loading data: " + e.message, "error");
   }
+
+  document.getElementById('debugPanel').innerHTML = debugInfo.join('<br>');
   showLoader(false);
 }
 
@@ -1119,6 +1168,57 @@ function updateInvestmentStats() {
   const fromUsers = users.filter(u => u.plan && u.plan !== "None").length;
   document.getElementById('statTotalInvestments').innerText = Math.max(fromCollection, fromUsers);
 }
+
+window.runDebugCheck = async function() {
+  document.getElementById('debugPanel').innerHTML = "Running debug check...";
+  let debugInfo = ["🔄 Manual Debug Check — " + new Date().toLocaleTimeString()];
+
+  try {
+    // Check deposits
+    const dSnap = await get(ref(db, 'deposits'));
+    if (dSnap.exists()) {
+      let count = 0;
+      dSnap.forEach(() => count++);
+      debugInfo.push(`✅ deposits/ exists with ${count} records`);
+      dSnap.forEach(c => {
+        const v = c.val();
+        debugInfo.push(`   → ${c.key}: user=${v.user}, amount=$${v.amount}, status=${v.status}, method=${v.method || v.network || 'N/A'}`);
+      });
+    } else {
+      debugInfo.push("❌ deposits/ path is EMPTY or does not exist");
+    }
+
+    // Check withdrawals
+    const wSnap = await get(ref(db, 'withdrawals'));
+    if (wSnap.exists()) {
+      let count = 0;
+      wSnap.forEach(() => count++);
+      debugInfo.push(`✅ withdrawals/ exists with ${count} records`);
+      wSnap.forEach(c => {
+        const v = c.val();
+        debugInfo.push(`   → ${c.key}: user=${v.user}, amount=$${v.amount}, status=${v.status}, address=${(v.address || v.wallet || 'N/A').substring(0, 20)}...`);
+      });
+    } else {
+      debugInfo.push("❌ withdrawals/ path is EMPTY or does not exist");
+    }
+
+    // Check if data is under users
+    debugInfo.push("📡 Checking for nested data under users/...");
+    const uSnap = await get(ref(db, 'users'));
+    if (uSnap.exists()) {
+      uSnap.forEach(c => {
+        const v = c.val();
+        if (v.deposits) debugInfo.push(`   ⚠️ users/${c.key} has nested 'deposits' object!`);
+        if (v.withdrawals) debugInfo.push(`   ⚠️ users/${c.key} has nested 'withdrawals' object!`);
+      });
+    }
+
+  } catch (e) {
+    debugInfo.push("🔴 ERROR: " + e.message);
+  }
+
+  document.getElementById('debugPanel').innerHTML = debugInfo.join('<br>');
+};
 
 function setupRealtimeListeners() {
   onValue(ref(db, 'users'), (snapshot) => {
