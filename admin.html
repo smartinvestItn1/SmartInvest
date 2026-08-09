@@ -1061,7 +1061,7 @@ async function loadAllData() {
     const iSnap = await get(ref(db, 'investments'));
     investments = [];
     if (iSnap.exists()) { iSnap.forEach(c => investments.push({ id: c.key, ...c.val() })); }
-    document.getElementById('statTotalInvestments').innerText = investments.filter(i => i.status === 'active' || !i.status).length;
+    updateInvestmentStats();
 
     // Transfers
     const tSnap = await get(ref(db, 'transfers'));
@@ -1104,11 +1104,83 @@ async function loadAllData() {
     }
 
     renderAll();
+
+    // Set up real-time listeners so data updates automatically
+    setupRealtimeListeners();
   } catch (e) {
     console.error(e);
     showToast("Error loading data: " + e.message, "error");
   }
   showLoader(false);
+}
+
+function updateInvestmentStats() {
+  const fromCollection = investments.filter(i => i.status === 'active' || !i.status).length;
+  const fromUsers = users.filter(u => u.plan && u.plan !== "None").length;
+  document.getElementById('statTotalInvestments').innerText = Math.max(fromCollection, fromUsers);
+}
+
+function setupRealtimeListeners() {
+  onValue(ref(db, 'users'), (snapshot) => {
+    users = []; let totalBal = 0;
+    if (snapshot.exists()) {
+      snapshot.forEach(c => {
+        const v = c.val();
+        users.push({ username: c.key, ...v });
+        totalBal += Number(v.balance || 0);
+      });
+    }
+    document.getElementById('statTotalUsers').innerText = users.length;
+    document.getElementById('statTotalBalance').innerText = '$' + totalBal.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('badgeAccounts').innerText = users.length;
+    renderAccounts();
+    renderDashboardActivity();
+    updateInvestmentStats();
+  });
+
+  onValue(ref(db, 'deposits'), (snapshot) => {
+    deposits = [];
+    if (snapshot.exists()) snapshot.forEach(c => deposits.push({ id: c.key, ...c.val() }));
+    const pendingDep = deposits.filter(d => d.status === 'pending').length;
+    document.getElementById('statPendingDeposits').innerText = pendingDep;
+    document.getElementById('badgeDeposits').innerText = pendingDep;
+    renderDeposits();
+    renderDashboardActivity();
+  });
+
+  onValue(ref(db, 'withdrawals'), (snapshot) => {
+    withdrawals = [];
+    if (snapshot.exists()) snapshot.forEach(c => withdrawals.push({ id: c.key, ...c.val() }));
+    const pendingWit = withdrawals.filter(w => w.status === 'pending').length;
+    document.getElementById('statPendingWithdrawals').innerText = pendingWit;
+    document.getElementById('badgeWithdrawals').innerText = pendingWit;
+    renderWithdrawals();
+    renderDashboardActivity();
+  });
+
+  onValue(ref(db, 'investments'), (snapshot) => {
+    investments = [];
+    if (snapshot.exists()) snapshot.forEach(c => investments.push({ id: c.key, ...c.val() }));
+    updateInvestmentStats();
+    renderInvestments();
+    renderDashboardActivity();
+  });
+
+  onValue(ref(db, 'transfers'), (snapshot) => {
+    transfers = [];
+    if (snapshot.exists()) snapshot.forEach(c => transfers.push({ id: c.key, ...c.val() }));
+    renderTransfers();
+    renderDashboardActivity();
+  });
+
+  onValue(ref(db, 'kycRequests'), (snapshot) => {
+    kycData = [];
+    if (snapshot.exists()) snapshot.forEach(c => kycData.push({ key: c.key, ...c.val() }));
+    const pendingKyc = kycData.filter(k => k.status === 'pending').length;
+    document.getElementById('statPendingKyc').innerText = pendingKyc;
+    document.getElementById('badgeKyc').innerText = pendingKyc;
+    renderKyc();
+  });
 }
 
 function renderAll() {
