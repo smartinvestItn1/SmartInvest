@@ -511,6 +511,7 @@
     }
     .sidebar-backdrop.active { display: block; }
   </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -650,6 +651,10 @@
     <h2 id="pageTitle">Dashboard</h2>
     <div class="topbar-actions">
       <span style="color:var(--text-muted);font-size:13px;" id="currentDate"></span>
+      <button class="btn btn-outline btn-sm" onclick="logout()" style="display:flex;align-items:center;gap:6px;">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        Logout
+      </button>
     </div>
   </div>
 
@@ -1176,11 +1181,8 @@ window.toggleUserFlag = async function(username, flag, current) {
 
 // ===== IMPERSONATE USER =====
 window.impersonateUser = async function(username) {
-  const pass = prompt(`Enter YOUR admin password to access ${username}'s dashboard:`);
-  if (!pass) return;
   showLoader(true);
   try {
-    // Verify admin is still logged in by re-checking
     const snap = await get(ref(db, 'users/' + username));
     if (!snap.exists()) { showToast("User not found", "error"); showLoader(false); return; }
     const u = snap.val();
