@@ -675,13 +675,6 @@
 
   <!-- DASHBOARD SECTION -->
   <div class="section active" id="sec-dashboard">
-    <div class="card" style="margin-bottom:20px;background:rgba(255,68,68,0.05);border-color:rgba(255,68,68,0.15);">
-      <div class="card-title" style="color:#ff6666;">🔍 Debug Panel — Firebase Data Status</div>
-      <div id="debugPanel" style="font-family:monospace;font-size:12px;color:var(--text-muted);line-height:1.8;">
-        Loading debug info...
-      </div>
-      <button class="btn btn-outline btn-sm" onclick="runDebugCheck()" style="margin-top:12px;">🔄 Refresh Debug Check</button>
-    </div>
     <div class="stats-grid">
       <div class="stat-card blue">
         <div class="stat-value" id="statTotalUsers">0</div>
@@ -979,7 +972,7 @@
 <script type="module">
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { ref, get, update, remove, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { ref, get, update, remove, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 // ===== DATA STATE =====
 let users = [];
@@ -1009,14 +1002,14 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // ===== LOAD ALL DATA =====
-let refreshInterval = null;
+let refreshTimer = null;
+let lastDeposits = [];
+let lastWithdrawals = [];
 
 async function loadAllData() {
   showLoader(true);
-  let debugInfo = [];
-
   try {
-    debugInfo.push("📡 Reading users/...");
+    // Users
     const uSnap = await get(ref(db, 'users'));
     users = []; let totalBal = 0;
     if (uSnap.exists()) {
@@ -1025,55 +1018,49 @@ async function loadAllData() {
         users.push({ username: c.key, ...v });
         totalBal += Number(v.balance || 0);
       });
-      debugInfo.push(`✅ users/: ${users.length} users found`);
-    } else {
-      debugInfo.push("⚠️ users/: EMPTY");
     }
     document.getElementById('statTotalUsers').innerText = users.length;
     document.getElementById('statTotalBalance').innerText = '$' + totalBal.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
     document.getElementById('badgeAccounts').innerText = users.length;
 
-    debugInfo.push("📡 Reading deposits/...");
+    // Deposits — ONLY update if we actually got data back
     const dSnap = await get(ref(db, 'deposits'));
-    deposits = [];
     if (dSnap.exists()) {
-      dSnap.forEach(c => {
-        const val = c.val();
-        deposits.push({ id: c.key, ...val });
-      });
-      debugInfo.push(`✅ deposits/: ${deposits.length} found (${deposits.filter(d => d.status === 'pending').length} pending)`);
-    } else {
-      debugInfo.push("❌ deposits/: EMPTY");
+      deposits = [];
+      dSnap.forEach(c => deposits.push({ id: c.key, ...c.val() }));
+      lastDeposits = [...deposits];
+    } else if (lastDeposits.length > 0) {
+      deposits = [...lastDeposits];
     }
     const pendingDep = deposits.filter(d => d.status === 'pending').length;
     document.getElementById('statPendingDeposits').innerText = pendingDep;
     document.getElementById('badgeDeposits').innerText = pendingDep;
 
-    debugInfo.push("📡 Reading withdrawals/...");
+    // Withdrawals — ONLY update if we actually got data back
     const wSnap = await get(ref(db, 'withdrawals'));
-    withdrawals = [];
     if (wSnap.exists()) {
-      wSnap.forEach(c => {
-        const val = c.val();
-        withdrawals.push({ id: c.key, ...val });
-      });
-      debugInfo.push(`✅ withdrawals/: ${withdrawals.length} found (${withdrawals.filter(w => w.status === 'pending').length} pending)`);
-    } else {
-      debugInfo.push("❌ withdrawals/: EMPTY");
+      withdrawals = [];
+      wSnap.forEach(c => withdrawals.push({ id: c.key, ...c.val() }));
+      lastWithdrawals = [...withdrawals];
+    } else if (lastWithdrawals.length > 0) {
+      withdrawals = [...lastWithdrawals];
     }
     const pendingWit = withdrawals.filter(w => w.status === 'pending').length;
     document.getElementById('statPendingWithdrawals').innerText = pendingWit;
     document.getElementById('badgeWithdrawals').innerText = pendingWit;
 
+    // Investments
     const iSnap = await get(ref(db, 'investments'));
     investments = [];
     if (iSnap.exists()) { iSnap.forEach(c => investments.push({ id: c.key, ...c.val() })); }
     updateInvestmentStats();
 
+    // Transfers
     const tSnap = await get(ref(db, 'transfers'));
     transfers = [];
     if (tSnap.exists()) { tSnap.forEach(c => transfers.push({ id: c.key, ...c.val() })); }
 
+    // KYC
     const kSnap = await get(ref(db, 'kycRequests'));
     kycData = [];
     if (kSnap.exists()) { kSnap.forEach(c => kycData.push({ key: c.key, ...c.val() })); }
@@ -1081,10 +1068,12 @@ async function loadAllData() {
     document.getElementById('statPendingKyc').innerText = pendingKyc;
     document.getElementById('badgeKyc').innerText = pendingKyc;
 
+    // Global Settings
     const gSnap = await get(ref(db, 'settings/global'));
     if (gSnap.exists()) globalSettings = gSnap.val() || {};
     updateGlobalLockUI();
 
+    // Wallets
     const walSnap = await get(ref(db, 'settings/wallets'));
     if (walSnap.exists()) {
       const w = walSnap.val();
@@ -1095,6 +1084,7 @@ async function loadAllData() {
       renderCurrentWallets({});
     }
 
+    // Contact Info
     const contactSnap = await get(ref(db, 'settings/contact'));
     if (contactSnap.exists()) {
       const c = contactSnap.val();
@@ -1107,75 +1097,14 @@ async function loadAllData() {
 
     renderAll();
 
-    if (!refreshInterval) {
-      refreshInterval = setInterval(refreshData, 10000);
-    }
+    // Set up real-time listeners that DON'T clear data on empty snapshots
+    setupSafeListeners();
 
   } catch (e) {
-    debugInfo.push("🔴 FATAL ERROR: " + e.message);
     console.error(e);
     showToast("Error loading data: " + e.message, "error");
   }
-
-  document.getElementById('debugPanel').innerHTML = debugInfo.join('<br>');
   showLoader(false);
-}
-
-async function refreshData() {
-  try {
-    const dSnap = await get(ref(db, 'deposits'));
-    deposits = [];
-    if (dSnap.exists()) dSnap.forEach(c => deposits.push({ id: c.key, ...c.val() }));
-    const pendingDep = deposits.filter(d => d.status === 'pending').length;
-    document.getElementById('statPendingDeposits').innerText = pendingDep;
-    document.getElementById('badgeDeposits').innerText = pendingDep;
-    renderDeposits();
-
-    const wSnap = await get(ref(db, 'withdrawals'));
-    withdrawals = [];
-    if (wSnap.exists()) wSnap.forEach(c => withdrawals.push({ id: c.key, ...c.val() }));
-    const pendingWit = withdrawals.filter(w => w.status === 'pending').length;
-    document.getElementById('statPendingWithdrawals').innerText = pendingWit;
-    document.getElementById('badgeWithdrawals').innerText = pendingWit;
-    renderWithdrawals();
-
-    const uSnap = await get(ref(db, 'users'));
-    users = []; let totalBal = 0;
-    if (uSnap.exists()) {
-      uSnap.forEach(c => {
-        const v = c.val();
-        users.push({ username: c.key, ...v });
-        totalBal += Number(v.balance || 0);
-      });
-    }
-    document.getElementById('statTotalUsers').innerText = users.length;
-    document.getElementById('statTotalBalance').innerText = '$' + totalBal.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
-    document.getElementById('badgeAccounts').innerText = users.length;
-    renderAccounts();
-
-    const kSnap = await get(ref(db, 'kycRequests'));
-    kycData = [];
-    if (kSnap.exists()) kSnap.forEach(c => kycData.push({ key: c.key, ...c.val() }));
-    const pendingKyc = kycData.filter(k => k.status === 'pending').length;
-    document.getElementById('statPendingKyc').innerText = pendingKyc;
-    document.getElementById('badgeKyc').innerText = pendingKyc;
-    renderKyc();
-
-    const iSnap = await get(ref(db, 'investments'));
-    investments = [];
-    if (iSnap.exists()) iSnap.forEach(c => investments.push({ id: c.key, ...c.val() }));
-    updateInvestmentStats();
-    renderInvestments();
-
-    const tSnap = await get(ref(db, 'transfers'));
-    transfers = [];
-    if (tSnap.exists()) tSnap.forEach(c => transfers.push({ id: c.key, ...c.val() }));
-    renderTransfers();
-
-    renderDashboardActivity();
-  } catch (e) {
-    console.error("Refresh error:", e);
-  }
 }
 
 function updateInvestmentStats() {
@@ -1184,33 +1113,86 @@ function updateInvestmentStats() {
   document.getElementById('statTotalInvestments').innerText = Math.max(fromCollection, fromUsers);
 }
 
-window.runDebugCheck = async function() {
-  document.getElementById('debugPanel').innerHTML = "Running debug check...";
-  let debugInfo = ["🔄 Manual Debug Check — " + new Date().toLocaleTimeString()];
-  try {
-    const dSnap = await get(ref(db, 'deposits'));
-    if (dSnap.exists()) {
-      let count = 0, pending = 0;
-      dSnap.forEach(c => { count++; if (c.val().status === 'pending') pending++; });
-      debugInfo.push(`✅ deposits/: ${count} records (${pending} pending)`);
-    } else {
-      debugInfo.push("❌ deposits/: EMPTY");
+function setupSafeListeners() {
+  // Deposits listener — only update if snapshot has actual data
+  onValue(ref(db, 'deposits'), (snap) => {
+    if (snap.exists() && snap.hasChildren && snap.hasChildren()) {
+      deposits = [];
+      snap.forEach(c => deposits.push({ id: c.key, ...c.val() }));
+      lastDeposits = [...deposits];
+      const pendingDep = deposits.filter(d => d.status === 'pending').length;
+      document.getElementById('statPendingDeposits').innerText = pendingDep;
+      document.getElementById('badgeDeposits').innerText = pendingDep;
+      renderDeposits();
+      renderDashboardActivity();
     }
-    const wSnap = await get(ref(db, 'withdrawals'));
-    if (wSnap.exists()) {
-      let count = 0, pending = 0;
-      wSnap.forEach(c => { count++; if (c.val().status === 'pending') pending++; });
-      debugInfo.push(`✅ withdrawals/: ${count} records (${pending} pending)`);
-    } else {
-      debugInfo.push("❌ withdrawals/: EMPTY");
+  }, { onlyOnce: false });
+
+  // Withdrawals listener — only update if snapshot has actual data
+  onValue(ref(db, 'withdrawals'), (snap) => {
+    if (snap.exists() && snap.hasChildren && snap.hasChildren()) {
+      withdrawals = [];
+      snap.forEach(c => withdrawals.push({ id: c.key, ...c.val() }));
+      lastWithdrawals = [...withdrawals];
+      const pendingWit = withdrawals.filter(w => w.status === 'pending').length;
+      document.getElementById('statPendingWithdrawals').innerText = pendingWit;
+      document.getElementById('badgeWithdrawals').innerText = pendingWit;
+      renderWithdrawals();
+      renderDashboardActivity();
     }
-    debugInfo.push(`📊 Current arrays: deposits=${deposits.length}, withdrawals=${withdrawals.length}`);
-    debugInfo.push(`📊 Pending: deposits=${deposits.filter(d=>d.status==='pending').length}, withdrawals=${withdrawals.filter(w=>w.status==='pending').length}`);
-  } catch (e) {
-    debugInfo.push("🔴 ERROR: " + e.message);
-  }
-  document.getElementById('debugPanel').innerHTML = debugInfo.join('<br>');
-};
+  }, { onlyOnce: false });
+
+  // Users listener
+  onValue(ref(db, 'users'), (snap) => {
+    if (snap.exists() && snap.hasChildren && snap.hasChildren()) {
+      users = []; let totalBal = 0;
+      snap.forEach(c => {
+        const v = c.val();
+        users.push({ username: c.key, ...v });
+        totalBal += Number(v.balance || 0);
+      });
+      document.getElementById('statTotalUsers').innerText = users.length;
+      document.getElementById('statTotalBalance').innerText = '$' + totalBal.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+      document.getElementById('badgeAccounts').innerText = users.length;
+      renderAccounts();
+      updateInvestmentStats();
+      renderDashboardActivity();
+    }
+  }, { onlyOnce: false });
+
+  // KYC listener
+  onValue(ref(db, 'kycRequests'), (snap) => {
+    if (snap.exists() && snap.hasChildren && snap.hasChildren()) {
+      kycData = [];
+      snap.forEach(c => kycData.push({ key: c.key, ...c.val() }));
+      const pendingKyc = kycData.filter(k => k.status === 'pending').length;
+      document.getElementById('statPendingKyc').innerText = pendingKyc;
+      document.getElementById('badgeKyc').innerText = pendingKyc;
+      renderKyc();
+    }
+  }, { onlyOnce: false });
+
+  // Investments listener
+  onValue(ref(db, 'investments'), (snap) => {
+    if (snap.exists() && snap.hasChildren && snap.hasChildren()) {
+      investments = [];
+      snap.forEach(c => investments.push({ id: c.key, ...c.val() }));
+      updateInvestmentStats();
+      renderInvestments();
+      renderDashboardActivity();
+    }
+  }, { onlyOnce: false });
+
+  // Transfers listener
+  onValue(ref(db, 'transfers'), (snap) => {
+    if (snap.exists() && snap.hasChildren && snap.hasChildren()) {
+      transfers = [];
+      snap.forEach(c => transfers.push({ id: c.key, ...c.val() }));
+      renderTransfers();
+      renderDashboardActivity();
+    }
+  }, { onlyOnce: false });
+}
 
 function renderAll() {
   renderAccounts();
