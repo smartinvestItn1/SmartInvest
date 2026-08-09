@@ -472,6 +472,7 @@
       .copy-btn { width: 100%; justify-content: center; }
     }
   </style>
+<base target="_blank">
 </head>
 
 <body>
@@ -559,7 +560,7 @@
 <script type="module">
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { ref, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { ref, get, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 emailjs.init("adbMnb80leKvWnxdc");
 
@@ -577,8 +578,9 @@ function notifyAdmin(subject, message) {
 }
 
 let currentUser = null;
+let globalLocks = {};
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.replace("login.html");
     return;
@@ -586,22 +588,34 @@ onAuthStateChanged(auth, (user) => {
   currentUser = sessionStorage.getItem("loggedInUser");
   if (!currentUser) {
     window.location.replace("login.html");
+    return;
   }
+  try {
+    const lockSnap = await get(ref(db, 'settings/global'));
+    if (lockSnap.exists()) globalLocks = lockSnap.val() || {};
+  } catch (e) { console.error(e); }
+  await loadWalletAddresses();
 });
 
-const wallets = {
-  TRC20: "TBdkLH7z9d6p6NKk3pZcoDdMzwoSxTfcQA",
-  BEP20: "0x681ef5FF6d9e2FD31ce87Cd256d09a0e4755F9d9"
-};
+let walletAddresses = {};
+
+async function loadWalletAddresses() {
+  try {
+    const snap = await get(ref(db, 'settings/wallets'));
+    if (snap.exists()) walletAddresses = snap.val() || {};
+  } catch (e) { console.error("Failed to load wallets:", e); }
+  updateWallet();
+}
 
 function updateWallet() {
   let network = document.getElementById("network").value;
-  let walletAddress = wallets[network];
+  let key = network === 'BEP20' ? 'usdt_bep20' : 'usdt';
+  let walletAddress = walletAddresses[key] || 'Not configured by admin';
   document.getElementById("wallet").value = walletAddress;
-  document.getElementById("qrCode").innerHTML = "QR for<br>USDT " + network + "<br>" + walletAddress.substring(0, 10) + "...";
+  document.getElementById("qrCode").innerHTML = "QR for<br>USDT " + network + "<br>" + (walletAddress.length > 10 ? walletAddress.substring(0, 10) + "..." : walletAddress);
 }
 
-updateWallet();
+loadWalletAddresses();
 
 function copyWallet() {
   let input = document.getElementById("wallet");
@@ -641,18 +655,29 @@ async function submitDeposit() {
     return;
   }
 
+  if (globalLocks.canDeposit === false) {
+    result.className = "show error";
+    result.innerText = "❌ Deposits are temporarily disabled. " + (globalLocks.depositBlockReason || "Contact support.");
+    return;
+  }
+
+  if (wallet === 'Not configured by admin') {
+    result.className = "show error";
+    result.innerText = "❌ Wallet address not configured. Please contact support.";
+    return;
+  }
+
   try {
     result.className = "show loading";
     result.innerText = "⏳ Submitting deposit...";
 
     await push(ref(db, 'deposits'), {
       user: currentUser,
-      coin: "USDT",
-      network: network,
       amount: amount,
+      method: network,
+      network: network,
       wallet: wallet,
       status: "pending",
-      type: "deposit",
       time: Date.now()
     });
 
