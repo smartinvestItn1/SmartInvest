@@ -159,6 +159,7 @@
     }
   </style>
 <base target="_blank">
+<base target="_blank">
 </head>
 
 <body>
@@ -321,7 +322,7 @@
 <script type="module">
 import { auth, db } from "./firebase.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { ref, get, update, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 let currentUsername = null;
@@ -403,6 +404,7 @@ async function checkAndAutoClaim() {
     const totalReturn = investedAmount + profitAmount;
     const newBalance = (userData.balance || 0) + totalReturn;
     const newTotalProfit = (userData.totalProfit || 0) + profitAmount;
+    const planName = userData.plan; // save before clearing
 
     await update(ref(db, 'users/' + currentUsername), {
       balance: newBalance,
@@ -418,7 +420,7 @@ async function checkAndAutoClaim() {
       user: currentUsername,
       type: "profit",
       amount: profitAmount,
-      plan: userData.plan,
+      plan: planName,
       time: Date.now(),
       status: "completed"
     };
@@ -435,7 +437,7 @@ async function checkAndAutoClaim() {
 
     await updateUI();
     await loadRecentActivity();
-    showProfitToast(`+$${profitAmount.toFixed(2)} ${userData.plan} profit auto-claimed!`);
+    showProfitToast(`+$${profitAmount.toFixed(2)} ${planName} profit auto-claimed!`);
   }
 }
 
