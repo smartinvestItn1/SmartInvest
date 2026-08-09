@@ -149,6 +149,50 @@
     .iframe-wrap { width: 100%; border: 1px solid var(--border); border-radius: 16px; background: var(--bg); overflow: hidden; }
     .activity-box { width: 100%; min-height: 200px; border: 1px solid var(--border); border-radius: 16px; background: var(--bg); padding: 20px; }
 
+    .impersonate-banner {
+      background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(51,181,229,0.1));
+      border: 1px solid rgba(139,92,246,0.2);
+      border-radius: 16px;
+      padding: 14px 20px;
+      margin: 12px 16px 0;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      animation: cardIn 0.5s ease forwards;
+      position: relative;
+      z-index: 99;
+    }
+    .impersonate-banner.active { display: flex; }
+    .impersonate-banner .impersonate-info {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .impersonate-banner .impersonate-icon {
+      width: 32px; height: 32px; border-radius: 10px;
+      background: rgba(139,92,246,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+    }
+    .impersonate-banner .impersonate-text {
+      font-size: 13px; color: #fff;
+    }
+    .impersonate-banner .impersonate-text span {
+      color: #8b5cf6; font-weight: 800;
+    }
+    .impersonate-banner .exit-btn {
+      background: rgba(255,68,68,0.1);
+      border: 1px solid rgba(255,68,68,0.2);
+      color: #ff4444;
+      padding: 8px 16px; border-radius: 10px;
+      font-size: 12px; font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .impersonate-banner .exit-btn:hover {
+      background: rgba(255,68,68,0.2);
+      transform: translateY(-1px);
+    }
+
     @media (max-width: 360px) {
       .balance-amount { font-size: 28px; }
       .balance-amount.hidden { font-size: 28px; }
@@ -163,6 +207,14 @@
 </head>
 
 <body>
+
+<div class="impersonate-banner" id="impersonateBanner">
+  <div class="impersonate-info">
+    <div class="impersonate-icon">👁️</div>
+    <div class="impersonate-text">Viewing as <span id="impersonateName">User</span> (Admin Mode)</div>
+  </div>
+  <button class="exit-btn" onclick="exitImpersonation()">Exit View</button>
+</div>
 
 <div class="profit-toast" id="profitToast">
   <span style="font-size:20px;">🎉</span>
@@ -337,11 +389,27 @@ let autoClaimTimer = null;
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.replace("login.html"); return; }
 
-  const usersSnap = await get(ref(db, 'users'));
-  usersSnap.forEach((childSnap) => {
-    const data = childSnap.val();
-    if (data.uid === user.uid) { currentUsername = childSnap.key; userData = data; }
-  });
+  const impersonateTarget = sessionStorage.getItem("impersonateTarget");
+
+  if (impersonateTarget) {
+    const targetSnap = await get(ref(db, 'users/' + impersonateTarget));
+    if (targetSnap.exists()) {
+      currentUsername = impersonateTarget;
+      userData = targetSnap.val();
+      const banner = document.getElementById("impersonateBanner");
+      const nameEl = document.getElementById("impersonateName");
+      if (banner && nameEl) {
+        nameEl.innerText = userData.username || impersonateTarget;
+        banner.classList.add("active");
+      }
+    }
+  } else {
+    const usersSnap = await get(ref(db, 'users'));
+    usersSnap.forEach((childSnap) => {
+      const data = childSnap.val();
+      if (data.uid === user.uid) { currentUsername = childSnap.key; userData = data; }
+    });
+  }
 
   if (!userData) { sessionStorage.clear(); window.location.replace("login.html"); return; }
 
@@ -737,6 +805,12 @@ window.copyDashRefLink = function() {
   const input = document.getElementById("dashRefLink");
   input.select();
   navigator.clipboard.writeText(input.value).then(() => alert("Referral link copied!"));
+};
+
+window.exitImpersonation = function() {
+  sessionStorage.removeItem("impersonateTarget");
+  sessionStorage.removeItem("impersonateUid");
+  window.location.reload();
 };
 
 window.logout = async function() {
