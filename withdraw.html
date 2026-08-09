@@ -423,6 +423,7 @@ c851;
       .withdraw-header h2 { font-size: 20px; }
     }
   </style>
+<base target="_blank">
 </head>
 
 <body>
@@ -527,6 +528,7 @@ let currentUser = null;
 let currentUsername = null;
 let userBalance = 0;
 let adminFlags = { canWithdraw: true, blockReason: "" };
+let globalLocks = {};
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -594,28 +596,29 @@ async function submitWithdraw() {
     return;
   }
 
+  if (globalLocks.canWithdraw === false) {
+    result.className = "show error";
+    result.innerText = "❌ " + (globalLocks.withdrawBlockReason || "Withdrawals temporarily disabled");
+    return;
+  }
+
   try {
     result.className = "show loading";
     result.innerText = "⏳ Submitting withdrawal...";
 
     await push(ref(db, 'withdrawals'), {
       user: currentUsername,
-      wallet: wallet,
+      address: wallet,
       amount: amount,
-      coin: coin,
+      method: coin,
       status: "pending",
-      type: "withdraw",
       time: Date.now()
     });
 
-    let newBalance = userBalance - amount;
+    // Save wallet to user profile only — admin handles balance deduction on approval
     await update(ref(db, 'users/' + currentUsername), {
-      wallet: wallet,
-      balance: newBalance
+      wallet: wallet
     });
-
-    userBalance = newBalance;
-    document.getElementById("userBalance").innerText = userBalance.toFixed(2);
 
     notifyAdmin(
       "🏧 New Withdrawal — $" + amount + " (" + coin + ") from " + currentUsername,
