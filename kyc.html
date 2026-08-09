@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KYC Verification — SmartInvest</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-weight: 700 !important; }
+    :root {
+      --bg: #0a0805; --surface: #14100c; --surface-light: #1e1912;
+      --border: rgba(255,200,100,0.08); --text: #f5e6c8;
+      --text-muted: #a89070; --text-dim: #5c4e38;
+      --gold: #d4af37; --gold-light: #e8c84a; --gold-glow: rgba(212,175,55,0.15);
+      --orange: #ff8c00; --orange-light: #ffaa33; --success: #00c851; --danger: #ff4444;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; padding-bottom: 100px; }
+
+    .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(15,15,30,0.8); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    .top-nav .logo { font-size: 18px; background: linear-gradient(135deg, var(--gold), var(--orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .top-nav .back-btn { background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 6px 12px; border-radius: 10px; transition: all 0.2s ease; display: flex; align-items: center; gap: 6px; font-family: 'Inter', sans-serif; }
+    .top-nav .back-btn:hover { color: var(--gold); background: rgba(212,175,55,0.08); }
+
+    .page-header { padding: 20px 16px 12px; }
+    .page-header h1 { font-size: 22px; color: #fff; margin-bottom: 4px; }
+    .page-header p { font-size: 13px; color: var(--text-muted); }
+
+    .kyc-status-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      margin: 0 16px 20px;
+      display: flex; align-items: center; gap: 14px;
+      animation: cardIn 0.5s ease forwards;
+    }
+    @keyframes cardIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .kyc-status-card .status-icon {
+      width: 52px; height: 52px; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .kyc-status-card .status-icon svg { width: 26px; height: 26px; }
+    .kyc-status-card .status-info { flex: 1; }
+    .kyc-status-card .status-info h3 { font-size: 15px; color: #fff; margin-bottom: 2px; }
+    .kyc-status-card .status-info p { font-size: 12px; color: var(--text-muted); }
+    .kyc-status-card .status-badge {
+      font-size: 11px; padding: 6px 14px; border-radius: 20px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .kyc-status-card.status-none { border-color: rgba(212,175,55,0.15); }
+    .kyc-status-card.status-none .status-icon { background: rgba(212,175,55,0.1); }
+    .kyc-status-card.status-none .status-icon svg { color: var(--gold); }
+    .kyc-status-card.status-none .status-badge { background: rgba(212,175,55,0.1); color: var(--gold); border: 1px solid rgba(212,175,55,0.2); }
+    .kyc-status-card.status-pending { border-color: rgba(255,187,51,0.15); }
+    .kyc-status-card.status-pending .status-icon { background: rgba(255,187,51,0.1); }
+    .kyc-status-card.status-pending .status-icon svg { color: var(--gold); }
+    .kyc-status-card.status-pending .status-badge { background: rgba(255,187,51,0.1); color: var(--gold); border: 1px solid rgba(255,187,51,0.2); }
+    .kyc-status-card.status-verified { border-color: rgba(0,200,81,0.15); }
+    .kyc-status-card.status-verified .status-icon { background: rgba(0,200,81,0.1); }
+    .kyc-status-card.status-verified .status-icon svg { color: var(--success); }
+    .kyc-status-card.status-verified .status-badge { background: rgba(0,200,81,0.1); color: var(--success); border: 1px solid rgba(0,200,81,0.2); }
+    .kyc-status-card.status-rejected { border-color: rgba(255,68,68,0.15); }
+    .kyc-status-card.status-rejected .status-icon { background: rgba(255,68,68,0.1); }
+    .kyc-status-card.status-rejected .status-icon svg { color: var(--danger); }
+    .kyc-status-card.status-rejected .status-badge { background: rgba(255,68,68,0.1); color: var(--danger); border: 1px solid rgba(255,68,68,0.2); }
+
+    .form-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      margin: 0 16px 16px;
+      animation: cardIn 0.6s ease 0.1s both;
+    }
+    .form-section h3 {
+      font-size: 13px; color: var(--gold);
+      text-transform: uppercase; letter-spacing: 1px;
+      margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+    }
+    .form-section h3 .section-num {
+      width: 24px; height: 24px; border-radius: 8px;
+      background: rgba(212,175,55,0.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: var(--gold);
+    }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-group label {
+      display: block; font-size: 11px;
+      color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: 1px; margin-bottom: 8px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      background: rgba(10,10,20,0.6);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: rgba(212,175,55,0.3);
+      background: rgba(10,10,20,0.8);
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: var(--text-dim); }
+    .form-group select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23a89070' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 16px;
+      padding-right: 40px;
+    }
+    .form-group select option { background: var(--surface); color: var(--text); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .upload-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .upload-box {
+      background: rgba(10,10,20,0.6);
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .upload-box:hover {
+      border-color: rgba(212,175,55,0.25);
+      background: rgba(212,175,55,0.03);
+    }
+    .upload-box.has-file {
+      border-color: rgba(0,200,81,0.3);
+      border-style: solid;
+      background: rgba(0,200,81,0.04);
+    }
+    .upload-box .upload-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      background: rgba(255,255,255,0.04);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 12px;
+    }
+    .upload-box .upload-icon svg { width: 24px; height: 24px; color: var(--text-muted); }
+    .upload-box.has-file .upload-icon { background: rgba(0,200,81,0.1); }
+    .upload-box.has-file .upload-icon svg { color: var(--success); }
+    .upload-box h4 { font-size: 13px; color: #fff; margin-bottom: 4px; }
+    .upload-box p { font-size: 11px; color: var(--text-dim); }
+    .upload-box .file-name {
+      font-size: 12px; color: var(--success); margin-top: 8px;
+      display: none;
+    }
+    .upload-box.has-file .file-name { display: block; }
+    .upload-box input[type="file"] {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      opacity: 0; cursor: pointer;
+    }
+    .upload-preview {
+      width: 100%; max-height: 160px; object-fit: cover;
+      border-radius: 12px; margin-top: 12px; display: none;
+    }
+    .upload-box.has-preview .upload-preview { display: block; }
+    .upload-box.has-preview .upload-icon,
+    .upload-box.has-preview h4,
+    .upload-box.has-preview p { display: none; }
+
+    .submit-wrap { padding: 8px 16px 24px; }
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--gold), var(--orange));
+      color: #000; border: none; border-radius: 16px;
+      padding: 18px; font-size: 15px;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer; transition: all 0.25s ease;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(212,175,55,0.25); }
+    .submit-btn:active { transform: scale(0.98); }
+    .submit-btn:disabled {
+      opacity: 0.4; cursor: not-allowed; transform: none;
+      box-shadow: none;
+    }
+    .submit-btn .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(0,0,0,0.2);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+    .submit-btn.loading .spinner { display: block; }
+    .submit-btn.loading .btn-text { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .toast {
+      position: fixed; top: 20px; left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      backdrop-filter: blur(10px);
+      color: #fff; padding: 14px 22px; border-radius: 14px;
+      z-index: 100000; display: none; align-items: center; gap: 10px;
+      font-size: 13px; border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+    }
+    .toast.show { display: flex; animation: toastSlide 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    .toast.success { background: linear-gradient(135deg, rgba(0,200,81,0.9), rgba(0,180,70,0.9)); }
+    .toast.error { background: linear-gradient(135deg, rgba(255,68,68,0.9), rgba(220,50,50,0.9)); }
+    @keyframes toastSlide { to { transform: translateX(-50%) translateY(0); } }
+
+    .locked-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(10,8,5,0.92); backdrop-filter: blur(8px);
+      z-index: 200; display: none; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 24px; text-align: center;
+    }
+    .locked-overlay.active { display: flex; }
+    .locked-overlay .lock-icon {
+      width: 64px; height: 64px; border-radius: 20px;
+      background: rgba(0,200,81,0.1);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px;
+    }
+    .locked-overlay .lock-icon svg { width: 32px; height: 32px; color: var(--success); }
+    .locked-overlay h2 { font-size: 18px; color: #fff; margin-bottom: 8px; }
+    .locked-overlay p { font-size: 13px; color: var(--text-muted); max-width: 280px; }
+
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-around; padding: 10px 0; background: rgba(15,15,30,0.95); backdrop-filter: blur(20px); border-top: 1px solid var(--border); z-index: 100; }
+    .bottom-nav button { background: none; border: none; color: var(--text-dim); font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: color 0.2s ease; font-family: 'Inter', sans-serif; }
+    .bottom-nav button:hover { color: var(--gold); }
+    .bottom-nav button svg { width: 20px; height: 20px; }
+
+    @media (max-width: 360px) {
+      .form-row { grid-template-columns: 1fr; }
+      .page-header h1 { font-size: 18px; }
+    }
+  </style>
+<base target="_blank">
+</head>
+
+<body>
+
+<div class="toast success" id="toast">
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+  <span id="toastText">Saved successfully</span>
+</div>
+
+<div class="top-nav">
+  <button class="back-btn" onclick="goBack()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+    Back
+  </button>
+  <div class="logo">SmartInvest</div>
+  <div style="width:60px;"></div>
+</div>
+
+<div class="page-header">
+  <h1>KYC Verification</h1>
+  <p>Verify your identity to unlock all platform features</p>
+</div>
+
+<div class="kyc-status-card status-none" id="kycStatusCard">
+  <div class="status-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+  </div>
+  <div class="status-info">
+    <h3 id="statusTitle">Not Submitted</h3>
+    <p id="statusDesc">Complete the form below to verify your identity</p>
+  </div>
+  <div class="status-badge" id="statusBadge">None</div>
+</div>
+
+<div class="form-section">
+  <h3><span class="section-num">1</span> Personal Information</h3>
+  <div class="form-group">
+    <label>Full Legal Name</label>
+    <input type="text" id="fullName" placeholder="As shown on your ID document">
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>Date of Birth</label>
+      <input type="date" id="dob">
+    </div>
+    <div class="form-group">
+      <label>Nationality</label>
+      <select id="nationality">
+        <option value="">Select country</option>
+        <option value="AF">Afghanistan</option>
+        <option value="AL">Albania</option>
+        <option value="DZ">Algeria</option>
+        <option value="AD">Andorra</option>
+        <option value="AO">Angola</option>
+        <option value="AR">Argentina</option>
+        <option value="AM">Armenia</option>
+        <option value="AU">Australia</option>
+        <option value="AT">Austria</option>
+        <option value="AZ">Azerbaijan</option>
+        <option value="BS">Bahamas</option>
+        <option value="BH">Bahrain</option>
+        <option value="BD">Bangladesh</option>
+        <option value="BY">Belarus</option>
+        <option value="BE">Belgium</option>
+        <option value="BZ">Belize</option>
+        <option value="BJ">Benin</option>
+        <option value="BT">Bhutan</option>
+        <option value="BO">Bolivia</option>
+        <option value="BA">Bosnia and Herzegovina</option>
+        <option value="BW">Botswana</option>
+        <option value="BR">Brazil</option>
+        <option value="BN">Brunei</option>
+        <option value="BG">Bulgaria</option>
+        <option value="BF">Burkina Faso</option>
+        <option value="BI">Burundi</option>
+        <option value="KH">Cambodia</option>
+        <option value="CM">Cameroon</option>
+        <option value="CA">Canada</option>
+        <option value="CV">Cape Verde</option>
+        <option value="CF">Central African Republic</option>
+        <option value="TD">Chad</option>
+        <option value="CL">Chile</option>
+        <option value="CN">China</option>
+        <option value="CO">Colombia</option>
+        <option value="KM">Comoros</option>
+        <option value="CG">Congo</option>
+        <option value="CR">Costa Rica</option>
+        <option value="HR">Croatia</option>
+        <option value="CU">Cuba</option>
+        <option value="CY">Cyprus</option>
+        <option value="CZ">Czech Republic</option>
+        <option value="DK">Denmark</option>
+        <option value="DJ">Djibouti</option>
+        <option value="DO">Dominican Republic</option>
+        <option value="EC">Ecuador</option>
+        <option value="EG">Egypt</option>
+        <option value="SV">El Salvador</option>
+        <option value="GQ">Equatorial Guinea</option>
+        <option value="ER">Eritrea</option>
+        <option value="EE">Estonia</option>
+        <option value="ET">Ethiopia</option>
+        <option value="FJ">Fiji</option>
+        <option value="FI">Finland</option>
+        <option value="FR">France</option>
+        <option value="GA">Gabon</option>
+        <option value="GM">Gambia</option>
+        <option value="GE">Georgia</option>
+        <option value="DE">Germany</option>
+        <option value="GH">Ghana</option>
+        <option value="GR">Greece</option>
+        <option value="GT">Guatemala</option>
+        <option value="GN">Guinea</option>
+        <option value="GW">Guinea-Bissau</option>
+        <option value="GY">Guyana</option>
+        <option value="HT">Haiti</option>
+        <option value="HN">Honduras</option>
+        <option value="HU">Hungary</option>
+        <option value="IS">Iceland</option>
+        <option value="IN">India</option>
+        <option value="ID">Indonesia</option>
+        <option value="IR">Iran</option>
+        <option value="IQ">Iraq</option>
+        <option value="IE">Ireland</option>
+        <option value="IL">Israel</option>
+        <option value="IT">Italy</option>
+        <option value="JM">Jamaica</option>
+        <option value="JP">Japan</option>
+        <option value="JO">Jordan</option>
+        <option value="KZ">Kazakhstan</option>
+        <option value="KE">Kenya</option>
+        <option value="KI">Kiribati</option>
+        <option value="KW">Kuwait</option>
+        <option value="KG">Kyrgyzstan</option>
+        <option value="LA">Laos</option>
+        <option value="LV">Latvia</option>
+        <option value="LB">Lebanon</option>
+        <option value="LS">Lesotho</option>
+        <option value="LR">Liberia</option>
+        <option value="LY">Libya</option>
+        <option value="LT">Lithuania</option>
+        <option value="LU">Luxembourg</option>
+        <option value="MG">Madagascar</option>
+        <option value="MW">Malawi</option>
+        <option value="MY">Malaysia</option>
+        <option value="MV">Maldives</option>
+        <option value="ML">Mali</option>
+        <option value="MT">Malta</option>
+        <option value="MR">Mauritania</option>
+        <option value="MU">Mauritius</option>
+        <option value="MX">Mexico</option>
+        <option value="MD">Moldova</option>
+        <option value="MC">Monaco</option>
+        <option value="MN">Mongolia</option>
+        <option value="ME">Montenegro</option>
+        <option value="MA">Morocco</option>
+        <option value="MZ">Mozambique</option>
+        <option value="MM">Myanmar</option>
+        <option value="NA">Namibia</option>
+        <option value="NR">Nauru</option>
+        <option value="NP">Nepal</option>
+        <option value="NL">Netherlands</option>
+        <option value="NZ">New Zealand</option>
+        <option value="NI">Nicaragua</option>
+        <option value="NE">Niger</option>
+        <option value="NG">Nigeria</option>
+        <option value="KP">North Korea</option>
+        <option value="MK">North Macedonia</option>
+        <option value="NO">Norway</option>
+        <option value="OM">Oman</option>
+        <option value="PK">Pakistan</option>
+        <option value="PA">Panama</option>
+        <option value="PG">Papua New Guinea</option>
+        <option value="PY">Paraguay</option>
+        <option value="PE">Peru</option>
+        <option value="PH">Philippines</option>
+        <option value="PL">Poland</option>
+        <option value="PT">Portugal</option>
+        <option value="QA">Qatar</option>
+        <option value="RO">Romania</option>
+        <option value="RU">Russia</option>
+        <option value="RW">Rwanda</option>
+        <option value="SA">Saudi Arabia</option>
+        <option value="SN">Senegal</option>
+        <option value="RS">Serbia</option>
+        <option value="SG">Singapore</option>
+        <option value="SK">Slovakia</option>
+        <option value="SI">Slovenia</option>
+        <option value="SO">Somalia</option>
+        <option value="ZA">South Africa</option>
+        <option value="KR">South Korea</option>
+        <option value="SS">South Sudan</option>
+        <option value="ES">Spain</option>
+        <option value="LK">Sri Lanka</option>
+        <option value="SD">Sudan</option>
+        <option value="SR">Suriname</option>
+        <option value="SE">Sweden</option>
+        <option value="CH">Switzerland</option>
+        <option value="SY">Syria</option>
+        <option value="TW">Taiwan</option>
+        <option value="TJ">Tajikistan</option>
+        <option value="TZ">Tanzania</option>
+        <option value="TH">Thailand</option>
+        <option value="TG">Togo</option>
+        <option value="TT">Trinidad and Tobago</option>
+        <option value="TN">Tunisia</option>
+        <option value="TR">Turkey</option>
+        <option value="TM">Turkmenistan</option>
+        <option value="UG">Uganda</option>
+        <option value="UA">Ukraine</option>
+        <option value="AE">United Arab Emirates</option>
+        <option value="GB">United Kingdom</option>
+        <option value="US">United States</option>
+        <option value="UY">Uruguay</option>
+        <option value="UZ">Uzbekistan</option>
+        <option value="VE">Venezuela</option>
+        <option value="VN">Vietnam</option>
+        <option value="YE">Yemen</option>
+        <option value="ZM">Zambia</option>
+        <option value="ZW">Zimbabwe</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label>Residential Address</label>
+    <input type="text" id="address" placeholder="Street address">
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>City</label>
+      <input type="text" id="city" placeholder="City">
+    </div>
+    <div class="form-group">
+      <label>ZIP / Postal Code</label>
+      <input type="text" id="zipCode" placeholder="ZIP code">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>Country</label>
+      <select id="country">
+        <option value="">Select country</option>
+        <option value="AF">Afghanistan</option>
+        <option value="AL">Albania</option>
+        <option value="DZ">Algeria</option>
+        <option value="AD">Andorra</option>
+        <option value="AO">Angola</option>
+        <option value="AR">Argentina</option>
+        <option value="AM">Armenia</option>
+        <option value="AU">Australia</option>
+        <option value="AT">Austria</option>
+        <option value="AZ">Azerbaijan</option>
+        <option value="BS">Bahamas</option>
+        <option value="BH">Bahrain</option>
+        <option value="BD">Bangladesh</option>
+        <option value="BY">Belarus</option>
+        <option value="BE">Belgium</option>
+        <option value="BZ">Belize</option>
+        <option value="BJ">Benin</option>
+        <option value="BT">Bhutan</option>
+        <option value="BO">Bolivia</option>
+        <option value="BA">Bosnia and Herzegovina</option>
+        <option value="BW">Botswana</option>
+        <option value="BR">Brazil</option>
+        <option value="BN">Brunei</option>
+        <option value="BG">Bulgaria</option>
+        <option value="BF">Burkina Faso</option>
+        <option value="BI">Burundi</option>
+        <option value="KH">Cambodia</option>
+        <option value="CM">Cameroon</option>
+        <option value="CA">Canada</option>
+        <option value="CV">Cape Verde</option>
+        <option value="CF">Central African Republic</option>
+        <option value="TD">Chad</option>
+        <option value="CL">Chile</option>
+        <option value="CN">China</option>
+        <option value="CO">Colombia</option>
+        <option value="KM">Comoros</option>
+        <option value="CG">Congo</option>
+        <option value="CR">Costa Rica</option>
+        <option value="HR">Croatia</option>
+        <option value="CU">Cuba</option>
+        <option value="CY">Cyprus</option>
+        <option value="CZ">Czech Republic</option>
+        <option value="DK">Denmark</option>
+        <option value="DJ">Djibouti</option>
+        <option value="DO">Dominican Republic</option>
+        <option value="EC">Ecuador</option>
+        <option value="EG">Egypt</option>
+        <option value="SV">El Salvador</option>
+        <option value="GQ">Equatorial Guinea</option>
+        <option value="ER">Eritrea</option>
+        <option value="EE">Estonia</option>
+        <option value="ET">Ethiopia</option>
+        <option value="FJ">Fiji</option>
+        <option value="FI">Finland</option>
+        <option value="FR">France</option>
+        <option value="GA">Gabon</option>
+        <option value="GM">Gambia</option>
+        <option value="GE">Georgia</option>
+        <option value="DE">Germany</option>
+        <option value="GH">Ghana</option>
+        <option value="GR">Greece</option>
+        <option value="GT">Guatemala</option>
+        <option value="GN">Guinea</option>
+        <option value="GW">Guinea-Bissau</option>
+        <option value="GY">Guyana</option>
+        <option value="HT">Haiti</option>
+        <option value="HN">Honduras</option>
+        <option value="HU">Hungary</option>
+        <option value="IS">Iceland</option>
+        <option value="IN">India</option>
+        <option value="ID">Indonesia</option>
+        <option value="IR">Iran</option>
+        <option value="IQ">Iraq</option>
+        <option value="IE">Ireland</option>
+        <option value="IL">Israel</option>
+        <option value="IT">Italy</option>
+        <option value="JM">Jamaica</option>
+        <option value="JP">Japan</option>
+        <option value="JO">Jordan</option>
+        <option value="KZ">Kazakhstan</option>
+        <option value="KE">Kenya</option>
+        <option value="KI">Kiribati</option>
+        <option value="KW">Kuwait</option>
+        <option value="KG">Kyrgyzstan</option>
+        <option value="LA">Laos</option>
+        <option value="LV">Latvia</option>
+        <option value="LB">Lebanon</option>
+        <option value="LS">Lesotho</option>
+        <option value="LR">Liberia</option>
+        <option value="LY">Libya</option>
+        <option value="LT">Lithuania</option>
+        <option value="LU">Luxembourg</option>
+        <option value="MG">Madagascar</option>
+        <option value="MW">Malawi</option>
+        <option value="MY">Malaysia</option>
+        <option value="MV">Maldives</option>
+        <option value="ML">Mali</option>
+        <option value="MT">Malta</option>
+        <option value="MR">Mauritania</option>
+        <option value="MU">Mauritius</option>
+        <option value="MX">Mexico</option>
+        <option value="MD">Moldova</option>
+        <option value="MC">Monaco</option>
+        <option value="MN">Mongolia</option>
+        <option value="ME">Montenegro</option>
+        <option value="MA">Morocco</option>
+        <option value="MZ">Mozambique</option>
+        <option value="MM">Myanmar</option>
+        <option value="NA">Namibia</option>
+        <option value="NR">Nauru</option>
+        <option value="NP">Nepal</option>
+        <option value="NL">Netherlands</option>
+        <option value="NZ">New Zealand</option>
+        <option value="NI">Nicaragua</option>
+        <option value="NE">Niger</option>
+        <option value="NG">Nigeria</option>
+        <option value="KP">North Korea</option>
+        <option value="MK">North Macedonia</option>
+        <option value="NO">Norway</option>
+        <option value="OM">Oman</option>
+        <option value="PK">Pakistan</option>
+        <option value="PA">Panama</option>
+        <option value="PG">Papua New Guinea</option>
+        <option value="PY">Paraguay</option>
+        <option value="PE">Peru</option>
+        <option value="PH">Philippines</option>
+        <option value="PL">Poland</option>
+        <option value="PT">Portugal</option>
+        <option value="QA">Qatar</option>
+        <option value="RO">Romania</option>
+        <option value="RU">Russia</option>
+        <option value="RW">Rwanda</option>
+        <option value="SA">Saudi Arabia</option>
+        <option value="SN">Senegal</option>
+        <option value="RS">Serbia</option>
+        <option value="SG">Singapore</option>
+        <option value="SK">Slovakia</option>
+        <option value="SI">Slovenia</option>
+        <option value="SO">Somalia</option>
+        <option value="ZA">South Africa</option>
+        <option value="KR">South Korea</option>
+        <option value="SS">South Sudan</option>
+        <option value="ES">Spain</option>
+        <option value="LK">Sri Lanka</option>
+        <option value="SD">Sudan</option>
+        <option value="SR">Suriname</option>
+        <option value="SE">Sweden</option>
+        <option value="CH">Switzerland</option>
+        <option value="SY">Syria</option>
+        <option value="TW">Taiwan</option>
+        <option value="TJ">Tajikistan</option>
+        <option value="TZ">Tanzania</option>
+        <option value="TH">Thailand</option>
+        <option value="TG">Togo</option>
+        <option value="TT">Trinidad and Tobago</option>
+        <option value="TN">Tunisia</option>
+        <option value="TR">Turkey</option>
+        <option value="TM">Turkmenistan</option>
+        <option value="UG">Uganda</option>
+        <option value="UA">Ukraine</option>
+        <option value="AE">United Arab Emirates</option>
+        <option value="GB">United Kingdom</option>
+        <option value="US">United States</option>
+        <option value="UY">Uruguay</option>
+        <option value="UZ">Uzbekistan</option>
+        <option value="VE">Venezuela</option>
+        <option value="VN">Vietnam</option>
+        <option value="YE">Yemen</option>
+        <option value="ZM">Zambia</option>
+        <option value="ZW">Zimbabwe</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Phone Number</label>
+      <input type="tel" id="phone" placeholder="+1 234 567 8900">
+    </div>
+  </div>
+</div>
+
+<div class="form-section">
+  <h3><span class="section-num">2</span> Identity Documents</h3>
+  <div class="upload-grid">
+    <div class="upload-box" id="uploadFront">
+      <input type="file" id="fileFront" accept="image/*" onchange="handleFile(this, 'uploadFront', 'frontPreview')">
+      <div class="upload-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      </div>
+      <h4>ID Front Side</h4>
+      <p>Passport, Driver's License, or National ID</p>
+      <div class="file-name" id="frontFileName"></div>
+      <img class="upload-preview" id="frontPreview" alt="ID Front Preview">
+    </div>
+    <div class="upload-box" id="uploadBack">
+      <input type="file" id="fileBack" accept="image/*" onchange="handleFile(this, 'uploadBack', 'backPreview')">
+      <div class="upload-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      </div>
+      <h4>ID Back Side</h4>
+      <p>Required for Driver's License & National ID</p>
+      <div class="file-name" id="backFileName"></div>
+      <img class="upload-preview" id="backPreview" alt="ID Back Preview">
+    </div>
+    <div class="upload-box" id="uploadSelfie">
+      <input type="file" id="fileSelfie" accept="image/*" onchange="handleFile(this, 'uploadSelfie', 'selfiePreview')">
+      <div class="upload-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </div>
+      <h4>Selfie with ID</h4>
+      <p>Hold your ID next to your face, clearly visible</p>
+      <div class="file-name" id="selfieFileName"></div>
+      <img class="upload-preview" id="selfiePreview" alt="Selfie Preview">
+    </div>
+  </div>
+</div>
+
+<div class="submit-wrap">
+  <button class="submit-btn" id="submitBtn" onclick="submitKyc()">
+    <div class="spinner"></div>
+    <span class="btn-text">Submit for Verification</span>
+  </button>
+</div>
+
+<div class="locked-overlay" id="lockedOverlay">
+  <div class="lock-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+  </div>
+  <h2 id="lockedTitle">Verification Submitted</h2>
+  <p id="lockedDesc">Your documents are under review. You will be notified once the verification is complete.</p>
+</div>
+
+<div class="bottom-nav">
+  <button onclick="goHome()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg><span>Home</span></button>
+  <button onclick="goHistory()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>History</span></button>
+  <button onclick="window.location.href='referral.html'"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span>Refer</span></button>
+  <button onclick="goSupport()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg><span>Support</span></button>
+  <button onclick="logout()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg><span>Logout</span></button>
+</div>
+
+<script type="module">
+import { auth, db } from "./firebase.js";
+import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { ref, get, update, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+let currentUsername = null;
+let userData = null;
+let kycFiles = { front: null, back: null, selfie: null };
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.replace("login.html"); return; }
+
+  const usersSnap = await get(ref(db, 'users'));
+  usersSnap.forEach((childSnap) => {
+    const data = childSnap.val();
+    if (data.uid === user.uid) { currentUsername = childSnap.key; userData = data; }
+  });
+
+  if (!userData) { sessionStorage.clear(); window.location.replace("login.html"); return; }
+
+  sessionStorage.setItem("loggedInUser", userData.username);
+  sessionStorage.setItem("role", userData.role || "user");
+
+  updateKycUI();
+});
+
+function updateKycUI() {
+  const status = userData.kycStatus || 'none';
+  const card = document.getElementById('kycStatusCard');
+  const title = document.getElementById('statusTitle');
+  const desc = document.getElementById('statusDesc');
+  const badge = document.getElementById('statusBadge');
+  const locked = document.getElementById('lockedOverlay');
+  const lockedTitle = document.getElementById('lockedTitle');
+  const lockedDesc = document.getElementById('lockedDesc');
+  const submitBtn = document.getElementById('submitBtn');
+
+  card.classList.remove('verified', 'pending', 'rejected');
+
+  if (status === 'verified') {
+    card.classList.add('verified');
+    title.innerText = 'Identity Verified';
+    desc.innerText = 'Your account has passed all verification checks';
+    badge.innerText = 'Verified';
+    lockedTitle.innerText = 'Already Verified';
+    lockedDesc.innerText = 'Your identity has been successfully verified. No further action needed.';
+    locked.classList.add('active');
+    submitBtn.disabled = true;
+  } else if (status === 'pending') {
+    card.classList.add('pending');
+    title.innerText = 'Under Review';
+    desc.innerText = 'Our team is reviewing your submitted documents';
+    badge.innerText = 'Pending';
+    lockedTitle.innerText = 'Verification Submitted';
+    lockedDesc.innerText = 'Your documents are under review. You will be notified once the verification is complete.';
+    locked.classList.add('active');
+    submitBtn.disabled = true;
+    fillExistingData();
+  } else if (status === 'rejected') {
+    card.classList.add('rejected');
+    title.innerText = 'Verification Rejected';
+    desc.innerText = userData.kycRejectionReason || 'Please review and resubmit your documents';
+    badge.innerText = 'Rejected';
+    fillExistingData();
+  } else {
+    card.classList.add('status-none');
+    title.innerText = 'Not Submitted';
+    desc.innerText = 'Complete the form below to verify your identity';
+    badge.innerText = 'None';
+  }
+}
+
+function fillExistingData() {
+  const kyc = userData.kycData || {};
+  if (kyc.fullName) document.getElementById('fullName').value = kyc.fullName;
+  if (kyc.dob) document.getElementById('dob').value = kyc.dob;
+  if (kyc.nationality) document.getElementById('nationality').value = kyc.nationality;
+  if (kyc.address) document.getElementById('address').value = kyc.address;
+  if (kyc.city) document.getElementById('city').value = kyc.city;
+  if (kyc.zipCode) document.getElementById('zipCode').value = kyc.zipCode;
+  if (kyc.country) document.getElementById('country').value = kyc.country;
+  if (kyc.phone) document.getElementById('phone').value = kyc.phone;
+}
+
+window.handleFile = function(input, boxId, previewId) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const box = document.getElementById(boxId);
+  const preview = document.getElementById(previewId);
+  const fileNameEl = box.querySelector('.file-name');
+
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('File too large. Max 5MB allowed.', 'error');
+    input.value = '';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    preview.src = e.target.result;
+    box.classList.add('has-file', 'has-preview');
+    if (fileNameEl) fileNameEl.innerText = file.name;
+
+    if (boxId === 'uploadFront') kycFiles.front = e.target.result;
+    if (boxId === 'uploadBack') kycFiles.back = e.target.result;
+    if (boxId === 'uploadSelfie') kycFiles.selfie = e.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.submitKyc = async function() {
+  if (!currentUsername) return;
+
+  const fullName = document.getElementById('fullName').value.trim();
+  const dob = document.getElementById('dob').value;
+  const nationality = document.getElementById('nationality').value;
+  const address = document.getElementById('address').value.trim();
+  const city = document.getElementById('city').value.trim();
+  const zipCode = document.getElementById('zipCode').value.trim();
+  const country = document.getElementById('country').value;
+  const phone = document.getElementById('phone').value.trim();
+
+  if (!fullName || !dob || !nationality || !address || !city || !zipCode || !country || !phone) {
+    showToast('Please fill in all required fields', 'error');
+    return;
+  }
+
+  if (!kycFiles.front || !kycFiles.selfie) {
+    showToast('Please upload ID front and selfie photo', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  try {
+    const kycData = {
+      fullName, dob, nationality, address, city, zipCode, country, phone,
+      submittedAt: Date.now(),
+      idFront: kycFiles.front,
+      idBack: kycFiles.back || '',
+      selfie: kycFiles.selfie
+    };
+
+    await update(ref(db, 'users/' + currentUsername), {
+      kycStatus: 'pending',
+      kycData: kycData,
+      kycRejectionReason: null
+    });
+
+    const kycRef = push(ref(db, 'kycRequests'));
+    await update(ref(db), {
+      ['kycRequests/' + kycRef.key]: {
+        user: currentUsername,
+        uid: userData.uid,
+        status: 'pending',
+        submittedAt: Date.now(),
+        kycData: kycData
+      }
+    });
+
+    userData.kycStatus = 'pending';
+    userData.kycData = kycData;
+
+    showToast('KYC submitted successfully!', 'success');
+    setTimeout(() => updateKycUI(), 800);
+  } catch (err) {
+    console.error(err);
+    showToast('Submission failed. Try again.', 'error');
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+};
+
+function showToast(msg, type) {
+  const toast = document.getElementById('toast');
+  const text = document.getElementById('toastText');
+  text.innerText = msg;
+  toast.className = 'toast ' + type + ' show';
+  setTimeout(() => toast.classList.remove('show'), 3500);
+}
+
+window.goBack = () => window.history.back();
+window.goHome = () => window.location.href = "index.html";
+window.goHistory = () => window.location.href = "history.html";
+window.goSupport = () => window.location.href = "contact.html";
+
+window.logout = async function() {
+  try {
+    await signOut(auth);
+    sessionStorage.clear();
+    window.location.replace("login.html");
+  } catch (error) {
+    showToast('Logout failed', 'error');
+  }
+};
+</script>
+
+</body>
+</html>
