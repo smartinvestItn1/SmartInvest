@@ -3,1119 +3,1739 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Panel</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Admin Console — SmartInvest</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-  <!-- Prevent back button after logout -->
-  <script>
-    if (window.history && window.history.pushState) {
-      window.history.pushState(null, null, window.location.href);
-      window.onpopstate = function() {
-        window.history.pushState(null, null, window.location.href);
-      };
-    }
-  </script>
-
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0a0a14;
+      --sidebar: #0f0f1a;
+      --surface: rgba(20, 20, 35, 0.7);
+      --surface-solid: #030319;
+      --border: rgba(255,255,255,0.06);
+      --text: #e8e8ec;
+      --text-muted: #666680;
+      --text-dim: #444460;
+      --blue: #33b5e5;
+      --blue-glow: rgba(51,181,229,0.2);
+      --green: #00c851;
+      --green-glow: rgba(0,200,81,0.2);
+      --red: #ff4444;
+      --red-glow: rgba(255,68,68,0.2);
+      --amber: #ffbb33;
+      --amber-glow: rgba(255,187,51,0.2);
+      --purple: #8b5cf6;
+      --purple-glow: rgba(139,92,246,0.2);
     }
-
     body {
-      background: #0f0f1a;
-      color: #e8e8ec;
-      font-family: 'Inter', 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    .admin-container {
-      max-width: 1200px;
-      margin: 0 auto;
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 280px;
+      height: 100vh;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      z-index: 200;
+      transition: transform 0.3s ease;
+    }
+    .sidebar-header {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-icon {
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700; color: #fff;
+    }
+    .brand-text h1 { font-size: 18px; color: #fff; font-weight: 700; letter-spacing: 0.5px; }
+    .brand-text span { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; }
+
+    .admin-profile {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .admin-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 700; color: #fff;
+    }
+    .admin-info h4 { font-size: 14px; color: #fff; font-weight: 600; }
+    .admin-info p { font-size: 12px; color: var(--text-muted); }
+
+    .nav-section { margin-top: 8px; padding: 0 12px; }
+    .nav-label {
+      font-size: 10px; color: var(--text-dim);
+      text-transform: uppercase; letter-spacing: 1.5px;
+      padding: 16px 8px 8px; font-weight: 700;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; margin-bottom: 2px;
+      border-radius: 10px; cursor: pointer;
+      color: var(--text-muted); font-size: 13px;
+      font-weight: 600; transition: all 0.2s ease;
+      position: relative;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.03); color: var(--text); }
+    .nav-item.active { background: rgba(51,181,229,0.1); color: var(--blue); }
+    .nav-item.active::before {
+      content: ""; position: absolute; left: 0; top: 50%;
+      transform: translateY(-50%);
+      width: 3px; height: 20px;
+      background: var(--blue); border-radius: 0 4px 4px 0;
+    }
+    .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .nav-badge {
+      margin-left: auto;
+      font-size: 11px; padding: 3px 10px; border-radius: 20px;
+      background: var(--blue); color: #fff; font-weight: 700;
+      min-width: 24px; text-align: center;
+    }
+    .nav-badge.red { background: var(--red); }
+    .nav-badge.amber { background: var(--amber); color: #000; }
+    .nav-badge.green { background: var(--green); }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .logout-btn {
+      width: 100%; padding: 14px;
+      background: rgba(255,68,68,0.08);
+      border: 1px solid rgba(255,68,68,0.15);
+      color: var(--red); border-radius: 12px;
+      font-family: 'Inter', sans-serif; font-size: 13px;
+      font-weight: 700; cursor: pointer; transition: all 0.2s ease;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .logout-btn:hover {
+      background: rgba(255,68,68,0.15);
+      border-color: rgba(255,68,68,0.3);
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main {
+      margin-left: 280px;
+      min-height: 100vh;
+      padding: 24px 32px 60px;
+      transition: margin-left 0.3s ease;
+    }
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .topbar h2 { font-size: 24px; color: #fff; font-weight: 700; }
+    .topbar-actions { display: flex; gap: 12px; align-items: center; }
+    .menu-toggle {
+      display: none;
+      background: var(--surface-solid);
+      border: 1px solid var(--border);
+      color: var(--text); padding: 10px;
+      border-radius: 10px; cursor: pointer;
+    }
+
+    /* ===== SECTIONS ===== */
+    .section { display: none; animation: fadeIn 0.3s ease; }
+    .section.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ===== CARDS ===== */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(20px);
+    }
+    .card-title {
+      font-size: 13px; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 1px;
+      margin-bottom: 20px; font-weight: 700;
+    }
+
+    /* ===== STATS GRID ===== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px; margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      transition: all 0.25s ease;
+    }
+    .stat-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.1); }
+    .stat-card .stat-value { font-size: 28px; color: #fff; font-weight: 700; margin-bottom: 4px; }
+    .stat-card .stat-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-card.blue { border-bottom: 2px solid var(--blue); }
+    .stat-card.green { border-bottom: 2px solid var(--green); }
+    .stat-card.red { border-bottom: 2px solid var(--red); }
+    .stat-card.amber { border-bottom: 2px solid var(--amber); }
+
+    /* ===== SEARCH & FILTERS ===== */
+    .search-box {
+      width: 100%; max-width: 400px;
+      padding: 12px 16px; border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(10,10,20,0.6);
+      color: var(--text); font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      outline: none; margin-bottom: 16px;
+    }
+    .search-box:focus { border-color: var(--blue); }
+    .search-box::placeholder { color: var(--text-dim); }
+    .filter-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-tab {
+      padding: 8px 18px; border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--text-muted); font-size: 12px;
+      font-family: 'Inter', sans-serif; font-weight: 700;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .filter-tab:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+    .filter-tab.active {
+      background: rgba(51,181,229,0.1);
+      color: var(--blue); border-color: var(--blue-glow);
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      padding: 10px 20px; border-radius: 10px;
+      font-family: 'Inter', sans-serif; font-size: 12px;
+      font-weight: 700; cursor: pointer; transition: all 0.25s ease;
+      border: 1px solid transparent; display: inline-flex;
+      align-items: center; gap: 6px;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue), #2a8fc7);
+      color: #fff; box-shadow: 0 4px 15px var(--blue-glow);
+    }
+    .btn-primary:hover { box-shadow: 0 6px 25px var(--blue-glow); }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--green), #00a843);
+      color: #fff; box-shadow: 0 4px 15px var(--green-glow);
+    }
+    .btn-success:hover { box-shadow: 0 6px 25px var(--green-glow); }
+
+    .btn-danger {
+      background: linear-gradient(135deg, var(--red), #d63333);
+      color: #fff; box-shadow: 0 4px 15px var(--red-glow);
+    }
+    .btn-danger:hover { box-shadow: 0 6px 25px var(--red-glow); }
+
+    .btn-amber {
+      background: linear-gradient(135deg, var(--amber), #d4a017);
+      color: #000; box-shadow: 0 4px 15px var(--amber-glow);
+    }
+    .btn-amber:hover { box-shadow: 0 6px 25px var(--amber-glow); }
+
+    .btn-outline {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--text-muted);
+    }
+    .btn-outline:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
+
+    .btn-sm { padding: 6px 14px; font-size: 11px; }
+
+    /* ===== USER TABLE / CARDS ===== */
+    .user-table { width: 100%; border-collapse: collapse; }
+    .user-table th {
+      text-align: left; padding: 12px 16px;
+      font-size: 11px; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border);
+    }
+    .user-table td {
+      padding: 16px; border-bottom: 1px solid var(--border);
+      font-size: 13px; color: var(--text);
+    }
+    .user-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .user-table tr:last-child td { border-bottom: none; }
+
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      display: inline-block; margin-right: 6px;
+    }
+    .status-dot.active { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .status-dot.blocked { background: var(--red); box-shadow: 0 0 8px var(--red); }
+
+    .badge {
+      display: inline-block; padding: 4px 12px;
+      border-radius: 20px; font-size: 11px; font-weight: 700;
+    }
+    .badge-blue { background: rgba(51,181,229,0.1); color: var(--blue); border: 1px solid var(--blue-glow); }
+    .badge-green { background: rgba(0,200,81,0.1); color: var(--green); border: 1px solid var(--green-glow); }
+    .badge-red { background: rgba(255,68,68,0.1); color: var(--red); border: 1px solid var(--red-glow); }
+    .badge-amber { background: rgba(255,187,51,0.1); color: var(--amber); border: 1px solid var(--amber-glow); }
+
+    /* ===== TOGGLE ROW IN CARDS ===== */
+    .toggle-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    .toggle-chip {
+      padding: 6px 14px; border-radius: 8px;
+      font-size: 11px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+    .toggle-chip.on {
+      background: rgba(0,200,81,0.1); color: var(--green);
+      border-color: rgba(0,200,81,0.25);
+    }
+    .toggle-chip.off {
+      background: rgba(255,68,68,0.1); color: var(--red);
+      border-color: rgba(255,68,68,0.25);
+    }
+    .toggle-chip:hover { transform: translateY(-1px); }
+
+    /* ===== REQUEST CARDS (Deposit/Withdraw) ===== */
+    .request-card {
+      background: rgba(15,15,30,0.5);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px; margin-bottom: 12px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px; align-items: center;
+      transition: all 0.2s ease;
+    }
+    .request-card:hover { border-color: rgba(255,255,255,0.1); }
+    .request-info p { margin: 4px 0; font-size: 13px; color: var(--text-muted); }
+    .request-info p b { color: var(--text); }
+    .request-actions { display: flex; gap: 8px; }
+
+    /* ===== KYC CARDS ===== */
+    .kyc-card {
+      background: rgba(15,15,30,0.5);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px; margin-bottom: 12px;
+      cursor: pointer; transition: all 0.25s ease;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .kyc-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.1); }
+    .kyc-avatar {
+      width: 48px; height: 48px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .kyc-info { flex: 1; }
+    .kyc-info h4 { font-size: 14px; color: #fff; margin-bottom: 2px; }
+    .kyc-info p { font-size: 12px; color: var(--text-muted); }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+      z-index: 500; display: none; justify-content: center; align-items: center;
       padding: 20px;
     }
-
-    /* ===== LOGOUT BUTTON ===== */
-    .logout-btn {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: rgba(255, 68, 68, 0.15);
-      color: #ff4444;
-      border: 1px solid rgba(255, 68, 68, 0.3);
-      padding: 12px 24px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
-      letter-spacing: 0.3px;
-      font-family: 'Inter', sans-serif;
-      backdrop-filter: blur(10px);
-      transition: all 0.3s ease;
-      z-index: 100;
-    }
-
-    .logout-btn:hover {
-      background: rgba(255, 68, 68, 0.25);
-      transform: translateY(-2px);
-      box-shadow: 0 0 25px rgba(255, 68, 68, 0.3);
-      border-color: rgba(255, 68, 68, 0.5);
-    }
-
-    /* ===== HEADER ===== */
-    .admin-header {
-      text-align: center;
-      padding: 50px 0 30px;
-    }
-
-    .admin-header h2 {
-      color: #ff4444;
-      margin: 0;
-      font-size: 36px;
-      font-weight: 800;
-      letter-spacing: -1px;
-      text-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
-    }
-
-    .admin-header p {
-      color: #666680;
-      margin: 12px 0 0 0;
-      font-size: 15px;
-    }
-
-    /* ===== SECTION CARD - GLASS ===== */
-    .section-card {
-      background: rgba(25, 25, 40, 0.6);
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: var(--sidebar);
+      border: 1px solid var(--border);
       border-radius: 20px;
-      padding: 28px;
-      margin-bottom: 24px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
-      transition: all 0.3s ease;
+      width: 100%; max-width: 600px;
+      max-height: 90vh; overflow-y: auto;
+      animation: modalIn 0.3s ease;
+    }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 20px 24px; border-bottom: 1px solid var(--border);
+    }
+    .modal-header h3 { font-size: 18px; color: #fff; }
+    .modal-close {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: rgba(255,255,255,0.05); border: none;
+      color: var(--text-muted); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal-close:hover { color: #fff; background: rgba(255,255,255,0.1); }
+    .modal-body { padding: 24px; }
+
+    .doc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 16px 0; }
+    .doc-box {
+      background: rgba(10,10,20,0.6);
+      border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .doc-box:hover { border-color: var(--blue-glow); }
+    .doc-box img { width: 100%; height: 160px; object-fit: cover; display: block; }
+    .doc-box.full { grid-column: span 2; }
+    .doc-box.full img { height: 220px; }
+    .doc-label { padding: 10px; text-align: center; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border); }
+
+    .detail-row {
+      display: flex; justify-content: space-between;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-row span:first-child { color: var(--text-muted); font-size: 13px; }
+    .detail-row span:last-child { color: #fff; font-size: 13px; }
+
+    /* ===== LIGHTBOX ===== */
+    .lightbox {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.95); z-index: 600; display: none;
+      justify-content: center; align-items: center; padding: 20px;
+    }
+    .lightbox.active { display: flex; }
+    .lightbox img { max-width: 100%; max-height: 90vh; border-radius: 12px; }
+    .lightbox-close {
+      position: absolute; top: 20px; right: 20px;
+      width: 40px; height: 40px; border-radius: 10px;
+      background: rgba(255,255,255,0.1); border: none;
+      color: #fff; font-size: 20px; cursor: pointer;
     }
 
-    .section-card:hover {
-      border-color: rgba(255, 255, 255, 0.1);
-      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.45);
+    /* ===== FORM ELEMENTS ===== */
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block; font-size: 12px; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      margin-bottom: 8px; font-weight: 600;
     }
-
-    .section-card h3 {
-      color: #ffbb33;
-      margin: 0 0 20px 0;
-      font-size: 18px;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      font-weight: 700;
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; padding: 12px 16px;
+      background: rgba(10,10,20,0.6);
+      border: 1px solid var(--border);
+      border-radius: 12px; color: var(--text);
+      font-size: 14px; font-family: 'Inter', sans-serif;
+      outline: none; transition: all 0.2s ease;
     }
+    .form-group input:focus, .form-group textarea:focus {
+      border-color: var(--blue);
+    }
+    .form-group input::placeholder { color: var(--text-dim); }
 
-    /* ===== SEARCH BOX ===== */
-    .search-box {
-      width: 100%;
+    /* ===== PASSWORD PROMPT MODAL ===== */
+    .password-prompt {
+      text-align: center; padding: 20px 0;
+    }
+    .password-prompt p { color: var(--text-muted); margin-bottom: 16px; font-size: 14px; }
+
+    /* ===== WALLET ADDRESS DISPLAY ===== */
+    .wallet-box {
+      background: rgba(51,181,229,0.06);
+      border: 1px solid var(--blue-glow);
+      border-radius: 12px;
       padding: 14px 18px;
-      border-radius: 12px;
-      border: 1.5px solid rgba(255, 255, 255, 0.08);
-      background: rgba(15, 15, 30, 0.6);
-      color: #fff;
-      font-size: 15px;
-      margin-bottom: 20px;
-      box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
-      transition: all 0.25s ease;
-    }
-
-    .search-box::placeholder {
-      color: #444460;
-    }
-
-    .search-box:focus {
-      outline: none;
-      border-color: #ffbb33;
-      box-shadow: 0 0 0 3px rgba(255, 187, 51, 0.1);
-      background: rgba(15, 15, 30, 0.8);
-    }
-
-    /* ===== FILTER TABS - GLASS GLOWING ===== */
-    .filter-tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-
-    .filter-tab {
-      background: rgba(15, 15, 30, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: #8888a0;
-      padding: 10px 20px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 13px;
-      font-family: 'Inter', sans-serif;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-    }
-
-    .filter-tab:hover {
-      background: rgba(255, 255, 255, 0.05);
-      color: #fff;
-      transform: translateY(-2px);
-      border-color: rgba(255, 255, 255, 0.15);
-    }
-
-    .filter-tab.active {
-      background: rgba(51, 181, 229, 0.15);
-      color: #33b5e5;
-      border-color: rgba(51, 181, 229, 0.4);
-      box-shadow: 0 0 20px rgba(51, 181, 229, 0.2);
-    }
-
-    /* ===== USER CARD - GLASS ===== */
-    .user-card {
-      background: rgba(15, 15, 30, 0.5);
-      border-radius: 16px;
-      padding: 22px;
-      margin-bottom: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(10px);
-      transition: all 0.25s ease;
-    }
-
-    .user-card:hover {
-      border-color: rgba(255, 255, 255, 0.12);
-      transform: translateY(-3px);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    }
-
-    .user-card h4 {
-      color: #00c851;
-      margin: 0 0 10px 0;
-      font-size: 16px;
-      font-weight: 700;
-    }
-
-    .user-card p {
-      color: #8888a0;
-      margin: 6px 0;
-      font-size: 14px;
-    }
-
-    .user-card .balance {
-      color: #ffbb33;
-      font-size: 20px;
-      font-weight: 700;
-    }
-
-    /* ===== TOGGLE ROW ===== */
-    .toggle-row {
-      display: flex;
-      gap: 12px;
-      margin-top: 15px;
-      flex-wrap: wrap;
-    }
-
-    /* ===== TOGGLE BUTTONS - GLASS GLOWING ===== */
-    .toggle-btn {
-      padding: 10px 20px;
-      border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 13px;
-      font-family: 'Inter', sans-serif;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-    }
-
-    .toggle-btn:hover {
-      transform: translateY(-2px);
-    }
-
-    .toggle-btn:active {
-      transform: scale(0.97);
-    }
-
-    .toggle-btn.enabled {
-      background: rgba(0, 200, 81, 0.15);
-      color: #00c851;
-      border-color: rgba(0, 200, 81, 0.4);
-      box-shadow: 0 0 20px rgba(0, 200, 81, 0.2);
-    }
-
-    .toggle-btn.enabled:hover {
-      box-shadow: 0 0 30px rgba(0, 200, 81, 0.35);
-    }
-
-    .toggle-btn.disabled {
-      background: rgba(255, 68, 68, 0.15);
-      color: #ff4444;
-      border-color: rgba(255, 68, 68, 0.4);
-      box-shadow: 0 0 20px rgba(255, 68, 68, 0.2);
-    }
-
-    .toggle-btn.disabled:hover {
-      box-shadow: 0 0 30px rgba(255, 68, 68, 0.35);
-    }
-
-    /* ===== TRANSFER TOGGLE - ORANGE GLOW ===== */
-    .toggle-btn.transfer-on {
-      background: rgba(255, 187, 51, 0.15);
-      color: #ffbb33;
-      border-color: rgba(255, 187, 51, 0.4);
-      box-shadow: 0 0 20px rgba(255, 187, 51, 0.2);
-    }
-
-    .toggle-btn.transfer-on:hover {
-      box-shadow: 0 0 30px rgba(255, 187, 51, 0.35);
-    }
-
-    .toggle-btn.transfer-off {
-      background: rgba(255, 68, 68, 0.15);
-      color: #ff4444;
-      border-color: rgba(255, 68, 68, 0.4);
-      box-shadow: 0 0 20px rgba(255, 68, 68, 0.2);
-    }
-
-    .toggle-btn.transfer-off:hover {
-      box-shadow: 0 0 30px rgba(255, 68, 68, 0.35);
-    }
-
-    /* ===== DEPOSIT / WITHDRAW CARDS - GLASS ===== */
-    .deposit-card, .withdraw-card {
-      background: rgba(15, 15, 30, 0.5);
-      border-radius: 16px;
-      padding: 22px;
-      margin-bottom: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(10px);
-      transition: all 0.25s ease;
-    }
-
-    .deposit-card:hover, .withdraw-card:hover {
-      border-color: rgba(255, 255, 255, 0.12);
-      transform: translateY(-3px);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    }
-
-    /* ===== STATUS BADGES - GLASS ===== */
-    .status-badge {
-      display: inline-block;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      backdrop-filter: blur(10px);
-    }
-
-    .status-badge.pending {
-      background: rgba(255, 187, 51, 0.12);
-      color: #ffbb33;
-      border: 1px solid rgba(255, 187, 51, 0.3);
-    }
-
-    .status-badge.approved {
-      background: rgba(0, 200, 81, 0.12);
-      color: #00c851;
-      border: 1px solid rgba(0, 200, 81, 0.3);
-    }
-
-    .status-badge.rejected {
-      background: rgba(255, 68, 68, 0.12);
-      color: #ff4444;
-      border: 1px solid rgba(255, 68, 68, 0.3);
-    }
-
-    /* ===== ACTION BUTTONS - GLASS GLOWING ===== */
-    .action-btn {
-      padding: 12px 22px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 13px;
-      font-family: 'Inter', sans-serif;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-      position: relative;
-      overflow: hidden;
-      background: rgba(15, 15, 30, 0.8);
-      color: white;
-    }
-
-    .action-btn::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
-      transition: left 0.5s ease;
-    }
-
-    .action-btn:hover::before {
-      left: 100%;
-    }
-
-    .action-btn:hover {
-      transform: translateY(-2px);
-    }
-
-    .action-btn:active {
-      transform: scale(0.97);
-    }
-
-    /* Approve - Green Glow */
-    .approve-btn {
-      background: rgba(15, 15, 30, 0.8);
-      color: #00c851;
-      box-shadow: 0 0 15px rgba(0, 200, 81, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
-    }
-
-    .approve-btn:hover {
-      box-shadow: 0 0 25px rgba(0, 200, 81, 0.3), 0 8px 20px rgba(0,0,0,0.2);
-      border-color: rgba(0, 200, 81, 0.4);
-    }
-
-    /* Reject - Red Glow */
-    .reject-btn {
-      background: rgba(15, 15, 30, 0.8);
-      color: #ff4444;
-      box-shadow: 0 0 15px rgba(255, 68, 68, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
-    }
-
-    .reject-btn:hover {
-      box-shadow: 0 0 25px rgba(255, 68, 68, 0.3), 0 8px 20px rgba(0,0,0,0.2);
-      border-color: rgba(255, 68, 68, 0.4);
-    }
-
-    /* ===== NO DATA ===== */
-    .no-data {
-      text-align: center;
-      color: #444460;
-      padding: 30px;
-      font-size: 14px;
-    }
-
-    /* ===== WALLET ADDRESS ===== */
-    .wallet-address {
-      color: #33b5e5;
-      word-break: break-all;
       font-family: 'Courier New', monospace;
-      font-size: 12px;
-      padding: 8px 12px;
-      background: rgba(51, 181, 229, 0.08);
-      border: 1px solid rgba(51, 181, 229, 0.2);
-      border-radius: 8px;
-      display: inline-block;
-      margin-top: 6px;
-    }
-
-    /* ===== NOTIFICATION BOX - GLASS ===== */
-    .notification-box {
-      background: rgba(15, 15, 30, 0.5);
-      border-radius: 14px;
-      padding: 18px;
-      margin-bottom: 12px;
-      border-left: 3px solid #ffbb33;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-left: 3px solid #ffbb33;
-      transition: all 0.25s ease;
-    }
-
-    .notification-box:hover {
-      border-color: rgba(255, 187, 51, 0.3);
-      transform: translateX(4px);
-    }
-
-    .notification-box p {
-      margin: 0;
-      color: #8888a0;
-      font-size: 14px;
-    }
-
-    .notification-box .time {
-      color: #555570;
-      font-size: 12px;
+      font-size: 14px; color: var(--blue);
+      word-break: break-all;
       margin-top: 8px;
     }
 
-    /* ===== MOBILE ===== */
-    @media (max-width: 768px) {
-      .admin-header h2 {
-        font-size: 28px;
-      }
-      .filter-tabs {
-        gap: 8px;
-      }
-      .filter-tab {
-        padding: 8px 14px;
-        font-size: 12px;
-      }
-      .toggle-row {
-        gap: 8px;
-      }
-      .toggle-btn {
-        padding: 8px 14px;
-        font-size: 12px;
-      }
-      .section-card {
-        padding: 20px;
-      }
+    /* ===== EMPTY STATE ===== */
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-dim); }
+    .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed; top: 20px; right: 20px;
+      background: var(--surface-solid);
+      border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px 24px;
+      color: #fff; font-size: 13px; font-weight: 600;
+      z-index: 1000; display: none; align-items: center; gap: 10px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+      animation: toastIn 0.3s ease;
     }
-    /* ===== TRANSFER TOGGLE - ORANGE GLOW ===== */
-.toggle-btn.transfer-on {
-  background: rgba(255, 187, 51, 0.15);
-  color: #ffbb33;
-  border-color: rgba(255, 187, 51, 0.4);
-  box-shadow: 0 0 20px rgba(255, 187, 51, 0.2);
-}
+    .toast.show { display: flex; }
+    @keyframes toastIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .toast.success { border-color: var(--green); color: var(--green); }
+    .toast.error { border-color: var(--red); color: var(--red); }
 
-.toggle-btn.transfer-on:hover {
-  box-shadow: 0 0 30px rgba(255, 187, 51, 0.35);
-}
+    /* ===== LOADER ===== */
+    .loader-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(10,10,20,0.9); z-index: 700;
+      display: none; justify-content: center; align-items: center;
+      flex-direction: column; gap: 12px;
+    }
+    .loader-overlay.active { display: flex; }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid #333; border-top-color: var(--blue);
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-.toggle-btn.transfer-off {
-  background: rgba(255, 68, 68, 0.15);
-  color: #ff4444;
-  border-color: rgba(255, 68, 68, 0.4);
-  box-shadow: 0 0 20px rgba(255, 68, 68, 0.2);
-}
-
-.toggle-btn.transfer-off:hover {
-  box-shadow: 0 0 30px rgba(255, 68, 68, 0.35);
-}
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; padding: 20px; }
+      .menu-toggle { display: block; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .request-card { grid-template-columns: 1fr; }
+      .user-table { display: block; overflow-x: auto; }
+      .doc-grid { grid-template-columns: 1fr; }
+      .doc-box.full { grid-column: span 1; }
+    }
+    .sidebar-backdrop {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); z-index: 150;
+      display: none;
+    }
+    .sidebar-backdrop.active { display: block; }
   </style>
 </head>
-
 <body>
-<div class="admin-container">
 
-  <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+<!-- LOADER -->
+<div class="loader-overlay" id="loaderOverlay">
+  <div class="spinner"></div>
+  <p style="color:var(--text-muted);font-size:13px;">Processing...</p>
+</div>
 
-  <div class="admin-header">
-    <h2>🔐 Admin Dashboard</h2>
-    <p>Manage users, deposits, withdrawals & investments</p>
-  </div>
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
-  <!-- NOTIFICATIONS -->
-  <div class="section-card">
-    <h3>🔔 Notifications</h3>
-    <div id="notifications">
-      <p class="no-data">Loading notifications...</p>
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="event.stopPropagation(); closeLightbox()">✕</button>
+  <img id="lightboxImg" src="" alt="Document">
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="modalTitle">Details</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
-  </div>
-
-  <!-- USER CONTROL -->
-  <div class="section-card">
-    <h3>👥 User Control</h3>
-
-    <!-- Search -->
-    <input id="searchUser" class="search-box" placeholder="Search users by username or email..." onkeyup="loadUsers()">
-
-    <!-- Filter Tabs for Users -->
-    <div class="filter-tabs" id="userFilterTabs">
-      <button class="filter-tab active" onclick="setUserFilter('all')">All Users</button>
-      <button class="filter-tab" onclick="setUserFilter('active')">Active</button>
-      <button class="filter-tab" onclick="setUserFilter('blocked')">Blocked</button>
-      <button class="filter-tab" onclick="setUserFilter('transferBlocked')">Transfer Blocked</button>
-    </div>
-
-    <!-- Users List -->
-    <div id="usersList">
-      <p class="no-data">Loading users...</p>
-    </div>
-  </div>
-
-  <!-- DEPOSITS -->
-  <div class="section-card">
-    <h3>💰 Deposits</h3>
-    <div class="filter-tabs">
-      <button class="filter-tab active" onclick="setFilter('all')">All</button>
-      <button class="filter-tab" onclick="setFilter('pending')">Pending</button>
-      <button class="filter-tab" onclick="setFilter('approved')">Approved</button>
-      <button class="filter-tab" onclick="setFilter('rejected')">Rejected</button>
-    </div>
-    <div id="depositList">
-      <p class="no-data">Loading deposits...</p>
-    </div>
-  </div>
-
-  <!-- WITHDRAWALS -->
-  <div class="section-card">
-    <h3>💸 Withdrawals</h3>
-    <div class="filter-tabs">
-      <button class="filter-tab active" onclick="setWithdrawFilter('all')">All</button>
-      <button class="filter-tab" onclick="setWithdrawFilter('pending')">Pending</button>
-      <button class="filter-tab" onclick="setWithdrawFilter('approved')">Approved</button>
-      <button class="filter-tab" onclick="setWithdrawFilter('rejected')">Rejected</button>
-    </div>
-    <div id="withdrawList">
-      <p class="no-data">Loading withdrawals...</p>
-    </div>
-  </div>
-
-  <!-- INVESTMENTS -->
-  <div class="section-card">
-    <h3>📈 Investments</h3>
-    <div id="investList">
-      <p class="no-data">Loading investments...</p>
-    </div>
+    <div class="modal-body" id="modalBody"></div>
   </div>
 </div>
-<script type="module">
-/////////////////////////////////////////////////////
-// AUTH PROTECTION + IMPORTS - EXACTLY AS YOU HAD IT
-/////////////////////////////////////////////////////
 
+<!-- SIDEBAR BACKDROP (mobile) -->
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="brand">
+      <div class="brand-icon">SMI</div>
+      <div class="brand-text">
+        <h1>SmartInvest Admin</h1>
+        <span>Admin Console</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-profile">
+    <div class="admin-avatar" id="adminAvatar">A</div>
+    <div class="admin-info">
+      <h4 id="adminName">Admin</h4>
+      <p>Super Administrator</p>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Overview</div>
+    <div class="nav-item active" onclick="showSection('dashboard', this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+      Dashboard
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Account Management</div>
+    <div class="nav-item" onclick="showSection('accounts', this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+      Manage Accounts
+      <span class="nav-badge" id="badgeAccounts">0</span>
+    </div>
+    <div class="nav-item" onclick="showSection('lock', this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+      Lock Controls
+    </div>
+    <div class="nav-item" onclick="showSection('kyc', this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+      View KYC
+      <span class="nav-badge amber" id="badgeKyc">0</span>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Finance</div>
+    <div class="nav-item" onclick="showSection('deposits', this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      Confirm Deposit
+      <span class="nav-badge red" id="badgeDeposits">0</span>
+    </div>
+    <div class="nav-item" onclick="showSection('withdrawals', this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+      Confirm Withdrawal
+      <span class="nav-badge red" id="badgeWithdrawals">0</span>
+    </div>
+    <div class="nav-item" onclick="showSection('transfers', this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+      Transfer History
+    </div>
+    <div class="nav-item" onclick="showSection('wallets', this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+      Wallet Addresses
+    </div>
+    <div class="nav-item" onclick="showSection('topup', this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+      Top Up Wallet
+    </div>
+    <div class="nav-item" onclick="showSection('bonus', this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
+      Top Up Bonus
+    </div>
+    <div class="nav-item" onclick="showSection('plans', this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      View Plans
+    </div>
+    <div class="nav-item" onclick="showSection('investments', this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+      Investment History
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Communications</div>
+    <div class="nav-item" onclick="showSection('mail', this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      Send Mail to Client
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+      Logout
+    </button>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+  <div class="topbar">
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+    <h2 id="pageTitle">Dashboard</h2>
+    <div class="topbar-actions">
+      <span style="color:var(--text-muted);font-size:13px;" id="currentDate"></span>
+    </div>
+  </div>
+
+  <!-- DASHBOARD SECTION -->
+  <div class="section active" id="sec-dashboard">
+    <div class="stats-grid">
+      <div class="stat-card blue">
+        <div class="stat-value" id="statTotalUsers">0</div>
+        <div class="stat-label">Total Users</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-value" id="statTotalBalance">$0</div>
+        <div class="stat-label">Total Balance</div>
+      </div>
+      <div class="stat-card amber">
+        <div class="stat-value" id="statPendingDeposits">0</div>
+        <div class="stat-label">Pending Deposits</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-value" id="statPendingWithdrawals">0</div>
+        <div class="stat-label">Pending Withdrawals</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-value" id="statTotalInvestments">0</div>
+        <div class="stat-label">Active Investments</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-value" id="statPendingKyc">0</div>
+        <div class="stat-label">Pending KYC</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Recent Activity</div>
+      <div id="dashboardActivity">
+        <div class="empty-state">
+          <div class="icon">📊</div>
+          <p>Loading activity data...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACCOUNTS SECTION -->
+  <div class="section" id="sec-accounts">
+    <div class="card">
+      <div class="card-title">Manage Accounts</div>
+      <input type="text" class="search-box" id="searchUser" placeholder="Search by username or email..." onkeyup="renderAccounts()">
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="setAccountFilter('all', this)">All</button>
+        <button class="filter-tab" onclick="setAccountFilter('active', this)">Active</button>
+        <button class="filter-tab" onclick="setAccountFilter('blocked', this)">Blocked</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Balance</th>
+              <th>Status</th>
+              <th>Controls</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="accountsTableBody">
+            <tr><td colspan="5" style="text-align:center;color:var(--text-dim);padding:40px;">Loading users...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOCK CONTROLS SECTION -->
+  <div class="section" id="sec-lock">
+    <div class="card">
+      <div class="card-title">Global Lock Controls</div>
+      <p style="color:var(--text-muted);margin-bottom:20px;font-size:13px;">Disable features site-wide for all users.</p>
+      <div id="globalLocks">
+        <div class="request-card" style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <b style="color:#fff;">🔒 Deposit System</b>
+            <p style="margin-top:4px;color:var(--text-muted);font-size:12px;">Allow or block all deposits</p>
+          </div>
+          <button class="btn btn-success btn-sm" id="globalDepositBtn" onclick="toggleGlobal('deposit')">Enabled</button>
+        </div>
+        <div class="request-card" style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <b style="color:#fff;">🔒 Withdrawal System</b>
+            <p style="margin-top:4px;color:var(--text-muted);font-size:12px;">Allow or block all withdrawals</p>
+          </div>
+          <button class="btn btn-success btn-sm" id="globalWithdrawBtn" onclick="toggleGlobal('withdraw')">Enabled</button>
+        </div>
+        <div class="request-card" style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <b style="color:#fff;">🔒 Investment System</b>
+            <p style="margin-top:4px;color:var(--text-muted);font-size:12px;">Allow or block all investments</p>
+          </div>
+          <button class="btn btn-success btn-sm" id="globalInvestBtn" onclick="toggleGlobal('invest')">Enabled</button>
+        </div>
+        <div class="request-card" style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <b style="color:#fff;">🔒 Transfer System</b>
+            <p style="margin-top:4px;color:var(--text-muted);font-size:12px;">Allow or block all transfers</p>
+          </div>
+          <button class="btn btn-success btn-sm" id="globalTransferBtn" onclick="toggleGlobal('transfer')">Enabled</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KYC SECTION -->
+  <div class="section" id="sec-kyc">
+    <div class="card">
+      <div class="card-title">KYC Verification Requests</div>
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="setKycFilter('all', this)">All</button>
+        <button class="filter-tab" onclick="setKycFilter('pending', this)">Pending</button>
+        <button class="filter-tab" onclick="setKycFilter('verified', this)">Approved</button>
+        <button class="filter-tab" onclick="setKycFilter('rejected', this)">Rejected</button>
+      </div>
+      <div id="kycList">
+        <div class="empty-state"><div class="icon">📋</div><p>Loading KYC submissions...</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEPOSITS SECTION -->
+  <div class="section" id="sec-deposits">
+    <div class="card">
+      <div class="card-title">Deposit Requests</div>
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="setDepositFilter('all', this)">All</button>
+        <button class="filter-tab" onclick="setDepositFilter('pending', this)">Pending</button>
+        <button class="filter-tab" onclick="setDepositFilter('approved', this)">Approved</button>
+        <button class="filter-tab" onclick="setDepositFilter('rejected', this)">Rejected</button>
+      </div>
+      <div id="depositsList">
+        <div class="empty-state"><div class="icon">💰</div><p>Loading deposits...</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WITHDRAWALS SECTION -->
+  <div class="section" id="sec-withdrawals">
+    <div class="card">
+      <div class="card-title">Withdrawal Requests</div>
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="setWithdrawFilter('all', this)">All</button>
+        <button class="filter-tab" onclick="setWithdrawFilter('pending', this)">Pending</button>
+        <button class="filter-tab" onclick="setWithdrawFilter('approved', this)">Approved</button>
+        <button class="filter-tab" onclick="setWithdrawFilter('rejected', this)">Rejected</button>
+      </div>
+      <div id="withdrawalsList">
+        <div class="empty-state"><div class="icon">💸</div><p>Loading withdrawals...</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRANSFERS SECTION -->
+  <div class="section" id="sec-transfers">
+    <div class="card">
+      <div class="card-title">Transfer History</div>
+      <div id="transfersList">
+        <div class="empty-state"><div class="icon">🔄</div><p>Loading transfers...</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WALLETS SECTION -->
+  <div class="section" id="sec-wallets">
+    <div class="card">
+      <div class="card-title">Company Wallet Addresses</div>
+      <p style="color:var(--text-muted);margin-bottom:20px;font-size:13px;">Update the wallet addresses users see on the deposit page.</p>
+      
+      <div class="form-group">
+        <label>Bitcoin (BTC) Address</label>
+        <input type="text" id="walletBTC" placeholder="Enter BTC wallet address...">
+      </div>
+      <div class="form-group">
+        <label>Ethereum (ETH) Address</label>
+        <input type="text" id="walletETH" placeholder="Enter ETH wallet address...">
+      </div>
+      <div class="form-group">
+        <label>USDT (TRC20) Address</label>
+        <input type="text" id="walletUSDT" placeholder="Enter USDT wallet address...">
+      </div>
+      <button class="btn btn-primary" onclick="saveWallets()">💾 Save Wallet Addresses</button>
+      
+      <div style="margin-top:24px;">
+        <div class="card-title">Current Addresses</div>
+        <div id="currentWallets">
+          <p style="color:var(--text-dim);font-size:13px;">Loading...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP UP SECTION -->
+  <div class="section" id="sec-topup">
+    <div class="card">
+      <div class="card-title">Top Up User Wallet</div>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="topupUser" placeholder="Enter username...">
+      </div>
+      <div class="form-group">
+        <label>Amount ($)</label>
+        <input type="number" id="topupAmount" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label>Note (optional)</label>
+        <input type="text" id="topupNote" placeholder="Admin top up">
+      </div>
+      <button class="btn btn-success" onclick="topUpUser()">➕ Add Balance</button>
+    </div>
+  </div>
+
+  <!-- BONUS SECTION -->
+  <div class="section" id="sec-bonus">
+    <div class="card">
+      <div class="card-title">Top Up Bonus</div>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="bonusUser" placeholder="Enter username...">
+      </div>
+      <div class="form-group">
+        <label>Bonus Amount ($)</label>
+        <input type="number" id="bonusAmount" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label>Bonus Type</label>
+        <select id="bonusType">
+          <option value="signup">Signup Bonus</option>
+          <option value="referral">Referral Bonus</option>
+          <option value="promo">Promotional Bonus</option>
+        </select>
+      </div>
+      <button class="btn btn-amber" onclick="giveBonus()">🎁 Give Bonus</button>
+    </div>
+  </div>
+
+  <!-- PLANS SECTION -->
+  <div class="section" id="sec-plans">
+    <div class="card">
+      <div class="card-title">Investment Plans</div>
+      <div id="plansList">
+        <div class="request-card">
+          <div>
+            <b style="color:var(--amber);font-size:16px;">Starter Plan</b>
+            <p style="margin-top:6px;color:var(--text-muted);font-size:13px;">10% profit • 48 hours • Min $100</p>
+          </div>
+          <span class="badge badge-green">Active</span>
+        </div>
+        <div class="request-card">
+          <div>
+            <b style="color:var(--amber);font-size:16px;">Pro Plan</b>
+            <p style="margin-top:6px;color:var(--text-muted);font-size:13px;">20% profit • 96 hours • Min $1,000</p>
+          </div>
+          <span class="badge badge-green">Active</span>
+        </div>
+        <div class="request-card">
+          <div>
+            <b style="color:var(--amber);font-size:16px;">Premium Plan</b>
+            <p style="margin-top:6px;color:var(--text-muted);font-size:13px;">40% profit • 120 hours • Min $5,000</p>
+          </div>
+          <span class="badge badge-green">Active</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INVESTMENTS SECTION -->
+  <div class="section" id="sec-investments">
+    <div class="card">
+      <div class="card-title">Investment History</div>
+      <div id="investmentsList">
+        <div class="empty-state"><div class="icon">📈</div><p>Loading investments...</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIL SECTION -->
+  <div class="section" id="sec-mail">
+    <div class="card">
+      <div class="card-title">Send Mail to Client</div>
+      <div class="form-group">
+        <label>Recipient Username (leave blank to mail all)</label>
+        <input type="text" id="mailUser" placeholder="Enter username or leave blank for all users...">
+      </div>
+      <div class="form-group">
+        <label>Subject</label>
+        <input type="text" id="mailSubject" placeholder="Enter email subject...">
+      </div>
+      <div class="form-group">
+        <label>Message</label>
+        <textarea id="mailBody" rows="6" placeholder="Type your message here..."></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="sendMail()">📧 Send Message</button>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { ref, get, update, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { ref, get, update, remove, onValue,push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// ✅ AUTH CHECK
-onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
-
-  const role = sessionStorage.getItem("role");
-  if (role !== "admin") {
-    alert("Access denied. Admins only.");
-    window.location.href = "dashboard.html";
-    return;
-  }
-
-  loadData();
-});
-
-/////////////////////////////////////////////////////
-// GLOBAL DATA - EXACTLY AS YOU HAD IT
-/////////////////////////////////////////////////////
-
+// ===== DATA STATE =====
 let users = [];
 let deposits = [];
 let withdrawals = [];
 let investments = [];
+let transfers = [];
+let kycData = [];
+let globalSettings = {};
 
-let filterStatus = "all";
-let withdrawFilterStatus = "all";
+let accountFilter = 'all';
+let depositFilter = 'all';
+let withdrawFilter = 'all';
+let kycFilter = 'all';
 
-// ✅ NEW: User filter status
-let userFilterStatus = "all";
+// ===== AUTH =====
+onAuthStateChanged(auth, (user) => {
+  if (!user) { window.location.href = "login.html"; return; }
+  const role = sessionStorage.getItem("role");
+  if (role !== "admin") { alert("Access denied."); window.location.href = "index.html"; return; }
+  
+  document.getElementById('adminName').innerText = sessionStorage.getItem("loggedInUser") || "Admin";
+  document.getElementById('adminAvatar').innerText = (sessionStorage.getItem("loggedInUser") || "A")[0].toUpperCase();
+  document.getElementById('currentDate').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  
+  loadAllData();
+});
 
-/////////////////////////////////////////////////////
-// LOAD DATA - EXACTLY AS YOU HAD IT
-/////////////////////////////////////////////////////
-
-async function loadData() {
+// ===== LOAD ALL DATA =====
+async function loadAllData() {
+  showLoader(true);
   try {
-    // Load users
-    const usersSnap = await get(ref(db, 'users'));
-    users = [];
-    if (usersSnap.exists()) {
-      usersSnap.forEach((childSnap) => {
-        users.push({ username: childSnap.key, ...childSnap.val() });
+    // Users
+    const uSnap = await get(ref(db, 'users'));
+    users = []; let totalBal = 0;
+    if (uSnap.exists()) {
+      uSnap.forEach(c => {
+        const v = c.val();
+        users.push({ username: c.key, ...v });
+        totalBal += Number(v.balance || 0);
       });
     }
+    document.getElementById('statTotalUsers').innerText = users.length;
+    document.getElementById('statTotalBalance').innerText = '$' + totalBal.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('badgeAccounts').innerText = users.length;
 
-    // Load deposits
-    const depSnap = await get(ref(db, 'deposits'));
+    // Deposits
+    const dSnap = await get(ref(db, 'deposits'));
     deposits = [];
-    if (depSnap.exists()) {
-      depSnap.forEach((childSnap) => {
-        deposits.push({ id: childSnap.key, ...childSnap.val() });
-      });
-    }
+    if (dSnap.exists()) { dSnap.forEach(c => deposits.push({ id: c.key, ...c.val() })); }
+    const pendingDep = deposits.filter(d => d.status === 'pending').length;
+    document.getElementById('statPendingDeposits').innerText = pendingDep;
+    document.getElementById('badgeDeposits').innerText = pendingDep;
 
-    // Load withdrawals
-    const witSnap = await get(ref(db, 'withdrawals'));
+    // Withdrawals
+    const wSnap = await get(ref(db, 'withdrawals'));
     withdrawals = [];
-    if (witSnap.exists()) {
-      witSnap.forEach((childSnap) => {
-        withdrawals.push({ id: childSnap.key, ...childSnap.val() });
-      });
-    }
+    if (wSnap.exists()) { wSnap.forEach(c => withdrawals.push({ id: c.key, ...c.val() })); }
+    const pendingWit = withdrawals.filter(w => w.status === 'pending').length;
+    document.getElementById('statPendingWithdrawals').innerText = pendingWit;
+    document.getElementById('badgeWithdrawals').innerText = pendingWit;
 
-    // Load investments
-    const invSnap = await get(ref(db, 'investments'));
+    // Investments
+    const iSnap = await get(ref(db, 'investments'));
     investments = [];
-    if (invSnap.exists()) {
-      invSnap.forEach((childSnap) => {
-        investments.push({ id: childSnap.key, ...childSnap.val() });
-      });
+    if (iSnap.exists()) { iSnap.forEach(c => investments.push({ id: c.key, ...c.val() })); }
+    document.getElementById('statTotalInvestments').innerText = investments.filter(i => i.status === 'active' || !i.status).length;
+
+    // Transfers
+    const tSnap = await get(ref(db, 'transfers'));
+    transfers = [];
+    if (tSnap.exists()) { tSnap.forEach(c => transfers.push({ id: c.key, ...c.val() })); }
+
+    // KYC
+    const kSnap = await get(ref(db, 'kycRequests'));
+    kycData = [];
+    if (kSnap.exists()) { kSnap.forEach(c => kycData.push({ key: c.key, ...c.val() })); }
+    const pendingKyc = kycData.filter(k => k.status === 'pending').length;
+    document.getElementById('statPendingKyc').innerText = pendingKyc;
+    document.getElementById('badgeKyc').innerText = pendingKyc;
+
+    // Global Settings
+    const gSnap = await get(ref(db, 'settings/global'));
+    if (gSnap.exists()) globalSettings = gSnap.val() || {};
+    updateGlobalLockUI();
+
+    // Wallets
+    const walSnap = await get(ref(db, 'settings/wallets'));
+    if (walSnap.exists()) {
+      const w = walSnap.val();
+      document.getElementById('walletBTC').value = w.btc || '';
+      document.getElementById('walletETH').value = w.eth || '';
+      document.getElementById('walletUSDT').value = w.usdt || '';
+      renderCurrentWallets(w);
+    } else {
+      renderCurrentWallets({});
     }
 
     renderAll();
-  } catch (error) {
-    console.error("Load error:", error);
-    alert("Error loading data: " + error.message);
+  } catch (e) {
+    console.error(e);
+    showToast("Error loading data: " + e.message, "error");
   }
+  showLoader(false);
 }
 
-/////////////////////////////////////////////////////
-// USERS - WITH ADMIN FLAGS CONTROL (NEW!)
-/////////////////////////////////////////////////////
+function renderAll() {
+  renderAccounts();
+  renderDeposits();
+  renderWithdrawals();
+  renderInvestments();
+  renderTransfers();
+  renderKyc();
+  renderDashboardActivity();
+}
 
-function loadUsers() {
-  let search = document.getElementById("searchUser").value.toLowerCase();
-  let filtered = users.filter(u => (u.username || "").toLowerCase().includes(search));
+// ===== SECTION NAVIGATION =====
+window.showSection = function(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  
+  const titles = {
+    dashboard: 'Dashboard', accounts: 'Manage Accounts', lock: 'Lock Controls',
+    kyc: 'KYC Verification', deposits: 'Confirm Deposits', withdrawals: 'Confirm Withdrawals',
+    transfers: 'Transfer History', wallets: 'Wallet Addresses', topup: 'Top Up Wallet',
+    bonus: 'Top Up Bonus', plans: 'View Plans', investments: 'Investment History', mail: 'Send Mail'
+  };
+  document.getElementById('pageTitle').innerText = titles[id] || 'Admin';
+  
+  if (window.innerWidth <= 768) toggleSidebar();
+};
 
-  // ✅ NEW: Apply user status filter
-  if (userFilterStatus !== "all") {
-    filtered = filtered.filter(u => {
-      let f = u.adminFlags || { canInvest: true, canWithdraw: true, canTransfer: true };
-      let isBlocked = f.canInvest === false || f.canWithdraw === false || f.canTransfer === false;
-      let isTransferBlocked = f.canTransfer === false;
+window.toggleSidebar = function() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarBackdrop').classList.toggle('active');
+};
 
-      if (userFilterStatus === "active") return !isBlocked;
-      if (userFilterStatus === "blocked") return isBlocked;
-      if (userFilterStatus === "transferBlocked") return isTransferBlocked;
-      return true;
+// ===== ACCOUNTS =====
+window.setAccountFilter = function(f, btn) {
+  accountFilter = f;
+  document.querySelectorAll('#sec-accounts .filter-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderAccounts();
+};
+
+function renderAccounts() {
+  const search = document.getElementById('searchUser').value.toLowerCase();
+  let list = users.filter(u => (u.username || '').toLowerCase().includes(search) || (u.email || '').toLowerCase().includes(search));
+  
+  if (accountFilter !== 'all') {
+    list = list.filter(u => {
+      const f = u.adminFlags || {};
+      const blocked = f.canInvest === false || f.canWithdraw === false || f.canTransfer === false || f.canDeposit === false;
+      return accountFilter === 'blocked' ? blocked : !blocked;
     });
   }
-
-  document.getElementById("usersList").innerHTML =
-    filtered.length === 0 ? '<p class="no-data">No users found.</p>' :
-    filtered.map(u => {
-      // Get admin flags or default — ✅ NEW: added canTransfer
-      let flags = u.adminFlags || { canInvest: true, canWithdraw: true, canTransfer: true, blockReason: "" };
-
-      return `
-      <div class="user-card">
-        <h4>👤 ${u.username}</h4>
-        <p>📧 Email: ${u.email || 'N/A'}</p>
-        <p class="balance">💰 Balance: $${Number(u.balance || 0).toFixed(2)}</p>
-        <p>🏷️ Role: ${u.role || 'user'}</p>
-        <p>🆔 Account ID: ${u.accountId || 'N/A'}</p>
-        <p>💼 Wallet: ${u.wallet ? '<span class="wallet-address">' + u.wallet + '</span>' : '<span style="color:#ff4444;">❌ Not set</span>'}</p>
-
-        <div class="toggle-row">
-          <button class="toggle-btn ${flags.canInvest !== false ? 'enabled' : 'disabled'}" 
-            onclick="toggleInvest('${u.username}', ${flags.canInvest !== false})">
-            ${flags.canInvest !== false ? '✅ Invest ON' : '❌ Invest OFF'}
-          </button>
-
-          <button class="toggle-btn ${flags.canWithdraw !== false ? 'enabled' : 'disabled'}" 
-            onclick="toggleWithdraw('${u.username}', ${flags.canWithdraw !== false})">
-            ${flags.canWithdraw !== false ? '✅ Withdraw ON' : '❌ Withdraw OFF'}
-          </button>
-
-          <!-- ✅ NEW: Transfer toggle button -->
-          <button class="toggle-btn ${flags.canTransfer !== false ? 'transfer-on' : 'transfer-off'}" 
-            onclick="toggleTransfer('${u.username}', ${flags.canTransfer !== false})">
-            ${flags.canTransfer !== false ? '✅ Transfer ON' : '❌ Transfer OFF'}
-          </button>
+  
+  const tbody = document.getElementById('accountsTableBody');
+  if (list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-dim);padding:40px;">No users found.</td></tr>';
+    return;
+  }
+  
+  tbody.innerHTML = list.map(u => {
+    const flags = u.adminFlags || { canInvest: true, canWithdraw: true, canTransfer: true, canDeposit: true };
+    const blocked = flags.canInvest === false || flags.canWithdraw === false || flags.canTransfer === false || flags.canDeposit === false;
+    
+    return `<tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;">${(u.username || 'U')[0].toUpperCase()}</div>
+          <div>
+            <div style="color:#fff;font-weight:600;">${u.username}</div>
+            <div style="color:var(--text-muted);font-size:11px;">${u.email || 'No email'}</div>
+          </div>
         </div>
-
-        ${flags.blockReason ? `<p style="color:#ff4444; margin-top:10px;">📝 Reason: ${flags.blockReason}</p>` : ''}
-
-        <div style="margin-top:15px;">
-          <input type="text" id="blockReason_${u.username}" placeholder="Block reason (optional)" 
-            style="padding:8px; border-radius:5px; border:1px solid #333; background:#0f3460; color:white; width:200px;">
-          <button onclick="saveBlockReason('${u.username}')" 
-            style="padding:8px 15px; background:#ffbb33; color:black; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">
-            Save Reason
-          </button>
+      </td>
+      <td style="font-weight:700;color:var(--amber);">$${Number(u.balance || 0).toFixed(2)}</td>
+      <td><span class="status-dot ${blocked ? 'blocked' : 'active'}"></span>${blocked ? 'Blocked' : 'Active'}</td>
+      <td>
+        <div class="toggle-row" style="margin:0;">
+          <span class="toggle-chip ${flags.canDeposit !== false ? 'on' : 'off'}" onclick="toggleUserFlag('${u.username}', 'canDeposit', ${flags.canDeposit !== false})">Deposit</span>
+          <span class="toggle-chip ${flags.canWithdraw !== false ? 'on' : 'off'}" onclick="toggleUserFlag('${u.username}', 'canWithdraw', ${flags.canWithdraw !== false})">Withdraw</span>
+          <span class="toggle-chip ${flags.canInvest !== false ? 'on' : 'off'}" onclick="toggleUserFlag('${u.username}', 'canInvest', ${flags.canInvest !== false})">Invest</span>
+          <span class="toggle-chip ${flags.canTransfer !== false ? 'on' : 'off'}" onclick="toggleUserFlag('${u.username}', 'canTransfer', ${flags.canTransfer !== false})">Transfer</span>
         </div>
-      </div>
-    `}).join("");
+      </td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-primary btn-sm" onclick="impersonateUser('${u.username}')">Dashboard</button>
+          <button class="btn btn-outline btn-sm" onclick="viewUserPassword('${u.username}')">Password</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteUser('${u.username}')">Delete</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
 }
 
-/////////////////////////////////////////////////////
-// TOGGLE INVEST (NEW!)
-/////////////////////////////////////////////////////
-
-window.toggleInvest = async function(username, currentState) {
-  let newState = !currentState;
-  let reason = prompt(newState ? "Enable investing for " + username + "?" : "Disable investing for " + username + "?\n\nEnter reason (optional):");
-
-  if (reason === null) return; // Cancelled
-
+window.toggleUserFlag = async function(username, flag, current) {
+  const newVal = !current;
+  const reason = prompt(`${newVal ? 'Enable' : 'Disable'} ${flag.replace('can','')} for ${username}?\n\nReason (optional):`);
+  if (reason === null) return;
+  showLoader(true);
   try {
-    await update(ref(db, 'users/' + username + '/adminFlags'), {
-      canInvest: newState,
-      blockReason: reason || ""
-    });
-
-    alert(newState ? `✅ Investing enabled for ${username}` : `❌ Investing disabled for ${username}`);
-    loadData();
-  } catch (error) {
-    alert("Error: " + error.message);
+        const updates = { [flag]: newVal };
+    if (!newVal) updates.blockReason = reason || "Disabled by admin";
+    await update(ref(db, 'users/' + username + '/adminFlags'), updates);
+    showToast(`${flag.replace('can','')} ${newVal ? 'enabled' : 'disabled'} for ${username}`, "success");
+    await loadAllData();
+  } catch (e) {
+    showToast("Error: " + e.message, "error");
   }
+  showLoader(false);
 };
 
-/////////////////////////////////////////////////////
-// TOGGLE WITHDRAW (NEW!)
-/////////////////////////////////////////////////////
-
-window.toggleWithdraw = async function(username, currentState) {
-  let newState = !currentState;
-  let reason = prompt(newState ? "Enable withdrawal for " + username + "?" : "Disable withdrawal for " + username + "?\n\nEnter reason (optional):");
-
-  if (reason === null) return; // Cancelled
-
+// ===== IMPERSONATE USER =====
+window.impersonateUser = async function(username) {
+  const pass = prompt(`Enter YOUR admin password to access ${username}'s dashboard:`);
+  if (!pass) return;
+  showLoader(true);
   try {
-    await update(ref(db, 'users/' + username + '/adminFlags'), {
-      canWithdraw: newState,
-      blockReason: reason || ""
-    });
-
-    alert(newState ? `✅ Withdrawal enabled for ${username}` : `❌ Withdrawal disabled for ${username}`);
-    loadData();
-  } catch (error) {
-    alert("Error: " + error.message);
+    // Verify admin is still logged in by re-checking
+    const snap = await get(ref(db, 'users/' + username));
+    if (!snap.exists()) { showToast("User not found", "error"); showLoader(false); return; }
+    const u = snap.val();
+    sessionStorage.setItem("impersonateTarget", username);
+    sessionStorage.setItem("impersonateUid", u.uid || "");
+    window.open("index.html?impersonate=" + username, "_blank");
+    showToast("Opened user dashboard in new tab", "success");
+  } catch (e) {
+    showToast("Error: " + e.message, "error");
   }
+  showLoader(false);
 };
 
-/////////////////////////////////////////////////////
-// ✅ NEW: TOGGLE TRANSFER
-/////////////////////////////////////////////////////
-
-window.toggleTransfer = async function(username, currentState) {
-  let newState = !currentState;
-  let reason = prompt(newState ? "Enable transfers for " + username + "?" : "Disable transfers for " + username + "?\n\nEnter reason (optional):");
-
-  if (reason === null) return; // Cancelled
-
+// ===== VIEW USER PASSWORD =====
+window.viewUserPassword = async function(username) {
+  const pass = prompt("Enter YOUR admin password to view credentials:");
+  if (!pass) return;
+  showLoader(true);
   try {
-    await update(ref(db, 'users/' + username + '/adminFlags'), {
-      canTransfer: newState,
-      blockReason: reason || ""
-    });
-
-    alert(newState ? `✅ Transfers enabled for ${username}` : `❌ Transfers disabled for ${username}`);
-    loadData();
-  } catch (error) {
-    alert("Error: " + error.message);
+    const snap = await get(ref(db, 'users/' + username));
+    if (!snap.exists()) { showToast("User not found", "error"); showLoader(false); return; }
+    const u = snap.val();
+    openModal("User Credentials", `
+      <div class="detail-row"><span class="dr-label">Username</span><span class="dr-value">${escapeHtml(u.username || username)}</span></div>
+      <div class="detail-row"><span class="dr-label">Email</span><span class="dr-value">${escapeHtml(u.email || '—')}</span></div>
+      <div class="detail-row"><span class="dr-label">Password</span><span class="dr-value" style="color:var(--red);font-family:monospace;">${escapeHtml(u.password || '—')}</span></div>
+      <div class="detail-row"><span class="dr-label">Account ID</span><span class="dr-value">${escapeHtml(u.accountId || '—')}</span></div>
+      <div class="detail-row"><span class="dr-label">Balance</span><span class="dr-value" style="color:var(--green);">$${Number(u.balance || 0).toFixed(2)}</span></div>
+      <div class="detail-row"><span class="dr-label">KYC Status</span><span class="dr-value">${escapeHtml(u.kycStatus || 'none')}</span></div>
+    `);
+  } catch (e) {
+    showToast("Error: " + e.message, "error");
   }
+  showLoader(false);
 };
 
-/////////////////////////////////////////////////////
-// SAVE BLOCK REASON (NEW!)
-/////////////////////////////////////////////////////
-
-window.saveBlockReason = async function(username) {
-  let reason = document.getElementById('blockReason_' + username).value;
-
+// ===== DELETE USER =====
+window.deleteUser = async function(username) {
+  if (!confirm(`⚠️ Are you sure you want to DELETE ${username}?\n\nThis action cannot be undone!`)) return;
+  const pass = prompt("Type DELETE to confirm:");
+  if (pass !== "DELETE") { showToast("Deletion cancelled", "error"); return; }
+  showLoader(true);
   try {
-    await update(ref(db, 'users/' + username + '/adminFlags'), {
-      blockReason: reason
-    });
-
-    alert(`✅ Block reason saved for ${username}`);
-    loadData();
-  } catch (error) {
-    alert("Error: " + error.message);
+    await remove(ref(db, 'users/' + username));
+    showToast(`${username} deleted successfully`, "success");
+    await loadAllData();
+  } catch (e) {
+    showToast("Error: " + e.message, "error");
   }
+  showLoader(false);
 };
 
-/////////////////////////////////////////////////////
-// DEPOSITS - EXACTLY AS YOU HAD IT
-/////////////////////////////////////////////////////
-
-function loadDeposits() {
-  let list = deposits.filter(d => filterStatus === "all" ? true : d.status === filterStatus);
-
-  document.getElementById("depositList").innerHTML =
-    list.length === 0 ? '<p class="no-data">No deposits found.</p>' :
-    list.map(d => `
-      <div class="deposit-card">
-        <p><b>👤 User:</b> ${d.user}</p>
-        <p><b>💰 Amount:</b> $${d.amount}</p>
-        <p><b>🪙 Coin:</b> ${d.coin}</p>
-        <p><b>📊 Status:</b> <span class="status-badge ${d.status}">${d.status.toUpperCase()}</span></p>
-        <p><b>📅 Time:</b> ${new Date(d.time).toLocaleString()}</p>
-
-        ${d.status === "pending" ? `
-          <button class="action-btn approve-btn" onclick="approveDeposit('${d.id}', '${d.user}', ${d.amount})">✅ Approve</button>
-          <button class="action-btn reject-btn" onclick="rejectDeposit('${d.id}')">❌ Reject</button>
-        ` : ""}
-      </div>
-    `).join("");
+// ===== GLOBAL LOCKS =====
+function updateGlobalLockUI() {
+  const s = globalSettings || {};
+  setLockBtn('globalDepositBtn', s.canDeposit !== false);
+  setLockBtn('globalWithdrawBtn', s.canWithdraw !== false);
+  setLockBtn('globalInvestBtn', s.canInvest !== false);
+  setLockBtn('globalTransferBtn', s.canTransfer !== false);
 }
 
-/////////////////////////////////////////////////////
-// APPROVE DEPOSIT - EXACTLY AS YOU HAD IT
-/////////////////////////////////////////////////////
+function setLockBtn(id, enabled) {
+  const btn = document.getElementById(id);
+  if (enabled) {
+    btn.className = "btn btn-success btn-sm";
+    btn.innerText = "Enabled";
+  } else {
+    btn.className = "btn btn-danger btn-sm";
+    btn.innerText = "Disabled";
+  }
+}
 
-window.approveDeposit = async function(depositId, username, amount) {
-  if (!confirm(`Approve deposit of $${amount} for ${username}?`)) return;
-
+window.toggleGlobal = async function(type) {
+  const key = 'can' + type.charAt(0).toUpperCase() + type.slice(1);
+  const current = globalSettings[key] !== false;
+  const reason = prompt(`${current ? 'Disable' : 'Enable'} ${type} system-wide?\n\nReason (optional):`);
+  if (reason === null) return;
+  showLoader(true);
   try {
-    await update(ref(db, 'deposits/' + depositId), {
-      status: "approved"
-    });
+    const updates = { [key]: !current };
+    if (current) updates[type + 'BlockReason'] = reason || "System maintenance";
+    await update(ref(db, 'settings/global'), updates);
+    globalSettings[key] = !current;
+    updateGlobalLockUI();
+    showToast(`${type} system ${!current ? 'enabled' : 'disabled'}`, "success");
+  } catch (e) {
+    showToast("Error: " + e.message, "error");
+  }
+  showLoader(false);
+};
 
-    const userSnap = await get(ref(db, 'users/' + username));
-    if (userSnap.exists()) {
-      let currentBalance = userSnap.val().balance || 0;
-      let newBalance = currentBalance + Number(amount);
+// ===== DEPOSITS =====
+window.setDepositFilter = function(f, btn) {
+  depositFilter = f;
+  document.querySelectorAll('#sec-deposits .filter-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderDeposits();
+};
 
-      await update(ref(db, 'users/' + username), {
-        balance: newBalance
+function renderDeposits() {
+  const el = document.getElementById('depositsList');
+  let list = deposits;
+  if (depositFilter !== 'all') list = list.filter(d => (d.status || 'pending') === depositFilter);
+  if (list.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">💰</div><p>No deposit requests found.</p></div>';
+    return;
+  }
+  el.innerHTML = list.map(d => `
+    <div class="request-card">
+      <div class="request-info">
+        <b style="color:#fff;font-size:15px;">$${Number(d.amount || 0).toFixed(2)}</b>
+        <p>User: <b>${escapeHtml(d.user || '—')}</b></p>
+        <p>Method: ${escapeHtml(d.method || '—')} • ${getTimeAgo(d.time || d.timestamp)}</p>
+        <p>Status: <span class="badge badge-${(d.status || 'pending') === 'approved' ? 'green' : (d.status || 'pending') === 'rejected' ? 'red' : 'amber'}">${d.status || 'pending'}</span></p>
+      </div>
+      <div class="request-actions">
+        ${(d.status || 'pending') === 'pending' ? `
+          <button class="btn btn-success btn-sm" onclick="approveDeposit('${d.id}')">Approve</button>
+          <button class="btn btn-danger btn-sm" onclick="rejectDeposit('${d.id}')">Reject</button>
+        ` : '<span class="badge badge-blue">Processed</span>'}
+      </div>
+    </div>
+  `).join('');
+}
+
+window.approveDeposit = async function(id) {
+  showLoader(true);
+  try {
+    const item = deposits.find(d => d.id === id);
+    if (!item) return;
+    await update(ref(db, 'deposits/' + id), { status: 'approved', approvedAt: Date.now() });
+    // Add to user balance
+    const uRef = ref(db, 'users/' + item.user + '/balance');
+    const uSnap = await get(uRef);
+    const newBal = (uSnap.val() || 0) + Number(item.amount || 0);
+    await update(ref(db, 'users/' + item.user), { balance: newBal });
+    showToast("Deposit approved", "success");
+    await loadAllData();
+  } catch (e) { showToast("Error: " + e.message, "error"); }
+  showLoader(false);
+};
+
+window.rejectDeposit = async function(id) {
+  const reason = prompt("Reason for rejection:");
+  if (reason === null) return;
+  showLoader(true);
+  try {
+    await update(ref(db, 'deposits/' + id), { status: 'rejected', rejectedAt: Date.now(), rejectionReason: reason });
+    showToast("Deposit rejected", "success");
+    await loadAllData();
+  } catch (e) { showToast("Error: " + e.message, "error"); }
+  showLoader(false);
+};
+
+// ===== WITHDRAWALS =====
+window.setWithdrawFilter = function(f, btn) {
+  withdrawFilter = f;
+  document.querySelectorAll('#sec-withdrawals .filter-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderWithdrawals();
+};
+
+function renderWithdrawals() {
+  const el = document.getElementById('withdrawalsList');
+  let list = withdrawals;
+  if (withdrawFilter !== 'all') list = list.filter(w => (w.status || 'pending') === withdrawFilter);
+  if (list.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">💸</div><p>No withdrawal requests found.</p></div>';
+    return;
+  }
+  el.innerHTML = list.map(w => `
+    <div class="request-card">
+      <div class="request-info">
+        <b style="color:#fff;font-size:15px;">$${Number(w.amount || 0).toFixed(2)}</b>
+        <p>User: <b>${escapeHtml(w.user || '—')}</b></p>
+        <p>Address: <span style="font-family:monospace;font-size:11px;">${escapeHtml(w.address || '—')}</span></p>
+        <p>${getTimeAgo(w.time || w.timestamp)} • <span class="badge badge-${(w.status || 'pending') === 'approved' ? 'green' : (w.status || 'pending') === 'rejected' ? 'red' : 'amber'}">${w.status || 'pending'}</span></p>
+      </div>
+      <div class="request-actions">
+        ${(w.status || 'pending') === 'pending' ? `
+          <button class="btn btn-success btn-sm" onclick="approveWithdrawal('${w.id}')">Approve</button>
+          <button class="btn btn-danger btn-sm" onclick="rejectWithdrawal('${w.id}')">Reject</button>
+        ` : '<span class="badge badge-blue">Processed</span>'}
+      </div>
+    </div>
+  `).join('');
+}
+
+window.approveWithdrawal = async function(id) {
+  showLoader(true);
+  try {
+    const item = withdrawals.find(w => w.id === id);
+    if (!item) return;
+    // Deduct from user balance
+    const uRef = ref(db, 'users/' + item.user + '/balance');
+    const uSnap = await get(uRef);
+    const currentBal = uSnap.val() || 0;
+    if (currentBal < Number(item.amount || 0)) { showToast("User has insufficient balance", "error"); showLoader(false); return; }
+    await update(ref(db, 'users/' + item.user), { balance: currentBal - Number(item.amount || 0) });
+    await update(ref(db, 'withdrawals/' + id), { status: 'approved', approvedAt: Date.now() });
+    showToast("Withdrawal approved", "success");
+    await loadAllData();
+  } catch (e) { showToast("Error: " + e.message, "error"); }
+  showLoader(false);
+};
+
+window.rejectWithdrawal = async function(id) {
+  const reason = prompt("Reason for rejection:");
+  if (reason === null) return;
+  showLoader(true);
+  try {
+    await update(ref(db, 'withdrawals/' + id), { status: 'rejected', rejectedAt: Date.now(), rejectionReason: reason });
+    showToast("Withdrawal rejected", "success");
+    await loadAllData();
+  } catch (e) { showToast("Error: " + e.message, "error"); }
+  showLoader(false);
+};
+
+// ===== TRANSFERS =====
+function renderTransfers() {
+  const el = document.getElementById('transfersList');
+  if (transfers.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">🔄</div><p>No transfer history found.</p></div>';
+    return;
+  }
+  el.innerHTML = transfers.slice().reverse().map(t => `
+    <div class="request-card">
+      <div class="request-info">
+        <b style="color:#fff;font-size:15px;">$${Number(t.amount || 0).toFixed(2)}</b>
+        <p>From: <b>${escapeHtml(t.from || '—')}</b> → To: <b>${escapeHtml(t.to || '—')}</b></p>
+        <p>${getTimeAgo(t.time || t.timestamp)}</p>
+      </div>
+      <span class="badge badge-blue">Completed</span>
+    </div>
+  `).join('');
+}
+
+// ===== INVESTMENTS =====
+function renderInvestments() {
+  const el = document.getElementById('investmentsList');
+  if (investments.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">📈</div><p>No investment history found.</p></div>';
+    return;
+  }
+  el.innerHTML = investments.slice().reverse().map(i => `
+    <div class="request-card">
+      <div class="request-info">
+        <b style="color:var(--amber);font-size:15px;">${escapeHtml(i.plan || 'Plan')}</b>
+        <p>User: <b>${escapeHtml(i.user || '—')}</b></p>
+        <p>Amount: <b>$${Number(i.amount || 0).toFixed(2)}</b> • Profit: <b style="color:var(--green);">${(i.profitPercent || 0) * 100}%</b></p>
+        <p>${getTimeAgo(i.investTime || i.time)}</p>
+      </div>
+      <span class="badge badge-${i.status === 'completed' ? 'green' : 'amber'}">${i.status || 'active'}</span>
+    </div>
+  `).join('');
+}
+
+// ===== WALLETS =====
+function renderCurrentWallets(w) {
+  const el = document.getElementById('currentWallets');
+  if (!w || (!w.btc && !w.eth && !w.usdt)) {
+    el.innerHTML = '<p style="color:var(--text-dim);font-size:13px;">No wallet addresses set yet.</p>';
+    return;
+  }
+  el.innerHTML = `
+    ${w.btc ? `<div style="margin-bottom:12px;"><label style="font-size:11px;color:var(--text-muted);text-transform:uppercase;">Bitcoin</label><div class="wallet-box">${escapeHtml(w.btc)}</div></div>` : ''}
+    ${w.eth ? `<div style="margin-bottom:12px;"><label style="font-size:11px;color:var(--text-muted);text-transform:uppercase;">Ethereum</label><div class="wallet-box">${escapeHtml(w.eth)}</div></div>` : ''}
+    ${w.usdt ? `<div style="margin-bottom:12px;"><label style="font-size:11px;color:var(--text-muted);text-transform:uppercase;">USDT TRC20</label><div class="wallet-box">${escapeHtml(w.usdt)}</div></div>` : ''}
+  `;
+}
+
+window.saveWallets = async function() {
+  showLoader(true);
+  try {
+    const data = {
+      btc: document.getElementById('walletBTC').value.trim(),
+      eth: document.getElementById('walletETH').value.trim(),
+      usdt: document.getElementById('walletUSDT').value.trim(),
+      updatedAt: Date.now()
+    };
+    await update(ref(db, 'settings/wallets'), data);
+    renderCurrentWallets(data);
+    showToast("Wallet addresses saved", "success");
+  } catch (e) { showToast("Error: " + e.message, "error"); }
+  showLoader(false);
+};
+
+// ===== TOP UP =====
+window.topUpUser = async function() {
+  const user = document.getElementById('topupUser').value.trim();
+  const amt = parseFloat(document.getElementById('topupAmount').value);
+  const note = document.getElementById('topupNote').value.trim() || "Admin top up";
+  if (!user || !amt || amt <= 0) { showToast("Enter valid username and amount", "error"); return; }
+  showLoader(true);
+  try {
+    const uRef = ref(db, 'users/' + user + '/balance');
+    const uSnap = await get(uRef);
+    const newBal = (uSnap.val() || 0) + amt;
+    await update(ref(db, 'users/' + user), { balance: newBal });
+    // Log it
+    const logRef = push(ref(db, 'deposits'));
+    await update(ref(db), { ['deposits/' + logRef.key]: { user, amount: amt, status: 'approved', method: 'Admin Top Up', note, time: Date.now() }});
+    showToast(`Added $${amt.toFixed(2)} to ${user}`, "success");
+    document.getElementById('topupUser').value = '';
+    document.getElementById('topupAmount').value = '';
+    await loadAllData();
+  } catch (e) { showToast("Error: " + e.message, "error"); }
+  showLoader(false);
+};
+
+// ===== BONUS =====
+window.giveBonus = async function() {
+  const user = document.getElementById('bonusUser').value.trim();
+  const amt = parseFloat(document.getElementById('bonusAmount').value);
+  const type = document.getElementById('bonusType').value;
+  if (!user || !amt || amt <= 0) { showToast("Enter valid username and amount", "error"); return; }
+  showLoader(true);
+  try {
+    const uRef = ref(db, 'users/' + user + '/balance');
+    const uSnap = await get(uRef);
+    const newBal = (uSnap.val() || 0) + amt;
+    await update(ref(db, 'users/' + user), { balance: newBal });
+    const logRef = push(ref(db, 'bonuses'));
+    await update(ref(db), { ['bonuses/' + logRef.key]: { user, amount: amt, type, time: Date.now() }});
+    showToast(`Gave $${amt.toFixed(2)} ${type} bonus to ${user}`, "success");
+    document.getElementById('bonusUser').value = '';
+    document.getElementById('bonusAmount').value = '';
+    await loadAllData();
+  } catch (e) { showToast("Error: " + e.message, "error"); }
+  showLoader(false);
+};
+
+// ===== SEND MAIL =====
+window.sendMail = async function() {
+  const user = document.getElementById('mailUser').value.trim();
+  const subject = document.getElementById('mailSubject').value.trim();
+  const body = document.getElementById('mailBody').value.trim();
+  if (!subject || !body) { showToast("Subject and message required", "error"); return; }
+  showLoader(true);
+  try {
+    const mailData = { subject, body, sentAt: Date.now(), from: 'Admin' };
+    if (user) {
+      const mailRef = push(ref(db, 'users/' + user + '/messages'));
+      await update(ref(db), { ['users/' + user + '/messages/' + mailRef.key]: mailData });
+      showToast(`Message sent to ${user}`, "success");
+    } else {
+      // Send to all users
+      const snap = await get(ref(db, 'users'));
+      const updates = {};
+      snap.forEach(c => {
+        const key = push(ref(db, 'users/' + c.key + '/messages')).key;
+        updates['users/' + c.key + '/messages/' + key] = mailData;
       });
+      await update(ref(db), updates);
+      showToast("Broadcast sent to all users", "success");
     }
-
-    alert(`✅ Deposit approved! $${amount} added to ${username}'s balance.`);
-    loadData();
-
-  } catch (error) {
-    alert("Error approving deposit: " + error.message);
-    console.error(error);
-  }
+    document.getElementById('mailSubject').value = '';
+    document.getElementById('mailBody').value = '';
+  } catch (e) { showToast("Error: " + e.message, "error"); }
+  showLoader(false);
 };
 
-/////////////////////////////////////////////////////
-// REJECT DEPOSIT - EXACTLY AS YOU HAD IT
-/////////////////////////////////////////////////////
-
-window.rejectDeposit = async function(depositId) {
-  if (!confirm("Reject this deposit?")) return;
-
-  try {
-    await update(ref(db, 'deposits/' + depositId), {
-      status: "rejected"
-    });
-
-    alert("❌ Deposit rejected.");
-    loadData();
-
-  } catch (error) {
-    alert("Error rejecting deposit: " + error.message);
-    console.error(error);
-  }
+// ===== KYC =====
+window.setKycFilter = function(f, btn) {
+  kycFilter = f;
+  document.querySelectorAll('#sec-kyc .filter-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderKyc();
 };
 
-/////////////////////////////////////////////////////
-// WITHDRAWALS - EXACTLY AS YOU HAD IT
-/////////////////////////////////////////////////////
-
-function loadWithdrawals() {
-  let list = withdrawals.filter(w => withdrawFilterStatus === "all" ? true : w.status === withdrawFilterStatus);
-
-  document.getElementById("withdrawList").innerHTML =
-    list.length === 0 ? '<p class="no-data">No withdrawals found.</p>' :
-    list.map(w => `
-      <div class="withdraw-card">
-        <p><b>👤 User:</b> ${w.user}</p>
-        <p><b>💰 Amount:</b> $${w.amount}</p>
-        <p><b>🪙 Coin:</b> ${w.coin || 'N/A'}</p>
-        <p><b>💼 Wallet:</b> <span class="wallet-address">${w.wallet}</span></p>
-        <p><b>📊 Status:</b> <span class="status-badge ${w.status}">${w.status.toUpperCase()}</span></p>
-        <p><b>📅 Time:</b> ${new Date(w.time).toLocaleString()}</p>
-
-        ${w.status === "pending" ? `
-          <button class="action-btn approve-btn" onclick="approveWithdraw('${w.id}', '${w.user}', ${w.amount})">✅ Approve</button>
-          <button class="action-btn reject-btn" onclick="rejectWithdraw('${w.id}', '${w.user}', ${w.amount})">❌ Reject</button>
-        ` : ""}
-      </div>
-    `).join("");
-}
-
-/////////////////////////////////////////////////////
-// APPROVE WITHDRAWAL - FIXED (no double deduction!)
-/////////////////////////////////////////////////////
-
-window.approveWithdraw = async function(withdrawId, username, amount) {
-  if (!confirm(`Approve withdrawal of $${amount} for ${username}?`)) return;
-
-  try {
-    // Just mark as approved — balance was ALREADY deducted on withdrawal page
-    await update(ref(db, 'withdrawals/' + withdrawId), {
-      status: "approved"
-    });
-
-    alert(`✅ Withdrawal approved! $${amount} was already deducted from ${username}'s balance.`);
-    loadData();
-
-  } catch (error) {
-    alert("Error approving withdrawal: " + error.message);
-    console.error(error);
+function renderKyc() {
+  const el = document.getElementById('kycList');
+  let list = kycData;
+  if (kycFilter !== 'all') list = list.filter(k => (k.status || 'pending') === kycFilter);
+  if (list.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No KYC submissions found.</p></div>';
+    return;
   }
-};
-
-/////////////////////////////////////////////////////
-// REJECT WITHDRAWAL - FIXED (refund the user!)
-/////////////////////////////////////////////////////
-
-window.rejectWithdraw = async function(withdrawId, username, amount) {
-  if (!confirm("Reject this withdrawal? The amount will be refunded to the user.")) return;
-
-  try {
-    // Mark as rejected
-    await update(ref(db, 'withdrawals/' + withdrawId), {
-      status: "rejected"
-    });
-
-    // REFUND: Add the amount back to user's balance
-    const userSnap = await get(ref(db, 'users/' + username));
-    if (userSnap.exists()) {
-      let currentBalance = userSnap.val().balance || 0;
-      let newBalance = currentBalance + Number(amount);
-
-      await update(ref(db, 'users/' + username), {
-        balance: newBalance
-      });
-    }
-
-    alert(`❌ Withdrawal rejected. $${amount} has been refunded to ${username}'s balance.`);
-    loadData();
-
-  } catch (error) {
-    alert("Error rejecting withdrawal: " + error.message);
-    console.error(error);
-  }
-};
-
-/////////////////////////////////////////////////////
-// INVESTMENTS - EXACTLY AS YOU HAD IT
-/////////////////////////////////////////////////////
-
-function loadInvestments() {
-  document.getElementById("investList").innerHTML = 
-    investments.length === 0 ? 
-    '<p class="no-data">No investments yet.</p>' :
-    investments.map(i => `
-      <div class="deposit-card">
-        <p><b>👤 User:</b> ${i.user}</p>
-        <p><b>📊 Plan:</b> ${i.plan}</p>
-        <p><b>💰 Amount:</b> $${i.amount}</p>
-        <p><b>📈 Profit:</b> ${(i.profitPercent * 100)}%</p>
-        <p><b>⏱️ Duration:</b> ${i.hours} hours</p>
-        <p><b>📊 Status:</b> <span class="status-badge ${i.status}">
-  ${i.status.toUpperCase()}
-</span></p>
-       <p><b>📅 Time:</b> ${new Date(i.investTime).toLocaleString()}</p>
-      </div>
-    `).join("");
-}
-
-/////////////////////////////////////////////////////
-// NOTIFICATIONS (NEW!)
-/////////////////////////////////////////////////////
-
-function loadNotifications() {
-  let pendingDeposits =
-    deposits.filter(d => d.status === "pending").length;
-
-  let pendingWithdrawals =
-    withdrawals.filter(w => w.status === "pending").length;
-
-  let notifHTML = "";
-
-  if (pendingDeposits > 0) {
-    notifHTML += `
-      <div class="notification-box">
-        <p>💰 ${pendingDeposits} pending deposit(s) waiting for approval</p>
-        <p class="time">Check deposits section below</p>
+  el.innerHTML = list.map(k => {
+    const d = k.kycData || {};
+    const status = k.status || 'pending';
+    const emoji = status === 'verified' ? '✅' : status === 'rejected' ? '❌' : '⏳';
+    return `
+      <div class="kyc-card" onclick="openKycDetail('${k.key}')">
+        <div class="kyc-avatar">${emoji}</div>
+        <div class="kyc-info">
+          <h4>${escapeHtml(d.fullName || k.user || 'Unknown')}</h4>
+          <p>${escapeHtml(k.user || '—')} • ${getTimeAgo(k.submittedAt)}</p>
+        </div>
+        <span class="badge badge-${status === 'verified' ? 'green' : status === 'rejected' ? 'red' : 'amber'}">${status}</span>
       </div>
     `;
-  }
+  }).join('');
+}
 
-  if (pendingWithdrawals > 0) {
-    notifHTML += `
-      <div class="notification-box">
-        <p>💸 ${pendingWithdrawals} pending withdrawal(s) waiting for approval</p>
-        <p class="time">Check withdrawals section below</p>
+window.openKycDetail = function(key) {
+  const k = kycData.find(x => x.key === key);
+  if (!k) return;
+  const d = k.kycData || {};
+  const status = k.status || 'pending';
+  
+  let docsHtml = '<div class="doc-grid">';
+  if (d.idFront) docsHtml += `<div class="doc-box" onclick="openLightbox('${escapeHtml(d.idFront)}')"><img src="${escapeHtml(d.idFront)}" alt="ID Front"><div class="doc-label">ID Front</div></div>`;
+  if (d.idBack) docsHtml += `<div class="doc-box" onclick="openLightbox('${escapeHtml(d.idBack)}')"><img src="${escapeHtml(d.idBack)}" alt="ID Back"><div class="doc-label">ID Back</div></div>`;
+  if (d.selfie) docsHtml += `<div class="doc-box full" onclick="openLightbox('${escapeHtml(d.selfie)}')"><img src="${escapeHtml(d.selfie)}" alt="Selfie"><div class="doc-label">Selfie with ID</div></div>`;
+  if (!d.idFront && !d.idBack && !d.selfie) docsHtml += '<p style="color:var(--text-dim);padding:20px;text-align:center;">No documents uploaded</p>';
+  docsHtml += '</div>';
+
+  const actions = status === 'pending' ? `
+    <div style="display:flex;gap:12px;margin-top:20px;">
+      <button class="btn btn-danger" style="flex:1;" onclick="rejectKyc('${k.key}', '${k.user}')">❌ Reject</button>
+      <button class="btn btn-success" style="flex:1;" onclick="approveKyc('${k.key}', '${k.user}')">✅ Approve</button>
+    </div>
+  ` : (k.kycRejectionReason ? `<div style="margin-top:16px;background:rgba(255,68,68,0.06);border:1px solid rgba(255,68,68,0.15);border-radius:12px;padding:14px;"><b style="color:var(--red);font-size:12px;">REJECTION REASON:</b><p style="color:var(--red);margin-top:4px;font-size:13px;">${escapeHtml(k.kycRejectionReason)}</p></div>` : '');
+
+  openModal("KYC Details", `
+    <div class="detail-row"><span class="dr-label">User</span><span class="dr-value">${escapeHtml(k.user || '—')}</span></div>
+    <div class="detail-row"><span class="dr-label">Full Name</span><span class="dr-value">${escapeHtml(d.fullName || '—')}</span></div>
+    <div class="detail-row"><span class="dr-label">Date of Birth</span><span class="dr-value">${escapeHtml(d.dob || '—')}</span></div>
+    <div class="detail-row"><span class="dr-label">Nationality</span><span class="dr-value">${escapeHtml(d.nationality || '—')}</span></div>
+    <div class="detail-row"><span class="dr-label">Phone</span><span class="dr-value">${escapeHtml(d.phone || '—')}</span></div>
+    <div class="detail-row"><span class="dr-label">Address</span><span class="dr-value">${escapeHtml(d.address || '—')}, ${escapeHtml(d.city || '')} ${escapeHtml(d.zipCode || '')}</span></div>
+    <div class="detail-row"><span class="dr-label">Country</span><span class="dr-value">${escapeHtml(d.country || '—')}</span></div>
+    <div class="detail-row"><span class="dr-label">Status</span><span class="dr-value"><span class="badge badge-${status === 'verified' ? 'green' : status === 'rejected' ? 'red' : 'amber'}">${status}</span></span></div>
+    <div style="margin-top:16px;"><b style="color:var(--text-muted);font-size:12px;text-transform:uppercase;">Documents</b></div>
+    ${docsHtml}
+    ${actions}
+  `);
+};
+
+window.approveKyc = async function(key, username) {
+  showLoader(true);
+  try {
+    await update(ref(db, 'kycRequests/' + key), { status: 'verified', reviewedAt: Date.now() });
+    await update(ref(db, 'users/' + username), { kycStatus: 'verified', kycRejectionReason: null });
+    showToast("KYC approved", "success");
+    closeModal();
+    await loadAllData();
+  } catch (e) { showToast("Error: " + e.message, "error"); }
+  showLoader(false);
+};
+
+window.rejectKyc = async function(key, username) {
+  const reason = prompt("Enter rejection reason:");
+  if (!reason) return;
+  showLoader(true);
+  try {
+    await update(ref(db, 'kycRequests/' + key), { status: 'rejected', kycRejectionReason: reason, reviewedAt: Date.now() });
+    await update(ref(db, 'users/' + username), { kycStatus: 'rejected', kycRejectionReason: reason });
+    showToast("KYC rejected", "success");
+    closeModal();
+    await loadAllData();
+  } catch (e) { showToast("Error: " + e.message, "error"); }
+  showLoader(false);
+};
+
+// ===== DASHBOARD ACTIVITY =====
+function renderDashboardActivity() {
+  const el = document.getElementById('dashboardActivity');
+  const all = [];
+  deposits.slice(-5).forEach(d => all.push({ type: 'deposit', ...d }));
+  withdrawals.slice(-5).forEach(w => all.push({ type: 'withdrawal', ...w }));
+  investments.slice(-5).forEach(i => all.push({ type: 'investment', ...i }));
+  all.sort((a, b) => (b.time || b.timestamp || 0) - (a.time || a.timestamp || 0));
+  
+  if (all.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">📊</div><p>No recent activity.</p></div>';
+    return;
+  }
+  
+  el.innerHTML = all.slice(0, 10).map(item => {
+    const isDep = item.type === 'deposit';
+    const isWit = item.type === 'withdrawal';
+    const isInv = item.type === 'investment';
+    const color = isDep ? 'var(--green)' : isWit ? 'var(--red)' : 'var(--amber)';
+    const icon = isDep ? '💰' : isWit ? '💸' : '📈';
+    return `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:20px;">${icon}</span>
+          <div>
+            <div style="color:#fff;font-size:13px;font-weight:600;">${isDep ? 'Deposit' : isWit ? 'Withdrawal' : 'Investment'} by ${escapeHtml(item.user || '—')}</div>
+            <div style="color:var(--text-muted);font-size:11px;">${getTimeAgo(item.time || item.timestamp)}</div>
+          </div>
+        </div>
+        <div style="color:${color};font-weight:700;font-size:14px;">$${Number(item.amount || 0).toFixed(2)}</div>
       </div>
     `;
-  }
-
-  if (notifHTML === "") {
-    notifHTML = '<p class="no-data">No new notifications</p>';
-  }
-
-  document.getElementById("notifications").innerHTML = notifHTML;
+  }).join('');
 }
 
-/////////////////////////////////////////////////////
-// FILTERS - EXACTLY AS YOU HAD IT (with fix for multiple tab groups)
-/////////////////////////////////////////////////////
-
-function setFilter(status) {
-  filterStatus = status;
-
-  // ✅ FIXED: Use closest parent instead of index (so user tabs don't break this)
-  let container = event.target.closest('.filter-tabs');
-  container.querySelectorAll('.filter-tab').forEach(tab => {
-    tab.classList.remove('active');
-  });
-
-  event.target.classList.add('active');
-
-  loadDeposits();
+// ===== UTILITIES =====
+function openModal(title, html) {
+  document.getElementById('modalTitle').innerText = title;
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
 }
 
-function setWithdrawFilter(status) {
-  withdrawFilterStatus = status;
+window.closeModal = function(e) {
+  if (e && e.target !== document.getElementById('modalOverlay')) return;
+  document.getElementById('modalOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+};
 
-  // ✅ FIXED: Use closest parent instead of index
-  let container = event.target.closest('.filter-tabs');
-  container.querySelectorAll('.filter-tab').forEach(tab => {
-    tab.classList.remove('active');
-  });
+window.openLightbox = function(src) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('active');
+};
 
-  event.target.classList.add('active');
+window.closeLightbox = function() {
+  document.getElementById('lightbox').classList.remove('active');
+};
 
-  loadWithdrawals();
+function showLoader(show) {
+  const el = document.getElementById('loaderOverlay');
+  if (show) el.classList.add('active'); else el.classList.remove('active');
 }
 
-// ✅ NEW: User filter function
-function setUserFilter(status) {
-  userFilterStatus = status;
-
-  let container = event.target.closest('.filter-tabs');
-  container.querySelectorAll('.filter-tab').forEach(tab => {
-    tab.classList.remove('active');
-  });
-
-  event.target.classList.add('active');
-
-  loadUsers();
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.innerText = msg;
+  t.className = 'toast ' + (type || 'success') + ' show';
+  setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-/////////////////////////////////////////////////////
-// LOGOUT
-/////////////////////////////////////////////////////
+function getTimeAgo(ts) {
+  if (!ts) return 'Just now';
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 60) return s + 's ago';
+  const m = Math.floor(s / 60);
+  if (m < 60) return m + 'm ago';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + 'h ago';
+  const d = Math.floor(h / 24);
+  return d + 'd ago';
+}
 
-async function logout() {
+function escapeHtml(text) {
+  if (!text) return '—';
+  const d = document.createElement('div');
+  d.innerText = text;
+  return d.innerHTML;
+}
+
+window.logout = async function() {
   try {
     await signOut(auth);
     sessionStorage.clear();
     window.location.href = "login.html";
-  } catch (error) {
-    console.error("Logout error:", error);
-   }
+  } catch (e) {
+    showToast("Logout failed", "error");
   }
-
-/////////////////////////////////////////////////////
-// RENDER ALL
-/////////////////////////////////////////////////////
-
-function renderAll() {
-  loadUsers();
-  loadDeposits();
-  loadInvestments();
-  loadWithdrawals();
-  loadNotifications();
-}
-
-window.setFilter = setFilter;
-window.setWithdrawFilter = setWithdrawFilter;
-
-// ✅ NEW: Expose user filter & transfer toggle to window
-window.setUserFilter = setUserFilter;
-window.toggleTransfer = toggleTransfer;
-
+};
 </script>
+
 </body>
 </html>
