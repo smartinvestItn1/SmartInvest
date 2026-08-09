@@ -968,7 +968,7 @@
   </div>
 
 </div>
-<script type="module">
+ <script type="module">
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { ref, get, update, remove, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -987,15 +987,26 @@ let depositFilter = 'all';
 let withdrawFilter = 'all';
 let kycFilter = 'all';
 
+// ===== SAFE DOM HELPER =====
+function safeSetText(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.innerText = text;
+}
+function safeSetValue(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val || '';
+}
+
 // ===== AUTH =====
 onAuthStateChanged(auth, (user) => {
   if (!user) { window.location.href = "login.html"; return; }
   const role = sessionStorage.getItem("role");
   if (role !== "admin") { alert("Access denied."); window.location.href = "index.html"; return; }
   
-  document.getElementById('adminName').innerText = sessionStorage.getItem("loggedInUser") || "Admin";
-  document.getElementById('adminAvatar').innerText = (sessionStorage.getItem("loggedInUser") || "A")[0].toUpperCase();
-  document.getElementById('currentDate').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  safeSetText('adminName', sessionStorage.getItem("loggedInUser") || "Admin");
+  const av = document.getElementById('adminAvatar');
+  if (av) av.innerText = (sessionStorage.getItem("loggedInUser") || "A")[0].toUpperCase();
+  safeSetText('currentDate', new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
   
   loadAllData();
 });
@@ -1034,7 +1045,6 @@ async function loadAllData() {
       dSnap.forEach(c => {
         const val = c.val();
         deposits.push({ id: c.key, ...val });
-        debugInfo.push(`💰 deposit key=${c.key} user=${val.user || '?'} amount=${val.amount || 0} status=${val.status || 'pending'}`);
       });
       const pendingDep = deposits.filter(d => d.status === 'pending').length;
       debugInfo.push(`✅ deposits/: ${deposits.length} found (${pendingDep} pending)`);
@@ -1054,7 +1064,6 @@ async function loadAllData() {
       wSnap.forEach(c => {
         const val = c.val();
         withdrawals.push({ id: c.key, ...val });
-        debugInfo.push(`💸 withdrawal key=${c.key} user=${val.user || '?'} amount=${val.amount || 0} status=${val.status || 'pending'}`);
       });
       const pendingWit = withdrawals.filter(w => w.status === 'pending').length;
       debugInfo.push(`✅ withdrawals/: ${withdrawals.length} found (${pendingWit} pending)`);
@@ -1094,30 +1103,26 @@ async function loadAllData() {
     const walSnap = await get(ref(db, 'settings/wallets'));
     if (walSnap.exists()) {
       const w = walSnap.val();
-      const usdtEl = document.getElementById('walletUSDT');
-      const bepEl = document.getElementById('walletUSDT_BEP20');
-      if (usdtEl) usdtEl.value = w.usdt || '';
-      if (bepEl) bepEl.value = w.usdt_bep20 || '';
+      safeSetValue('walletUSDT', w.usdt);
+      safeSetValue('walletUSDT_BEP20', w.usdt_bep20);
       renderCurrentWallets(w);
     } else {
       renderCurrentWallets({});
     }
 
-    // --- CONTACT INFO (GUARDED) ---
+    // --- CONTACT INFO (GUARDED - may not exist in HTML) ---
     try {
       const contactSnap = await get(ref(db, 'settings/contact'));
       if (contactSnap.exists()) {
         const c = contactSnap.val();
-        const phoneEl = document.getElementById('contactPhone');
-        const emailEl = document.getElementById('contactEmail');
-        if (phoneEl) phoneEl.value = c.phone || '';
-        if (emailEl) emailEl.value = c.email || '';
+        safeSetValue('contactPhone', c.phone);
+        safeSetValue('contactEmail', c.email);
         renderCurrentContactInfo(c);
       } else {
         renderCurrentContactInfo({});
       }
     } catch (contactErr) {
-      debugInfo.push("⚠️ Contact info skipped: " + contactErr.message);
+      debugInfo.push("⚠️ Contact info skipped");
     }
 
     renderAll();
@@ -1137,16 +1142,9 @@ async function loadAllData() {
   showLoader(false);
 }
 
-// Safe DOM text setter
-function safeSetText(id, text) {
-  const el = document.getElementById(id);
-  if (el) el.innerText = text;
-}
-
-// ===== REFRESH DATA (SAFE) =====
+// ===== REFRESH DATA (SAFE - only overwrite after success) =====
 async function refreshData() {
   try {
-    // Deposits
     const dSnap = await get(ref(db, 'deposits'));
     if (dSnap.exists()) {
       const newDeposits = [];
@@ -1158,7 +1156,6 @@ async function refreshData() {
       renderDeposits();
     }
 
-    // Withdrawals
     const wSnap = await get(ref(db, 'withdrawals'));
     if (wSnap.exists()) {
       const newWithdrawals = [];
@@ -1170,7 +1167,6 @@ async function refreshData() {
       renderWithdrawals();
     }
 
-    // Users
     const uSnap = await get(ref(db, 'users'));
     if (uSnap.exists()) {
       const newUsers = []; let totalBal = 0;
@@ -1186,7 +1182,6 @@ async function refreshData() {
       renderAccounts();
     }
 
-    // KYC
     const kSnap = await get(ref(db, 'kycRequests'));
     if (kSnap.exists()) {
       const newKyc = [];
@@ -1198,7 +1193,6 @@ async function refreshData() {
       renderKyc();
     }
 
-    // Investments
     const iSnap = await get(ref(db, 'investments'));
     if (iSnap.exists()) {
       const newInvestments = [];
@@ -1208,7 +1202,6 @@ async function refreshData() {
       renderInvestments();
     }
 
-    // Transfers
     const tSnap = await get(ref(db, 'transfers'));
     if (tSnap.exists()) {
       const newTransfers = [];
@@ -1221,6 +1214,13 @@ async function refreshData() {
   } catch (e) {
     console.error("Refresh error:", e);
   }
+}
+
+// ===== MISSING FUNCTION - THIS WAS THE CRASH =====
+function updateInvestmentStats() {
+  const fromCollection = investments.filter(i => i.status === 'active' || !i.status).length;
+  const fromUsers = users.filter(u => u.plan && u.plan !== "None").length;
+  safeSetText('statTotalInvestments', Math.max(fromCollection, fromUsers));
 }
 
 window.runDebugCheck = async function() {
@@ -1265,7 +1265,8 @@ function renderAll() {
 // ===== SECTION NAVIGATION =====
 window.showSection = function(id, el) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.getElementById('sec-' + id).classList.add('active');
+  const sec = document.getElementById('sec-' + id);
+  if (sec) sec.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   if (el) el.classList.add('active');
   
@@ -1275,15 +1276,16 @@ window.showSection = function(id, el) {
     transfers: 'Transfer History', wallets: 'Wallet Addresses', topup: 'Top Up Wallet',
     bonus: 'Top Up Bonus', plans: 'View Plans', investments: 'Investment History', mail: 'Send Mail'
   };
-  const pageTitle = document.getElementById('pageTitle');
-  if (pageTitle) pageTitle.innerText = titles[id] || 'Admin';
+  safeSetText('pageTitle', titles[id] || 'Admin');
   
   if (window.innerWidth <= 768) toggleSidebar();
 };
 
 window.toggleSidebar = function() {
-  document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('sidebarBackdrop').classList.toggle('active');
+  const sb = document.getElementById('sidebar');
+  const bd = document.getElementById('sidebarBackdrop');
+  if (sb) sb.classList.toggle('open');
+  if (bd) bd.classList.toggle('active');
 };
 
 // ===== ACCOUNTS =====
@@ -1501,15 +1503,14 @@ window.approveDeposit = async function(id) {
   showLoader(true);
   try {
     const item = deposits.find(d => d.id === id);
-    if (!item) return;
+    if (!item) { showLoader(false); return; }
     await update(ref(db, 'deposits/' + id), { status: 'approved', approvedAt: Date.now() });
-    // Add to user balance
     const uRef = ref(db, 'users/' + item.user + '/balance');
     const uSnap = await get(uRef);
     const newBal = (uSnap.val() || 0) + Number(item.amount || 0);
     await update(ref(db, 'users/' + item.user), { balance: newBal });
     showToast("Deposit approved", "success");
-    await loadAllData();
+    try { await loadAllData(); } catch (e) { console.error(e); }
   } catch (e) { showToast("Error: " + e.message, "error"); }
   showLoader(false);
 };
@@ -1521,7 +1522,7 @@ window.rejectDeposit = async function(id) {
   try {
     await update(ref(db, 'deposits/' + id), { status: 'rejected', rejectedAt: Date.now(), rejectionReason: reason });
     showToast("Deposit rejected", "success");
-    await loadAllData();
+    try { await loadAllData(); } catch (e) { console.error(e); }
   } catch (e) { showToast("Error: " + e.message, "error"); }
   showLoader(false);
 };
@@ -1565,8 +1566,7 @@ window.approveWithdrawal = async function(id) {
   showLoader(true);
   try {
     const item = withdrawals.find(w => w.id === id);
-    if (!item) return;
-    // Deduct from user balance
+    if (!item) { showLoader(false); return; }
     const uRef = ref(db, 'users/' + item.user + '/balance');
     const uSnap = await get(uRef);
     const currentBal = uSnap.val() || 0;
@@ -1574,7 +1574,7 @@ window.approveWithdrawal = async function(id) {
     await update(ref(db, 'users/' + item.user), { balance: currentBal - Number(item.amount || 0) });
     await update(ref(db, 'withdrawals/' + id), { status: 'approved', approvedAt: Date.now() });
     showToast("Withdrawal approved", "success");
-    await loadAllData();
+    try { await loadAllData(); } catch (e) { console.error(e); }
   } catch (e) { showToast("Error: " + e.message, "error"); }
   showLoader(false);
 };
@@ -1586,7 +1586,7 @@ window.rejectWithdrawal = async function(id) {
   try {
     await update(ref(db, 'withdrawals/' + id), { status: 'rejected', rejectedAt: Date.now(), rejectionReason: reason });
     showToast("Withdrawal rejected", "success");
-    await loadAllData();
+    try { await loadAllData(); } catch (e) { console.error(e); }
   } catch (e) { showToast("Error: " + e.message, "error"); }
   showLoader(false);
 };
@@ -1677,11 +1677,9 @@ window.saveWallets = async function() {
 window.saveContactInfo = async function() {
   showLoader(true);
   try {
-    const phoneEl = document.getElementById('contactPhone');
-    const emailEl = document.getElementById('contactEmail');
     const data = {
-      phone: phoneEl ? phoneEl.value.trim() : '',
-      email: emailEl ? emailEl.value.trim() : '',
+      phone: document.getElementById('contactPhone').value.trim(),
+      email: document.getElementById('contactEmail').value.trim(),
       updatedAt: Date.now()
     };
     await update(ref(db, 'settings/contact'), data);
@@ -1703,13 +1701,12 @@ window.topUpUser = async function() {
     const uSnap = await get(uRef);
     const newBal = (uSnap.val() || 0) + amt;
     await update(ref(db, 'users/' + user), { balance: newBal });
-    // Log it
     const logRef = push(ref(db, 'deposits'));
     await update(ref(db), { ['deposits/' + logRef.key]: { user, amount: amt, status: 'approved', method: 'Admin Top Up', note, time: Date.now() }});
     showToast(`Added $${amt.toFixed(2)} to ${user}`, "success");
     document.getElementById('topupUser').value = '';
     document.getElementById('topupAmount').value = '';
-    await loadAllData();
+    try { await loadAllData(); } catch (e) { console.error(e); }
   } catch (e) { showToast("Error: " + e.message, "error"); }
   showLoader(false);
 };
@@ -1731,7 +1728,7 @@ window.giveBonus = async function() {
     showToast(`Gave $${amt.toFixed(2)} ${type} bonus to ${user}`, "success");
     document.getElementById('bonusUser').value = '';
     document.getElementById('bonusAmount').value = '';
-    await loadAllData();
+    try { await loadAllData(); } catch (e) { console.error(e); }
   } catch (e) { showToast("Error: " + e.message, "error"); }
   showLoader(false);
 };
@@ -1750,7 +1747,6 @@ window.sendMail = async function() {
       await update(ref(db), { ['users/' + user + '/messages/' + mailRef.key]: mailData });
       showToast(`Message sent to ${user}`, "success");
     } else {
-      // Send to all users
       const snap = await get(ref(db, 'users'));
       const updates = {};
       snap.forEach(c => {
@@ -1842,7 +1838,7 @@ window.approveKyc = async function(key, username) {
     await update(ref(db, 'users/' + username), { kycStatus: 'verified', kycRejectionReason: null });
     showToast("KYC approved", "success");
     closeModal();
-    await loadAllData();
+    try { await loadAllData(); } catch (e) { console.error(e); }
   } catch (e) { showToast("Error: " + e.message, "error"); }
   showLoader(false);
 };
@@ -1856,7 +1852,7 @@ window.rejectKyc = async function(key, username) {
     await update(ref(db, 'users/' + username), { kycStatus: 'rejected', kycRejectionReason: reason });
     showToast("KYC rejected", "success");
     closeModal();
-    await loadAllData();
+    try { await loadAllData(); } catch (e) { console.error(e); }
   } catch (e) { showToast("Error: " + e.message, "error"); }
   showLoader(false);
 };
@@ -1971,6 +1967,5 @@ window.logout = async function() {
   }
 };
 </script>
-
 </body>
 </html>
