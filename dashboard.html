@@ -26,7 +26,6 @@
     .profile-info h3 { font-size: 15px; color: #fff; }
     .profile-info p { font-size: 12px; color: var(--success); }
 
-    /* ===== BALANCE CARD ===== */
     .balance-card {
       background: linear-gradient(135deg, rgba(212,175,55,0.12), rgba(255,140,0,0.08));
       border: 1px solid rgba(212,175,55,0.15);
@@ -57,11 +56,9 @@
     .balance-stat .stat-value.profit { color: var(--gold); }
     .balance-stat .stat-value.referral { color: var(--orange); }
 
-    /* ===== PROFIT CLAIMED ANIMATION ===== */
     .profit-pop { animation: profitPop 0.5s ease; }
     @keyframes profitPop { 0% { transform: scale(1); } 50% { transform: scale(1.15); color: var(--success); } 100% { transform: scale(1); } }
 
-    /* ===== ACTIONS ===== */
     .actions-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 0 16px; margin-bottom: 20px; animation: cardIn 0.7s ease 0.1s both; }
     .action-item { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; cursor: pointer; transition: all 0.25s ease; border: none; font-family: 'Inter', sans-serif; color: inherit; }
     .action-item:hover { transform: translateY(-3px); background: var(--surface-light); border-color: rgba(212,175,55,0.15); }
@@ -71,7 +68,11 @@
     .action-icon svg { width: 24px; height: 24px; color: #fff; }
     .action-label { font-size: 11px; color: var(--text-muted); }
 
-    /* ===== REF CARD ===== */
+    
+    .kyc-banner.rejected .kyc-icon { background: rgba(255,68,68,0.12); }
+    .kyc-banner.rejected .kyc-icon svg { color: var(--danger); }
+    .kyc-banner.rejected .kyc-arrow { background: rgba(255,68,68,0.1); color: var(--danger); }
+
     .ref-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 14px 16px; margin: 0 16px 16px; display: flex; align-items: center; gap: 10px; animation: cardIn 0.8s ease 0.15s both; }
     .ref-card input { flex: 1; background: rgba(10,10,20,0.8); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; color: var(--text); font-size: 12px; font-family: 'Courier New', monospace; outline: none; }
     .ref-card button { background: linear-gradient(135deg, var(--gold), var(--orange)); color: #000; border: none; border-radius: 10px; padding: 10px 16px; font-size: 12px; cursor: pointer; transition: all 0.2s ease; }
@@ -80,7 +81,6 @@
     .ref-link a { color: var(--gold); font-size: 12px; text-decoration: none; }
     .ref-link a:hover { text-decoration: underline; }
 
-    /* ===== STATUS ===== */
     .status-banner { margin: 0 16px 16px; padding: 10px 14px; border-radius: 12px; font-size: 12px; display: none; text-align: center; animation: fadeIn 0.3s ease; }
     .status-banner.show { display: block; }
     .status-banner.warning { background: rgba(255,187,51,0.1); color: var(--gold); border: 1px solid rgba(255,187,51,0.2); }
@@ -98,7 +98,6 @@
     .section-title { font-size: 14px; color: #fff; padding: 0 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; animation: cardIn 0.5s ease both; }
     .section-title span { color: var(--gold); }
 
-    /* ===== PLANS ===== */
     .plans-row { display: flex; gap: 10px; padding: 0 16px; margin-bottom: 20px; overflow-x: auto; scrollbar-width: none; }
     .plans-row::-webkit-scrollbar { display: none; }
     .plan-card { min-width: 110px; flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px 12px; text-align: center; transition: all 0.3s ease; position: relative; overflow: hidden; cursor: pointer; }
@@ -110,7 +109,6 @@
     .plan-detail { font-size: 11px; color: var(--text-muted); margin: 2px 0; }
     .plan-min { font-size: 10px; color: var(--text-dim); margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); }
 
-    /* ===== INFO GRID ===== */
     .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 16px; margin-bottom: 16px; }
     .info-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
     .info-card h4 { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
@@ -118,7 +116,6 @@
     .info-card .value.green { color: var(--success); }
     .info-card .value.red { color: var(--danger); }
 
-    /* ===== DETAILS ===== */
     .details-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin: 0 16px 16px; }
     .details-card h4 { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
     .detail-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
@@ -126,20 +123,17 @@
     .detail-row span:first-child { font-size: 12px; color: var(--text-dim); }
     .detail-row span:last-child { font-size: 12px; color: #fff; font-family: 'Courier New', monospace; background: rgba(51,181,229,0.08); padding: 4px 8px; border-radius: 6px; }
 
-    /* ===== BOTTOM NAV ===== */
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-around; padding: 10px 0; background: rgba(15,15,30,0.95); backdrop-filter: blur(20px); border-top: 1px solid var(--border); z-index: 100; }
     .bottom-nav button { background: none; border: none; color: var(--text-dim); font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: color 0.2s ease; font-family: 'Inter', sans-serif; }
     .bottom-nav button:hover { color: var(--gold); }
     .bottom-nav button svg { width: 20px; height: 20px; }
 
-    /* ===== LOGOUT OVERLAY ===== */
     .logout-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 99999; }
     .logout-overlay.active { display: flex; }
     .loader { width: 40px; height: 40px; border: 3px solid #333; border-top-color: var(--success); border-radius: 50%; animation: spin 1s linear infinite; }
     .logout-overlay p { margin-top: 12px; color: #fff; font-size: 14px; letter-spacing: 1px; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ===== PROFIT TOAST ===== */
     .profit-toast {
       position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
       background: linear-gradient(135deg, rgba(0,200,81,0.9), rgba(0,180,70,0.9));
@@ -152,7 +146,6 @@
     .profit-toast.show { display: flex; animation: toastSlide 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
     @keyframes toastSlide { to { transform: translateX(-50%) translateY(0); } }
 
-    /* ===== IFRAME / ACTIVITY ===== */
     .iframe-wrap { width: 100%; border: 1px solid var(--border); border-radius: 16px; background: var(--bg); overflow: hidden; }
     .activity-box { width: 100%; min-height: 200px; border: 1px solid var(--border); border-radius: 16px; background: var(--bg); padding: 20px; }
 
@@ -165,23 +158,21 @@
       .action-icon svg { width: 20px; height: 20px; }
     }
   </style>
+<base target="_blank">
 </head>
 
 <body>
 
-<!-- PROFIT TOAST -->
 <div class="profit-toast" id="profitToast">
   <span style="font-size:20px;">🎉</span>
   <span id="profitToastText">Investment profit claimed!</span>
 </div>
 
-<!-- TOP NAV -->
 <div class="top-nav">
   <div class="logo">SmartInvest</div>
   <button class="menu-btn" onclick="goProfile()">👤</button>
 </div>
 
-<!-- PROFILE STRIP -->
 <div class="profile-strip">
   <img id="dashAvatar" class="avatar" src="https://via.placeholder.com/44" alt="Avatar">
   <div class="profile-info">
@@ -190,7 +181,6 @@
   </div>
 </div>
 
-<!-- BALANCE CARD -->
 <div class="balance-card">
   <div class="balance-top">
     <div class="balance-label">Total Balance</div>
@@ -217,23 +207,20 @@
   </div>
 </div>
 
-<!-- REFERRAL LINK -->
+
 <div class="ref-card">
   <input id="dashRefLink" type="text" readonly value="Loading..."/>
   <button onclick="copyDashRefLink()">COPY</button>
 </div>
 <div class="ref-link"><a href="referral.html">View referral stats →</a></div>
 
-<!-- STATUS BANNER -->
 <div id="statusBanner" class="status-banner"></div>
 
-<!-- INVEST STATUS -->
 <div class="invest-status-bar">
   <p>Investment Status</p>
   <span id="investStatus">Loading...</span>
 </div>
 
-<!-- QUICK ACTIONS -->
 <div class="actions-grid">
   <button class="action-item" onclick="goDeposit()">
     <div class="action-icon">
@@ -261,7 +248,6 @@
   </button>
 </div>
 
-<!-- PLANS -->
 <div class="section-title"><span>🔥</span> Investment Plans</div>
 <div class="plans-row">
   <div class="plan-card" onclick="selectPlan('starter')">
@@ -275,21 +261,18 @@
   </div>
 </div>
 
-<!-- PENDING -->
 <div class="section-title"><span>⏳</span> Pending</div>
 <div class="info-grid">
   <div class="info-card"><h4>Pending Deposit</h4><div class="value green">$<span id="pendingDeposit">0.00</span></div></div>
   <div class="info-card"><h4>Pending Withdraw</h4><div class="value red">$<span id="pendingWithdraw">0.00</span></div></div>
 </div>
 
-<!-- ACCOUNT DETAILS -->
 <div class="details-card">
   <h4>Account Details</h4>
   <div class="detail-row"><span>Account ID</span><span id="accountIdDisplay">—</span></div>
   <div class="detail-row"><span>Current Plan</span><span id="planType">None</span></div>
 </div>
 
-<!-- IFRAMES -->
 <div style="padding: 0 16px; margin-bottom: 100px;">
   <div class="section-title"><span>🌐</span> External Content</div>
   <div style="display: grid; grid-template-columns: 1fr; gap: 16px;">
@@ -324,16 +307,15 @@
   </div>
 </div>
 
-<!-- BOTTOM NAV -->
 <div class="bottom-nav">
   <button onclick="goHome()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg><span>Home</span></button>
   <button onclick="goHistory()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>History</span></button>
   <button onclick="window.location.href='referral.html'"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span>Refer</span></button>
   <button onclick="goSupport()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg><span>Support</span></button>
-  <button onclick="logout()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg><span>Logout</span></button>
+    <button onclick="goKyc()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v.01M12 12v.01M12 19v.01"/></svg><span>More</span></button>
+<button onclick="logout()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg><span>Logout</span></button>
 </div>
 
-<!-- LOGOUT OVERLAY -->
 <div id="logoutOverlay" class="logout-overlay"><div class="loader"></div><p>Logging out...</p></div>
 
 <script type="module">
@@ -397,11 +379,11 @@ onAuthStateChanged(auth, async (user) => {
   await updateUI();
   await loadRecentActivity();
   await loadDashRefLink();
+  
 
   startAutoClaimChecker();
 });
 
-// ===== AUTO CLAIM PROFIT =====
 function startAutoClaimChecker() {
   checkAndAutoClaim();
   autoClaimTimer = setInterval(checkAndAutoClaim, 30000);
@@ -463,7 +445,7 @@ function showProfitToast(msg) {
   toast.classList.add("show");
   setTimeout(() => toast.classList.remove("show"), 4000);
 }
-// ===== ACTIVITY FEED =====
+
 async function loadRecentActivity() {
   if (!currentUsername) return;
   try {
@@ -540,7 +522,6 @@ function getTimeAgo(timestamp) {
   return days + 'd ago';
 }
 
-// ===== BALANCE ANIMATION =====
 function animateBalance(value) {
   clearInterval(balanceInterval);
   let start = 0;
@@ -559,7 +540,6 @@ function animateBalance(value) {
   }, 16);
 }
 
-// ===== TOGGLE BALANCE =====
 window.toggleBalance = function() {
   clearInterval(balanceInterval);
   balanceVisible = !balanceVisible;
@@ -578,7 +558,6 @@ window.toggleBalance = function() {
   }
 };
 
-// ===== PERMISSIONS =====
 async function canInvest() {
   const balance = userData.balance || 0;
   if (adminFlags.canInvest === false) return { allowed: false, reason: adminFlags.blockReason || "Investing disabled by admin." };
@@ -620,7 +599,7 @@ async function updateButtonStates() {
     banner.innerText = `✅ Account Active: You can invest and withdraw`;
    }
   }
- // ===== UPDATE UI =====
+
 async function updateUI() {
   document.getElementById("userName").innerText = "Welcome, " + (userData.username || "User");
   document.getElementById("accountIdDisplay").innerText = userData.accountId || "—";
@@ -669,7 +648,6 @@ async function updateUI() {
   updateInvestmentStatus();
 }
 
-// ===== CHECK PROFIT (manual click) =====
 async function checkProfit() {
   if (!userData.plan || userData.plan === "None") { alert("You have no active investment."); return; }
   const investedAmount = userData.investAmount || 0;
@@ -735,7 +713,6 @@ function updateInvestmentStatus() {
   }
 }
 
-// ===== NAVIGATION =====
 window.goDeposit = () => window.location.href = "deposit.html";
 window.goWithdraw = () => window.location.href = "withdraw.html";
 window.goTransfer = () => window.location.href = "transfer.html";
@@ -745,8 +722,8 @@ window.goProfile = () => window.location.href = "profile.html";
 window.goHistory = () => window.location.href = "history.html";
 window.goSupport = () => window.location.href = "contact.html";
 window.selectPlan = (plan) => window.location.href = "invest.html?plan=" + plan;
+window.goKyc = () => window.location.href = "kyc.html";
 
-// ===== REFERRAL =====
 async function loadDashRefLink() {
   if (!currentUsername) return;
   const snap = await get(ref(db, 'users/' + currentUsername + '/referralCode'));
@@ -760,7 +737,6 @@ window.copyDashRefLink = function() {
   navigator.clipboard.writeText(input.value).then(() => alert("Referral link copied!"));
 };
 
-// ===== LOGOUT =====
 window.logout = async function() {
   let overlay = document.getElementById("logoutOverlay");
   overlay.classList.add("active");
@@ -778,5 +754,3 @@ window.logout = async function() {
 
 </body>
 </html>
-
-    
