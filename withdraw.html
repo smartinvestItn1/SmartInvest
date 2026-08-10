@@ -161,19 +161,6 @@
       color: #8888a0;
       font-size: 13px;
       font-weight: 500;
-c851;
-      margin: 0;
-      font-size: 28px;
-      font-weight: 700;
-    }
-
-    .form-group { margin-bottom: 20px; }
-
-    .form-group label {
-      display: block;
-      color: #8888a0;
-      font-size: 13px;
-      font-weight: 500;
       margin-bottom: 8px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -423,7 +410,6 @@ c851;
       .withdraw-header h2 { font-size: 20px; }
     }
   </style>
-<base target="_blank">
 </head>
 
 <body>
@@ -528,7 +514,6 @@ let currentUser = null;
 let currentUsername = null;
 let userBalance = 0;
 let adminFlags = { canWithdraw: true, blockReason: "" };
-let globalLocks = {};
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -596,29 +581,28 @@ async function submitWithdraw() {
     return;
   }
 
-  if (globalLocks.canWithdraw === false) {
-    result.className = "show error";
-    result.innerText = "❌ " + (globalLocks.withdrawBlockReason || "Withdrawals temporarily disabled");
-    return;
-  }
-
   try {
     result.className = "show loading";
     result.innerText = "⏳ Submitting withdrawal...";
 
     await push(ref(db, 'withdrawals'), {
       user: currentUsername,
-      address: wallet,
+      wallet: wallet,
       amount: amount,
-      method: coin,
+      coin: coin,
       status: "pending",
+      type: "withdraw",
       time: Date.now()
     });
 
-    // Save wallet to user profile only — admin handles balance deduction on approval
+    let newBalance = userBalance - amount;
     await update(ref(db, 'users/' + currentUsername), {
-      wallet: wallet
+      wallet: wallet,
+      balance: newBalance
     });
+
+    userBalance = newBalance;
+    document.getElementById("userBalance").innerText = userBalance.toFixed(2);
 
     notifyAdmin(
       "🏧 New Withdrawal — $" + amount + " (" + coin + ") from " + currentUsername,
@@ -635,7 +619,7 @@ async function submitWithdraw() {
     // Redirect to dashboard after animation
     setTimeout(() => {
       window.location.href = "dashboard.html";
-    }, 5000);
+    }, 3000);
 
   } catch (err) {
     result.className = "show error";
@@ -653,4 +637,5 @@ window.goBack = goBack;
 </script>
 
 </body>
-</html>
+    </html>
+  
