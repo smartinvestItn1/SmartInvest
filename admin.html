@@ -494,6 +494,7 @@
   box-shadow: 0 0 30px rgba(255, 68, 68, 0.35);
 }
   </style>
+<base target="_blank">
 </head>
 
 <body>
@@ -1095,7 +1096,7 @@ async function logout() {
   } catch (error) {
     console.error("Logout error:", error);
    }
-  }
+}
 
 /////////////////////////////////////////////////////
 // RENDER ALL
@@ -1111,6 +1112,7 @@ function renderAll() {
 
 window.setFilter = setFilter;
 window.setWithdrawFilter = setWithdrawFilter;
+window.logout = logout;
 
 // ✅ NEW: Expose user filter & transfer toggle to window
 window.setUserFilter = setUserFilter;
@@ -1119,5 +1121,3 @@ window.toggleTransfer = toggleTransfer;
 </script>
 </body>
 </html>
-
-            styl
