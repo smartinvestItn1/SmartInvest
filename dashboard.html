@@ -156,6 +156,59 @@
     .iframe-wrap { width: 100%; border: 1px solid var(--border); border-radius: 16px; background: var(--bg); overflow: hidden; }
     .activity-box { width: 100%; min-height: 200px; border: 1px solid var(--border); border-radius: 16px; background: var(--bg); padding: 20px; }
 
+    /* ===== WHATSAPP FLOAT ===== */
+    .whatsapp-float {
+      position: fixed;
+      bottom: 90px;
+      right: 16px;
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(37,211,102,0.4);
+      z-index: 101;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      animation: waBounce 2s infinite;
+    }
+    .whatsapp-float:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 30px rgba(37,211,102,0.6);
+    }
+    .whatsapp-float svg {
+      width: 28px;
+      height: 28px;
+      color: #fff;
+    }
+    @keyframes waBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    .whatsapp-tooltip {
+      position: fixed;
+      bottom: 154px;
+      right: 16px;
+      background: var(--surface-light);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 11px;
+      z-index: 101;
+      white-space: nowrap;
+      opacity: 0;
+      transform: translateY(5px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+    .whatsapp-tooltip.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     @media (max-width: 360px) {
       .balance-amount { font-size: 28px; }
       .balance-amount.hidden { font-size: 28px; }
@@ -163,8 +216,11 @@
       .plan-card { min-width: 100px; padding: 12px 10px; }
       .action-icon { width: 44px; height: 44px; }
       .action-icon svg { width: 20px; height: 20px; }
+      .whatsapp-float { width: 50px; height: 50px; }
+      .whatsapp-float svg { width: 24px; height: 24px; }
     }
   </style>
+<base target="_blank">
 </head>
 
 <body>
@@ -174,6 +230,14 @@
   <span style="font-size:20px;">🎉</span>
   <span id="profitToastText">Investment profit claimed!</span>
 </div>
+
+<!-- WHATSAPP FLOAT BUTTON -->
+<a href="#" id="whatsappFloat" class="whatsapp-float" aria-label="Chat on WhatsApp" onclick="openWhatsApp(event)">
+  <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+</a>
+<div class="whatsapp-tooltip" id="waTooltip">Need help? Chat with us</div>
 
 <!-- TOP NAV -->
 <div class="top-nav">
@@ -339,7 +403,7 @@
 <script type="module">
 import { auth, db } from "./firebase.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { ref, get, update, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 let currentUsername = null;
@@ -350,6 +414,13 @@ let balanceVisible = false;
 let currentBalance = 0;
 let balanceInterval;
 let autoClaimTimer = null;
+
+// ===== WHATSAPP CONFIG =====
+// Add your WhatsApp business number with country code (no + or spaces)
+// Example: "14155552671" for US number +1 (415) 555-2671
+// Leave empty ("") to let the user pick a contact
+const SUPPORT_WHATSAPP_NUMBER = "";
+const WHATSAPP_DEFAULT_MESSAGE = "I need help smartInvest u understand me better";
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.replace("login.html"); return; }
@@ -399,7 +470,24 @@ onAuthStateChanged(auth, async (user) => {
   await loadDashRefLink();
 
   startAutoClaimChecker();
+
+  // Show WhatsApp tooltip briefly on first load
+  setTimeout(() => {
+    const tip = document.getElementById('waTooltip');
+    if (tip) tip.classList.add('show');
+    setTimeout(() => { if (tip) tip.classList.remove('show'); }, 4000);
+  }, 2000);
 });
+
+// ===== WHATSAPP SUPPORT =====
+window.openWhatsApp = function(event) {
+  if (event) event.preventDefault();
+  const text = encodeURIComponent(WHATSAPP_DEFAULT_MESSAGE);
+  const url = SUPPORT_WHATSAPP_NUMBER
+    ? `https://wa.me/${SUPPORT_WHATSAPP_NUMBER}?text=${text}`
+    : `https://wa.me/?text=${text}`;
+  window.open(url, '_blank');
+};
 
 // ===== AUTO CLAIM PROFIT =====
 function startAutoClaimChecker() {
@@ -684,7 +772,13 @@ async function checkProfit() {
   if (hoursPassed >= hours) {
     const profitAmount = investedAmount * profitPercent;
     const totalReturn = investedAmount + profitAmount;
-    if (confirm(`🎉 Your ${userData.plan} investment is complete!\n\nInvested: $${investedAmount.toFixed(2)}\nProfit: $${profitAmount.toFixed(2)}\nTotal Return: $${totalReturn.toFixed(2)}\n\nClaim now?`)) {
+    if (confirm(`🎉 Your ${userData.plan} investment is complete!
+
+Invested: $${investedAmount.toFixed(2)}
+Profit: $${profitAmount.toFixed(2)}
+Total Return: $${totalReturn.toFixed(2)}
+
+Claim now?`)) {
       const newBalance = (userData.balance || 0) + totalReturn;
       const newTotalProfit = (userData.totalProfit || 0) + profitAmount;
 
@@ -717,7 +811,12 @@ async function checkProfit() {
   } else {
     const hoursLeft = Math.ceil(hours - hoursPassed);
     const profitAmount = investedAmount * profitPercent;
-    alert(`⏳ Investment still running...\n\nPlan: ${userData.plan}\nInvested: $${investedAmount.toFixed(2)}\nExpected Profit: $${profitAmount.toFixed(2)}\nTime left: ${hoursLeft} hours`);
+    alert(`⏳ Investment still running...
+
+Plan: ${userData.plan}
+Invested: $${investedAmount.toFixed(2)}
+Expected Profit: $${profitAmount.toFixed(2)}
+Time left: ${hoursLeft} hours`);
   }
 }
 
@@ -743,7 +842,7 @@ window.goInvestPage = () => window.location.href = "invest.html";
 window.goHome = () => window.location.href = "index.html";
 window.goProfile = () => window.location.href = "profile.html";
 window.goHistory = () => window.location.href = "history.html";
-window.goSupport = () => window.location.href = "contact-support.html";
+window.goSupport = () => openWhatsApp();
 window.selectPlan = (plan) => window.location.href = "invest.html?plan=" + plan;
 
 // ===== REFERRAL =====
