@@ -203,7 +203,6 @@
       line-height: 1.6;
     }
 
-    /* ===== WITHDRAWAL METHOD SELECTOR ===== */
     .method-selector {
       display: flex;
       flex-direction: column;
@@ -258,17 +257,10 @@
       flex-shrink: 0;
     }
 
-    .method-icon.crypto {
-      background: rgba(0, 200, 81, 0.15);
-    }
+    .method-icon.crypto { background: rgba(0, 200, 81, 0.15); }
+    .method-icon.bank { background: rgba(255, 187, 51, 0.15); }
 
-    .method-icon.bank {
-      background: rgba(255, 187, 51, 0.15);
-    }
-
-    .method-info {
-      flex: 1;
-    }
+    .method-info { flex: 1; }
 
     .method-info .method-name {
       font-size: 15px;
@@ -422,7 +414,6 @@
       border: 1px solid rgba(51, 181, 229, 0.25);
     }
 
-    /* ===== SUCCESS OVERLAY ===== */
     .success-overlay {
       position: fixed;
       top: 0; left: 0;
@@ -584,11 +575,9 @@
       <p>✅ Withdrawals require admin approval. Make sure your wallet address is correct. No minimum amount.</p>
     </div>
 
-    <!-- WITHDRAWAL METHOD SELECTOR -->
     <div class="form-group">
       <label>Withdrawal Method</label>
       <div class="method-selector">
-        <!-- Crypto - Active -->
         <div class="method-option active" id="methodCrypto" onclick="selectMethod('crypto')">
           <div class="method-icon crypto">₿</div>
           <div class="method-info">
@@ -598,7 +587,6 @@
           <span class="method-badge active">Active</span>
         </div>
 
-        <!-- Bank Transfer - Disabled -->
         <div class="method-option disabled" id="methodBank" onclick="selectMethod('bank')">
           <div class="method-icon bank">🏦</div>
           <div class="method-info">
@@ -610,14 +598,12 @@
       </div>
     </div>
 
-    <!-- Unavailable Message -->
     <div class="unavailable-msg" id="unavailableMsg">
       <div class="unavailable-icon">🔒</div>
       <h3>Currently Unavailable</h3>
       <p>This withdrawal method is temporarily disabled. Please use Cryptocurrency (USDT) for instant withdrawals.</p>
     </div>
 
-    <!-- Crypto Form -->
     <div id="cryptoForm">
       <div class="form-group">
         <label>Network</label>
@@ -646,7 +632,6 @@
 
 </div>
 
-<!-- SUCCESS OVERLAY -->
 <div id="successOverlay" class="success-overlay">
   <div class="checkmark-circle">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
@@ -680,7 +665,6 @@ function notifyAdmin(subject, message) {
 }
 
 let currentUser = null;
-let currentUsername = null;
 let userBalance = 0;
 let adminFlags = { canWithdraw: true, blockReason: "" };
 
@@ -689,14 +673,12 @@ onAuthStateChanged(auth, async (user) => {
     window.location.href = "login.html";
     return;
   }
-
-  currentUsername = sessionStorage.getItem("loggedInUser");
-  if (!currentUsername) {
+  currentUser = sessionStorage.getItem("loggedInUser");
+  if (!currentUser) {
     window.location.href = "login.html";
     return;
   }
-
-  const userSnap = await get(ref(db, 'users/' + currentUsername));
+  const userSnap = await get(ref(db, 'users/' + currentUser));
   if (userSnap.exists()) {
     let data = userSnap.val();
     userBalance = data.balance || 0;
@@ -722,7 +704,7 @@ onAuthStateChanged(auth, async (user) => {
 async function submitWithdraw() {
   const result = document.getElementById("result");
 
-  if (!currentUsername) {
+  if (!currentUser) {
     result.className = "show error";
     result.innerText = "❌ Please login first!";
     return;
@@ -755,7 +737,7 @@ async function submitWithdraw() {
     result.innerText = "⏳ Submitting withdrawal...";
 
     await push(ref(db, 'withdrawals'), {
-      user: currentUsername,
+      user: currentUser,
       wallet: wallet,
       amount: amount,
       coin: coin,
@@ -765,7 +747,7 @@ async function submitWithdraw() {
     });
 
     let newBalance = userBalance - amount;
-    await update(ref(db, 'users/' + currentUsername), {
+    await update(ref(db, 'users/' + currentUser), {
       wallet: wallet,
       balance: newBalance
     });
@@ -774,22 +756,16 @@ async function submitWithdraw() {
     document.getElementById("userBalance").innerText = userBalance.toFixed(2);
 
     notifyAdmin(
-      "🏧 New Withdrawal — $" + amount + " (" + coin + ") from " + currentUsername,
-      "User: " + currentUsername + 
-      "
-Amount: $" + amount + 
-      "
-Network: " + coin +
-      "
-Wallet: " + wallet +
-      "
-Time: " + new Date().toLocaleString()
+      `🏧 New Withdrawal — $${amount} (${coin}) from ${currentUser}`,
+      `User: ${currentUser}
+Amount: $${amount}
+Network: ${coin}
+Wallet: ${wallet}
+Time: ${new Date().toLocaleString()}`
     );
 
-    // Show success overlay animation
     document.getElementById("successOverlay").classList.add("active");
 
-    // Redirect to dashboard after animation
     setTimeout(() => {
       window.location.href = "dashboard.html";
     }, 3000);
@@ -805,14 +781,12 @@ function goBack() {
   window.location.href = "dashboard.html";
 }
 
-// ===== WITHDRAWAL METHOD SELECTOR =====
 function selectMethod(method) {
   const cryptoOption = document.getElementById('methodCrypto');
   const bankOption = document.getElementById('methodBank');
   const cryptoForm = document.getElementById('cryptoForm');
   const unavailableMsg = document.getElementById('unavailableMsg');
 
-  // Reset all
   cryptoOption.classList.remove('active');
   bankOption.classList.remove('active');
 
