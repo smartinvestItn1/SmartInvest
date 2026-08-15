@@ -43,6 +43,48 @@
       overflow-x: hidden;
     }
 
+    /* ===== PAGE LOADER ===== */
+    .page-loader {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 999999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    .page-loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .loader-ring {
+      width: 64px;
+      height: 64px;
+      border: 3px solid rgba(255, 68, 68, 0.1);
+      border-top-color: var(--red);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-text {
+      font-size: 14px;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+    .loader-brand {
+      font-size: 22px;
+      color: var(--red);
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
     /* ===== SIDEBAR ===== */
     .sidebar {
       position: fixed;
@@ -585,10 +627,16 @@
       }
     }
   </style>
-<base target="_blank">
 </head>
 
 <body>
+
+<!-- PAGE LOADER -->
+<div class="page-loader" id="pageLoader">
+  <div class="loader-brand">SmartInvest Admin</div>
+  <div class="loader-ring"></div>
+  <div class="loader-text">Loading Panel</div>
+</div>
 
 <!-- MOBILE HEADER -->
 <div class="mobile-header">
@@ -771,6 +819,19 @@ let withdrawFilterStatus = "all";
 let userFilterStatus = "all";
 
 /////////////////////////////////////////////////////
+// LOADER CONTROL
+/////////////////////////////////////////////////////
+
+function showLoader() {
+  const loader = document.getElementById('pageLoader');
+  if (loader) loader.classList.remove('hidden');
+}
+function hideLoader() {
+  const loader = document.getElementById('pageLoader');
+  if (loader) loader.classList.add('hidden');
+}
+
+/////////////////////////////////////////////////////
 // SIDEBAR
 /////////////////////////////////////////////////////
 
@@ -786,10 +847,8 @@ window.scrollToSection = function(id, btn) {
   if (el) {
     el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
-  // Update active state
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   if (btn) btn.classList.add('active');
-  // Close mobile sidebar
   if (window.innerWidth <= 768) {
     toggleSidebar();
   }
@@ -834,9 +893,14 @@ async function loadData() {
     }
 
     renderAll();
+
+    // Hide loader only after everything is fully rendered
+    hideLoader();
+
   } catch (error) {
     console.error("Load error:", error);
     alert("Error loading data: " + error.message);
+    hideLoader();
   }
 }
 
@@ -861,7 +925,6 @@ window.sendFunds = async function() {
     return;
   }
 
-  // Find user by accountId
   const targetUser = users.find(u => u.accountId === accountId);
 
   if (!targetUser) {
@@ -880,7 +943,6 @@ window.sendFunds = async function() {
       balance: newBalance
     });
 
-    // Log the admin transfer
     const transferRecord = {
       type: 'admin_transfer',
       toUser: targetUser.username,
@@ -895,11 +957,9 @@ window.sendFunds = async function() {
 
     showSendResult(`✅ Successfully sent $${amount.toFixed(2)} to ${targetUser.username}. New balance: $${newBalance.toFixed(2)}`, 'success');
 
-    // Clear inputs
     accountIdInput.value = '';
     amountInput.value = '';
 
-    // Refresh data
     loadData();
 
   } catch (error) {
