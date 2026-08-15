@@ -870,7 +870,13 @@ function updateInvestmentStatus() {
 window.goDeposit = () => window.location.href = "deposit.html";
 window.goWithdraw = () => window.location.href = "withdraw.html";
 window.goTransfer = () => window.location.href = "transfer.html";
-window.goInvestPage = () => window.location.href = "invest.html";
+window.goInvestPage = function() {
+  if (userData && userData.plan && userData.plan !== "None") {
+    alert("⏳ You already have an active " + userData.plan + " investment. Complete it before starting a new one.");
+    return;
+  }
+  window.location.href = "invest.html";
+};
 window.goHome = () => window.location.href = "index.html";
 window.goProfile = () => window.location.href = "profile.html";
 window.goHistory = () => window.location.href = "history.html";
