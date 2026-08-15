@@ -203,6 +203,140 @@
       line-height: 1.6;
     }
 
+    /* ===== WITHDRAWAL METHOD SELECTOR ===== */
+    .method-selector {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .method-option {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      border: 1.5px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15, 15, 30, 0.5);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .method-option:hover {
+      border-color: rgba(255, 68, 68, 0.3);
+      background: rgba(15, 15, 30, 0.7);
+    }
+
+    .method-option.active {
+      border-color: #ff4444;
+      background: rgba(255, 68, 68, 0.08);
+      box-shadow: 0 0 20px rgba(255, 68, 68, 0.1);
+    }
+
+    .method-option.disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      border-color: rgba(255, 255, 255, 0.04);
+      background: rgba(15, 15, 30, 0.3);
+      filter: grayscale(60%);
+    }
+
+    .method-option.disabled:hover {
+      border-color: rgba(255, 255, 255, 0.04);
+      background: rgba(15, 15, 30, 0.3);
+    }
+
+    .method-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .method-icon.crypto {
+      background: rgba(0, 200, 81, 0.15);
+    }
+
+    .method-icon.bank {
+      background: rgba(255, 187, 51, 0.15);
+    }
+
+    .method-info {
+      flex: 1;
+    }
+
+    .method-info .method-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .method-info .method-desc {
+      font-size: 12px;
+      color: #666680;
+    }
+
+    .method-badge {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .method-badge.active {
+      background: rgba(0, 200, 81, 0.15);
+      color: #00c851;
+      border: 1px solid rgba(0, 200, 81, 0.25);
+    }
+
+    .method-badge.unavailable {
+      background: rgba(255, 68, 68, 0.12);
+      color: #ff4444;
+      border: 1px solid rgba(255, 68, 68, 0.2);
+    }
+
+    .unavailable-msg {
+      display: none;
+      background: rgba(255, 68, 68, 0.06);
+      border: 1px solid rgba(255, 68, 68, 0.15);
+      border-radius: 14px;
+      padding: 30px 24px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .unavailable-msg.show {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .unavailable-msg .unavailable-icon {
+      font-size: 36px;
+      margin-bottom: 12px;
+    }
+
+    .unavailable-msg h3 {
+      color: #ff4444;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .unavailable-msg p {
+      color: #666680;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
     .submit-btn {
       width: 100%;
       padding: 16px;
@@ -397,10 +531,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    @keyframes fadeIn {
-      to { opacity: 1; }
-    }
-
     @keyframes fillBar {
       to { width: 100%; }
     }
@@ -408,8 +538,11 @@
     @media (max-width: 480px) {
       .withdraw-card { padding: 28px 20px; }
       .withdraw-header h2 { font-size: 20px; }
+      .method-option { padding: 14px 14px; }
+      .method-icon { width: 38px; height: 38px; font-size: 18px; }
     }
   </style>
+<base target="_blank">
 </head>
 
 <body>
@@ -439,7 +572,7 @@
     <div class="withdraw-header">
       <div class="logo-icon">🏧</div>
       <h2>Withdraw Funds</h2>
-      <p>Request withdrawal to your crypto wallet</p>
+      <p>Select your preferred withdrawal method below</p>
     </div>
 
     <div class="balance-display">
@@ -451,25 +584,61 @@
       <p>✅ Withdrawals require admin approval. Make sure your wallet address is correct. No minimum amount.</p>
     </div>
 
+    <!-- WITHDRAWAL METHOD SELECTOR -->
     <div class="form-group">
-      <label>Network</label>
-      <select id="coin" class="form-input">
-        <option value="USDT TRC20">USDT (TRC20)</option>
-        <option value="USDT BEP20">USDT (BEP20)</option>
-      </select>
+      <label>Withdrawal Method</label>
+      <div class="method-selector">
+        <!-- Crypto - Active -->
+        <div class="method-option active" id="methodCrypto" onclick="selectMethod('crypto')">
+          <div class="method-icon crypto">₿</div>
+          <div class="method-info">
+            <div class="method-name">Cryptocurrency (USDT)</div>
+            <div class="method-desc">TRC20 / BEP20 Network</div>
+          </div>
+          <span class="method-badge active">Active</span>
+        </div>
+
+        <!-- Bank Transfer - Disabled -->
+        <div class="method-option disabled" id="methodBank" onclick="selectMethod('bank')">
+          <div class="method-icon bank">🏦</div>
+          <div class="method-info">
+            <div class="method-name">Bank Transfer</div>
+            <div class="method-desc">Wire / SEPA / SWIFT</div>
+          </div>
+          <span class="method-badge unavailable">Currently Unavailable</span>
+        </div>
+      </div>
     </div>
 
-    <div class="form-group">
-      <label>Wallet Address</label>
-      <input id="wallet" class="form-input" placeholder="Enter your crypto wallet address">
+    <!-- Unavailable Message -->
+    <div class="unavailable-msg" id="unavailableMsg">
+      <div class="unavailable-icon">🔒</div>
+      <h3>Currently Unavailable</h3>
+      <p>This withdrawal method is temporarily disabled. Please use Cryptocurrency (USDT) for instant withdrawals.</p>
     </div>
 
-    <div class="form-group">
-      <label>Amount (USDT)</label>
-      <input id="amount" class="form-input" type="number" placeholder="Enter amount">
-    </div>
+    <!-- Crypto Form -->
+    <div id="cryptoForm">
+      <div class="form-group">
+        <label>Network</label>
+        <select id="coin" class="form-input">
+          <option value="USDT TRC20">USDT (TRC20)</option>
+          <option value="USDT BEP20">USDT (BEP20)</option>
+        </select>
+      </div>
 
-    <button class="submit-btn" id="withdrawBtn" onclick="submitWithdraw()">Submit Withdrawal</button>
+      <div class="form-group">
+        <label>Wallet Address</label>
+        <input id="wallet" class="form-input" placeholder="Enter your crypto wallet address">
+      </div>
+
+      <div class="form-group">
+        <label>Amount (USDT)</label>
+        <input id="amount" class="form-input" type="number" placeholder="Enter amount">
+      </div>
+
+      <button class="submit-btn" id="withdrawBtn" onclick="submitWithdraw()">Submit Withdrawal</button>
+    </div>
 
     <p id="result"></p>
 
@@ -520,29 +689,29 @@ onAuthStateChanged(auth, async (user) => {
     window.location.href = "login.html";
     return;
   }
-  
+
   currentUsername = sessionStorage.getItem("loggedInUser");
   if (!currentUsername) {
     window.location.href = "login.html";
     return;
   }
-  
+
   const userSnap = await get(ref(db, 'users/' + currentUsername));
   if (userSnap.exists()) {
     let data = userSnap.val();
     userBalance = data.balance || 0;
     adminFlags = data.adminFlags || { canWithdraw: true, blockReason: "" };
-    
+
     document.getElementById("userBalance").innerText = userBalance.toFixed(2);
-    
+
     if (data.wallet) {
       document.getElementById("wallet").value = data.wallet;
     }
-    
+
     if (adminFlags.canWithdraw === false) {
       document.getElementById("withdrawBtn").disabled = true;
       document.getElementById("withdrawBtn").title = adminFlags.blockReason || "Withdrawal disabled by admin";
-      
+
       let result = document.getElementById("result");
       result.className = "show error";
       result.innerText = "❌ " + (adminFlags.blockReason || "Withdrawal disabled by admin");
@@ -568,13 +737,13 @@ async function submitWithdraw() {
     result.innerText = "❌ Enter valid wallet and amount!";
     return;
   }
-  
+
   if (amount > userBalance) {
     result.className = "show error";
     result.innerText = "❌ Insufficient balance! You have $" + userBalance.toFixed(2);
     return;
   }
-  
+
   if (adminFlags.canWithdraw === false) {
     result.className = "show error";
     result.innerText = "❌ " + (adminFlags.blockReason || "Withdrawal disabled by admin");
@@ -607,10 +776,14 @@ async function submitWithdraw() {
     notifyAdmin(
       "🏧 New Withdrawal — $" + amount + " (" + coin + ") from " + currentUsername,
       "User: " + currentUsername + 
-      "\nAmount: $" + amount + 
-      "\nNetwork: " + coin +
-      "\nWallet: " + wallet +
-      "\nTime: " + new Date().toLocaleString()
+      "
+Amount: $" + amount + 
+      "
+Network: " + coin +
+      "
+Wallet: " + wallet +
+      "
+Time: " + new Date().toLocaleString()
     );
 
     // Show success overlay animation
@@ -632,10 +805,32 @@ function goBack() {
   window.location.href = "dashboard.html";
 }
 
+// ===== WITHDRAWAL METHOD SELECTOR =====
+function selectMethod(method) {
+  const cryptoOption = document.getElementById('methodCrypto');
+  const bankOption = document.getElementById('methodBank');
+  const cryptoForm = document.getElementById('cryptoForm');
+  const unavailableMsg = document.getElementById('unavailableMsg');
+
+  // Reset all
+  cryptoOption.classList.remove('active');
+  bankOption.classList.remove('active');
+
+  if (method === 'crypto') {
+    cryptoOption.classList.add('active');
+    cryptoForm.style.display = 'block';
+    unavailableMsg.classList.remove('show');
+  } else if (method === 'bank') {
+    bankOption.classList.add('active');
+    cryptoForm.style.display = 'none';
+    unavailableMsg.classList.add('show');
+  }
+}
+
 window.submitWithdraw = submitWithdraw;
 window.goBack = goBack;
+window.selectMethod = selectMethod;
 </script>
 
 </body>
-    </html>
-  
+</html>
