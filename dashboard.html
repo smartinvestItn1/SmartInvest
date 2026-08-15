@@ -17,6 +17,49 @@
     }
     body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; padding-bottom: 80px; }
 
+    /* ===== PAGE LOADER ===== */
+    .page-loader {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 999999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    .page-loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .loader-ring {
+      width: 64px;
+      height: 64px;
+      border: 3px solid rgba(212,175,55,0.1);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-text {
+      font-size: 14px;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+    .loader-brand {
+      font-size: 22px;
+      background: linear-gradient(135deg, var(--gold), var(--orange));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
     .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(15,15,30,0.8); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
     .top-nav .logo { font-size: 18px; background: linear-gradient(135deg, var(--gold), var(--orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .top-nav .menu-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 4px; }
@@ -154,7 +197,6 @@
     .logout-overlay.active { display: flex; }
     .loader { width: 40px; height: 40px; border: 3px solid #333; border-top-color: var(--success); border-radius: 50%; animation: spin 1s linear infinite; }
     .logout-overlay p { margin-top: 12px; color: #fff; font-size: 14px; letter-spacing: 1px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ===== PROFIT TOAST ===== */
     .profit-toast {
@@ -241,6 +283,13 @@
 </head>
 
 <body>
+
+<!-- PAGE LOADER -->
+<div class="page-loader" id="pageLoader">
+  <div class="loader-brand">SmartInvest</div>
+  <div class="loader-ring"></div>
+  <div class="loader-text">Loading Dashboard</div>
+</div>
 
 <!-- PROFIT TOAST -->
 <div class="profit-toast" id="profitToast">
@@ -436,6 +485,16 @@ let autoClaimTimer = null;
 const SUPPORT_WHATSAPP_NUMBER = "447493759120";
 const WHATSAPP_DEFAULT_MESSAGE = "I need help smartInvest u understand me better";
 
+// ===== LOADER CONTROL =====
+function showLoader() {
+  const loader = document.getElementById('pageLoader');
+  if (loader) loader.classList.remove('hidden');
+}
+function hideLoader() {
+  const loader = document.getElementById('pageLoader');
+  if (loader) loader.classList.add('hidden');
+}
+
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.replace("login.html"); return; }
 
@@ -484,6 +543,9 @@ onAuthStateChanged(auth, async (user) => {
   await loadDashRefLink();
 
   startAutoClaimChecker();
+
+  // Hide loader only after everything is ready
+  hideLoader();
 
   setTimeout(() => {
     const tip = document.getElementById('waTooltip');
