@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Deposit USDT — SmartInvest</title>
+  <title>Deposit — SmartInvest</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -137,6 +137,144 @@
     .info-box p {
       margin: 0;
       color: #ffbb33;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    /* ===== PAYMENT METHOD SELECTOR ===== */
+    .method-selector {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .method-option {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      border: 1.5px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15, 15, 30, 0.5);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .method-option:hover {
+      border-color: rgba(0, 200, 81, 0.3);
+      background: rgba(15, 15, 30, 0.7);
+    }
+
+    .method-option.active {
+      border-color: #00c851;
+      background: rgba(0, 200, 81, 0.08);
+      box-shadow: 0 0 20px rgba(0, 200, 81, 0.1);
+    }
+
+    .method-option.disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      border-color: rgba(255, 255, 255, 0.04);
+      background: rgba(15, 15, 30, 0.3);
+      filter: grayscale(60%);
+    }
+
+    .method-option.disabled:hover {
+      border-color: rgba(255, 255, 255, 0.04);
+      background: rgba(15, 15, 30, 0.3);
+    }
+
+    .method-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .method-icon.crypto {
+      background: rgba(0, 200, 81, 0.15);
+    }
+
+    .method-icon.card {
+      background: rgba(51, 181, 229, 0.15);
+    }
+
+    .method-icon.bank {
+      background: rgba(255, 187, 51, 0.15);
+    }
+
+    .method-info {
+      flex: 1;
+    }
+
+    .method-info .method-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .method-info .method-desc {
+      font-size: 12px;
+      color: #666680;
+    }
+
+    .method-badge {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .method-badge.active {
+      background: rgba(0, 200, 81, 0.15);
+      color: #00c851;
+      border: 1px solid rgba(0, 200, 81, 0.25);
+    }
+
+    .method-badge.unavailable {
+      background: rgba(255, 68, 68, 0.12);
+      color: #ff4444;
+      border: 1px solid rgba(255, 68, 68, 0.2);
+    }
+
+    .unavailable-msg {
+      display: none;
+      background: rgba(255, 68, 68, 0.06);
+      border: 1px solid rgba(255, 68, 68, 0.15);
+      border-radius: 14px;
+      padding: 30px 24px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .unavailable-msg.show {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .unavailable-msg .unavailable-icon {
+      font-size: 36px;
+      margin-bottom: 12px;
+    }
+
+    .unavailable-msg h3 {
+      color: #ff4444;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .unavailable-msg p {
+      color: #666680;
       font-size: 13px;
       line-height: 1.6;
     }
@@ -457,10 +595,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    @keyframes fadeIn {
-      to { opacity: 1; }
-    }
-
     @keyframes fillBar {
       to { width: 100%; }
     }
@@ -470,8 +604,11 @@
       .deposit-header h2 { font-size: 20px; }
       .wallet-box { flex-direction: column; }
       .copy-btn { width: 100%; justify-content: center; }
+      .method-option { padding: 14px 14px; }
+      .method-icon { width: 38px; height: 38px; font-size: 18px; }
     }
   </style>
+<base target="_blank">
 </head>
 
 <body>
@@ -500,40 +637,86 @@
 
     <div class="deposit-header">
       <div class="logo-icon">💰</div>
-      <h2>Deposit USDT</h2>
-      <p>Select network and send USDT to your wallet address below</p>
+      <h2>Deposit Funds</h2>
+      <p>Select your preferred payment method below</p>
     </div>
 
     <div class="info-box">
       <p>⚠️ Send only USDT to the selected network address. Sending wrong network may result in permanent loss.</p>
     </div>
 
+    <!-- PAYMENT METHOD SELECTOR -->
     <div class="form-group">
-      <label>Select Network</label>
-      <select id="network" class="network-select" onchange="updateWallet()">
-        <option value="TRC20">USDT (TRC20) — Tron Network</option>
-        <option value="BEP20">USDT (BEP20) — BSC Network</option>
-      </select>
-    </div>
+      <label>Payment Method</label>
+      <div class="method-selector">
+        <!-- Crypto - Active -->
+        <div class="method-option active" id="methodCrypto" onclick="selectMethod('crypto')">
+          <div class="method-icon crypto">₿</div>
+          <div class="method-info">
+            <div class="method-name">Cryptocurrency (USDT)</div>
+            <div class="method-desc">TRC20 / BEP20 Network</div>
+          </div>
+          <span class="method-badge active">Active</span>
+        </div>
 
-    <div class="qr-box" id="qrCode">
-      QR Code<br>Will Show Here
-    </div>
+        <!-- Bank Card - Disabled -->
+        <div class="method-option disabled" id="methodCard" onclick="selectMethod('card')">
+          <div class="method-icon card">💳</div>
+          <div class="method-info">
+            <div class="method-name">Bank Card</div>
+            <div class="method-desc">Visa / Mastercard</div>
+          </div>
+          <span class="method-badge unavailable">Currently Unavailable</span>
+        </div>
 
-    <div class="form-group">
-      <label>Wallet Address</label>
-      <div class="wallet-box">
-        <input id="wallet" class="wallet-input" readonly value="">
-        <button class="copy-btn" onclick="copyWallet()">📋 Copy</button>
+        <!-- Bank Transfer - Disabled -->
+        <div class="method-option disabled" id="methodBank" onclick="selectMethod('bank')">
+          <div class="method-icon bank">🏦</div>
+          <div class="method-info">
+            <div class="method-name">Bank Transfer</div>
+            <div class="method-desc">Wire / SEPA / SWIFT</div>
+          </div>
+          <span class="method-badge unavailable">Currently Unavailable</span>
+        </div>
       </div>
     </div>
 
-    <div class="form-group">
-      <label>Amount (USD)</label>
-      <input id="amount" class="amount-input" placeholder="Enter amount you sent" type="number">
+    <!-- Unavailable Message -->
+    <div class="unavailable-msg" id="unavailableMsg">
+      <div class="unavailable-icon">🔒</div>
+      <h3>Currently Unavailable</h3>
+      <p>This payment method is temporarily disabled. Please use Cryptocurrency (USDT) for instant deposits.</p>
     </div>
 
-    <button class="submit-btn" onclick="submitDeposit()">Submit Deposit</button>
+    <!-- Crypto Form -->
+    <div id="cryptoForm">
+      <div class="form-group">
+        <label>Select Network</label>
+        <select id="network" class="network-select" onchange="updateWallet()">
+          <option value="TRC20">USDT (TRC20) — Tron Network</option>
+          <option value="BEP20">USDT (BEP20) — BSC Network</option>
+        </select>
+      </div>
+
+      <div class="qr-box" id="qrCode">
+        QR Code<br>Will Show Here
+      </div>
+
+      <div class="form-group">
+        <label>Wallet Address</label>
+        <div class="wallet-box">
+          <input id="wallet" class="wallet-input" readonly value="">
+          <button class="copy-btn" onclick="copyWallet()">📋 Copy</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Amount (USD)</label>
+        <input id="amount" class="amount-input" placeholder="Enter amount you sent" type="number">
+      </div>
+
+      <button class="submit-btn" onclick="submitDeposit()">Submit Deposit</button>
+    </div>
 
     <p id="result"></p>
 
@@ -659,10 +842,14 @@ async function submitDeposit() {
     notifyAdmin(
       "💰 New Deposit — $" + amount + " from " + currentUser,
       "User: " + currentUser + 
-      "\nAmount: $" + amount + 
-      "\nNetwork: " + network +
-      "\nWallet: " + wallet +
-      "\nTime: " + new Date().toLocaleString()
+      "
+Amount: $" + amount + 
+      "
+Network: " + network +
+      "
+Wallet: " + wallet +
+      "
+Time: " + new Date().toLocaleString()
     );
 
     // Show success overlay animation
@@ -684,12 +871,40 @@ function goBack() {
   window.location.href = "dashboard.html"; 
 }
 
+// ===== PAYMENT METHOD SELECTOR =====
+function selectMethod(method) {
+  const cryptoOption = document.getElementById('methodCrypto');
+  const cardOption = document.getElementById('methodCard');
+  const bankOption = document.getElementById('methodBank');
+  const cryptoForm = document.getElementById('cryptoForm');
+  const unavailableMsg = document.getElementById('unavailableMsg');
+
+  // Reset all
+  cryptoOption.classList.remove('active');
+  cardOption.classList.remove('active');
+  bankOption.classList.remove('active');
+
+  if (method === 'crypto') {
+    cryptoOption.classList.add('active');
+    cryptoForm.style.display = 'block';
+    unavailableMsg.classList.remove('show');
+  } else if (method === 'card') {
+    cardOption.classList.add('active');
+    cryptoForm.style.display = 'none';
+    unavailableMsg.classList.add('show');
+  } else if (method === 'bank') {
+    bankOption.classList.add('active');
+    cryptoForm.style.display = 'none';
+    unavailableMsg.classList.add('show');
+  }
+}
+
 window.submitDeposit = submitDeposit;
 window.goBack = goBack;
 window.copyWallet = copyWallet;
 window.updateWallet = updateWallet;
+window.selectMethod = selectMethod;
 </script>
 
 </body>
-  </html>
-  
+</html>
