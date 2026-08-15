@@ -6,7 +6,6 @@
   <title>History</title>
   <link rel="stylesheet" href="style.css">
   
-  <!-- Prevent back button after logout -->
   <script>
     if (window.history && window.history.pushState) {
       window.history.pushState(null, null, window.location.href);
@@ -17,7 +16,6 @@
   </script>
   
   <style>
-    /* SAME DARK THEME */
     body {
       background: #0f0f1a;
       color: white;
@@ -88,18 +86,13 @@
     }
     
     /* Type colors */
-    .history-card.deposit h4 {
-      color: #00c851;
-    }
-    .history-card.withdrawal h4 {
-      color: #ff4444;
-    }
-    .history-card.investment h4 {
-      color: #ffbb33;
-    }
-    .history-card.transfer h4 {
-      color: #33b5e5;
-    }
+    .history-card.deposit h4 { color: #00c851; }
+    .history-card.withdrawal h4 { color: #ff4444; }
+    .history-card.investment h4 { color: #ffbb33; }
+    .history-card.transfer h4 { color: #33b5e5; }
+    .history-card.profit h4 { color: #00c851; }
+    .history-card.return h4 { color: #aa66cc; }
+    .history-card.admin h4 { color: #ff8800; }
     
     .history-card p {
       margin: 5px 0;
@@ -154,7 +147,7 @@
     
     .filter-tabs {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       margin-bottom: 20px;
       justify-content: center;
       flex-wrap: wrap;
@@ -164,10 +157,12 @@
       background: #1a1a2e;
       border: 1px solid #2a2a4e;
       color: #aaa;
-      padding: 10px 20px;
+      padding: 8px 14px;
       border-radius: 20px;
       cursor: pointer;
       transition: 0.3s;
+      font-size: 12px;
+      font-weight: 600;
     }
     
     .filter-tab:hover, .filter-tab.active {
@@ -176,6 +171,7 @@
       border-color: #444;
     }
   </style>
+<base target="_blank">
 </head>
 
 <body>
@@ -186,7 +182,7 @@
 
   <div class="history-header">
     <h2>📋 Transaction History</h2>
-    <p>All your deposits, withdrawals, transfers & investments</p>
+    <p>All your deposits, withdrawals, transfers, investments & returns</p>
   </div>
   
   <div class="filter-tabs">
@@ -195,6 +191,8 @@
     <button class="filter-tab" onclick="filterHistory('withdrawal')">Withdrawals</button>
     <button class="filter-tab" onclick="filterHistory('transfer')">Transfers</button>
     <button class="filter-tab" onclick="filterHistory('investment')">Investments</button>
+    <button class="filter-tab" onclick="filterHistory('profit')">Returns</button>
+    <button class="filter-tab" onclick="filterHistory('admin')">Admin</button>
   </div>
 
   <div id="historyList">Loading...</div>
@@ -206,10 +204,6 @@
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-/////////////////////////////////////////////////////
-// AUTH CHECK - EXACTLY AS YOU HAD IT
-/////////////////////////////////////////////////////
 
 let currentUsername = null;
 let allHistory = [];
@@ -228,10 +222,6 @@ onAuthStateChanged(auth, async (user) => {
   
   loadHistory();
 });
-
-/////////////////////////////////////////////////////
-// LOAD HISTORY - EXACTLY AS YOU HAD IT + TRANSFERS ADDED
-/////////////////////////////////////////////////////
 
 async function loadHistory() {
   const list = document.getElementById("historyList");
@@ -266,12 +256,30 @@ async function loadHistory() {
       });
     }
     
-    // ✅ GET TRANSFERS (NEW!)
+    // Get transfers
     const transSnap = await get(ref(db, 'transfers'));
     let transfers = [];
     if (transSnap.exists()) {
       transSnap.forEach((childSnap) => {
         transfers.push(childSnap.val());
+      });
+    }
+    
+    // ✅ GET PROFIT CLAIMS / RETURNS
+    const profitSnap = await get(ref(db, 'profits'));
+    let profits = [];
+    if (profitSnap.exists()) {
+      profitSnap.forEach((childSnap) => {
+        profits.push(childSnap.val());
+      });
+    }
+    
+    // ✅ GET ADMIN TRANSFERS
+    const adminSnap = await get(ref(db, 'adminTransfers'));
+    let adminTransfers = [];
+    if (adminSnap.exists()) {
+      adminSnap.forEach((childSnap) => {
+        adminTransfers.push(childSnap.val());
       });
     }
     
@@ -318,7 +326,7 @@ async function loadHistory() {
       }
     });
     
-    // ✅ ADD TRANSFERS TO HISTORY (NEW!)
+    // Add transfers
     transfers.forEach(t => {
       if (t.from === currentUsername || t.to === currentUsername) {
         history.push({
@@ -333,6 +341,32 @@ async function loadHistory() {
       }
     });
     
+    // ✅ ADD PROFIT CLAIMS / RETURNS
+    profits.forEach(p => {
+      if (p.user === currentUsername) {
+        history.push({
+          type: "profit",
+          status: p.status || "completed",
+          amount: p.amount,
+          time: p.time,
+          plan: p.plan
+        });
+      }
+    });
+    
+    // ✅ ADD ADMIN SENDS
+    adminTransfers.forEach(a => {
+      if (a.toUser === currentUsername) {
+        history.push({
+          type: "admin",
+          status: a.status || "completed",
+          amount: a.amount,
+          time: a.time,
+          admin: a.admin || "Admin"
+        });
+      }
+    });
+    
     allHistory = history;
     render(history);
     
@@ -342,12 +376,7 @@ async function loadHistory() {
   }
 }
 
-/////////////////////////////////////////////////////
-// FILTER HISTORY (NEW FEATURE!)
-/////////////////////////////////////////////////////
-
 function filterHistory(type) {
-  // Update active tab
   document.querySelectorAll('.filter-tab').forEach(tab => {
     tab.classList.remove('active');
   });
@@ -361,10 +390,6 @@ function filterHistory(type) {
   }
 }
 
-/////////////////////////////////////////////////////
-// RENDER - SAME LOGIC, NEW DARK DESIGN
-/////////////////////////////////////////////////////
-
 function render(history) {
   let list = document.getElementById("historyList");
   list.innerHTML = "";
@@ -374,26 +399,24 @@ function render(history) {
     return;
   }
 
-  // Sort by time (newest first)
   history.sort((a, b) => b.time - a.time);
 
   history.forEach(item => {
     let div = document.createElement("div");
     div.classList.add("history-card", item.type);
 
-    // Icons for each type
     let icon = {
       deposit: "⬇️",
       withdrawal: "⬆️",
       investment: "📈",
-      transfer: "💸"
+      transfer: "💸",
+      profit: "🎉",
+      admin: "🎁"
     }[item.type] || "💰";
 
-    // Status badge class
     let statusClass = item.status === "pending" ? "pending" : 
                       item.status === "active" ? "active" : "completed";
 
-    // Build content based on type
     let extraContent = "";
     
     if (item.type === "deposit" && item.coin) {
@@ -418,10 +441,24 @@ function render(history) {
         <p>${item.direction === "sent" ? "To" : "From"}: ${item.direction === "sent" ? item.to : item.from}</p>
       `;
     }
+    
+    if (item.type === "profit") {
+      extraContent = `
+        <p>Plan: ${item.plan || 'N/A'}</p>
+        <p>Type: Investment Return</p>
+      `;
+    }
+    
+    if (item.type === "admin") {
+      extraContent = `
+        <p>From: ${item.admin}</p>
+        <p>Type: Admin Credit</p>
+      `;
+    }
 
     div.innerHTML = `
       <h4>${icon} ${item.type.toUpperCase()}</h4>
-      <p class="amount">$${item.amount || 0}</p>
+      <p class="amount">$${Number(item.amount || 0).toFixed(2)}</p>
       <span class="status-badge ${statusClass}">${item.status}</span>
       ${extraContent}
       <p class="time">${new Date(item.time).toLocaleString()}</p>
@@ -430,10 +467,6 @@ function render(history) {
     list.appendChild(div);
   });
 }
-
-/////////////////////////////////////////////////////
-// NAVIGATION - FIXED
-/////////////////////////////////////////////////////
 
 function goBack() { 
   window.location.href = "dashboard.html"; 
@@ -445,4 +478,3 @@ window.filterHistory = filterHistory;
 </script>
 </body>
 </html>
-  
