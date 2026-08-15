@@ -110,6 +110,23 @@
     .plan-detail { font-size: 11px; color: var(--text-muted); margin: 2px 0; }
     .plan-min { font-size: 10px; color: var(--text-dim); margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); }
 
+    /* ===== PLAN CARD DISABLED STATE ===== */
+    .plan-card.disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      pointer-events: none;
+      transform: none !important;
+      border-color: var(--border);
+    }
+    .plan-card.disabled::before {
+      opacity: 0 !important;
+    }
+    .plan-card.disabled .plan-profit,
+    .plan-card.disabled .plan-detail,
+    .plan-card.disabled .plan-min {
+      color: var(--text-dim);
+    }
+
     /* ===== INFO GRID ===== */
     .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 16px; margin-bottom: 16px; }
     .info-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
@@ -416,9 +433,6 @@ let balanceInterval;
 let autoClaimTimer = null;
 
 // ===== WHATSAPP CONFIG =====
-// Add your WhatsApp business number with country code (no + or spaces)
-// Example: "14155552671" for US number +1 (415) 555-2671
-// Leave empty ("") to let the user pick a contact
 const SUPPORT_WHATSAPP_NUMBER = "447493759120";
 const WHATSAPP_DEFAULT_MESSAGE = "I need help smartInvest u understand me better";
 
@@ -471,7 +485,6 @@ onAuthStateChanged(auth, async (user) => {
 
   startAutoClaimChecker();
 
-  // Show WhatsApp tooltip briefly on first load
   setTimeout(() => {
     const tip = document.getElementById('waTooltip');
     if (tip) tip.classList.add('show');
@@ -551,7 +564,8 @@ function showProfitToast(msg) {
   toast.classList.add("show");
   setTimeout(() => toast.classList.remove("show"), 4000);
 }
-  // ===== ACTIVITY FEED =====
+
+// ===== ACTIVITY FEED =====
 async function loadRecentActivity() {
   if (!currentUsername) return;
   try {
@@ -707,8 +721,9 @@ async function updateButtonStates() {
     banner.className = "status-banner success show";
     banner.innerText = `✅ Account Active: You can invest and withdraw`;
   }
-  }
-   // ===== UPDATE UI =====
+}
+
+// ===== UPDATE UI =====
 async function updateUI() {
   document.getElementById("userName").innerText = "Welcome, " + (userData.username || "User");
   document.getElementById("accountIdDisplay").innerText = userData.accountId || "—";
@@ -755,6 +770,23 @@ async function updateUI() {
 
   await updateButtonStates();
   updateInvestmentStatus();
+  updatePlanCardsState();
+}
+
+// ===== PLAN CARDS STATE =====
+function updatePlanCardsState() {
+  const cards = document.querySelectorAll('.plan-card');
+  const isActive = userData && userData.plan && userData.plan !== "None";
+
+  cards.forEach(card => {
+    if (isActive) {
+      card.classList.add('disabled');
+      card.title = "Complete your current " + userData.plan + " investment first";
+    } else {
+      card.classList.remove('disabled');
+      card.title = "";
+    }
+  });
 }
 
 // ===== CHECK PROFIT (manual click) =====
@@ -843,7 +875,13 @@ window.goHome = () => window.location.href = "index.html";
 window.goProfile = () => window.location.href = "profile.html";
 window.goHistory = () => window.location.href = "history.html";
 window.goSupport = () => openWhatsApp();
-window.selectPlan = (plan) => window.location.href = "invest.html?plan=" + plan;
+window.selectPlan = function(plan) {
+  if (userData && userData.plan && userData.plan !== "None") {
+    alert("⏳ You already have an active " + userData.plan + " investment. Complete it before starting a new one.");
+    return;
+  }
+  window.location.href = "invest.html?plan=" + plan;
+};
 
 // ===== REFERRAL =====
 async function loadDashRefLink() {
