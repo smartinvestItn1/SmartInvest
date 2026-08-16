@@ -395,7 +395,7 @@
     }
     .toggle-btn.transfer-off:hover { box-shadow: 0 0 30px rgba(255, 68, 68, 0.35); }
 
-    .deposit-card, .withdraw-card {
+    .deposit-card, .withdraw-card, .kyc-card {
       background: rgba(15, 15, 30, 0.5);
       border-radius: 16px;
       padding: 22px;
@@ -404,7 +404,7 @@
       backdrop-filter: blur(10px);
       transition: all 0.25s ease;
     }
-    .deposit-card:hover, .withdraw-card:hover {
+    .deposit-card:hover, .withdraw-card:hover, .kyc-card:hover {
       border-color: rgba(255, 255, 255, 0.12);
       transform: translateY(-3px);
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -458,6 +458,12 @@
 
     .reject-btn { color: var(--red); box-shadow: 0 0 15px rgba(255, 68, 68, 0.15), inset 0 1px 0 rgba(255,255,255,0.05); }
     .reject-btn:hover { box-shadow: 0 0 25px rgba(255, 68, 68, 0.3), 0 8px 20px rgba(0,0,0,0.2); border-color: rgba(255, 68, 68, 0.4); }
+
+    .view-btn {
+      color: var(--blue);
+      box-shadow: 0 0 15px rgba(51, 181, 229, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .view-btn:hover { box-shadow: 0 0 25px rgba(51, 181, 229, 0.3), 0 8px 20px rgba(0,0,0,0.2); border-color: rgba(51, 181, 229, 0.4); }
 
     .send-btn {
       background: linear-gradient(135deg, rgba(0,200,81,0.2), rgba(0,180,70,0.15));
@@ -543,6 +549,29 @@
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
+    /* KYC Detail Styles */
+    .kyc-detail-box {
+      background: rgba(15, 15, 30, 0.8);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 14px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .kyc-detail-box p { margin: 4px 0; font-size: 13px; }
+    .kyc-detail-box .label { color: var(--text-dim); display: inline-block; width: 100px; }
+    .kyc-detail-box .value { color: var(--text); font-weight: 600; }
+    .kyc-images { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+    .kyc-img-thumb {
+      width: 100px;
+      height: 70px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .kyc-img-thumb:hover { transform: scale(1.05); border-color: var(--blue); }
+
     @media (max-width: 1024px) {
       .send-funds-form { grid-template-columns: 1fr; }
     }
@@ -602,6 +631,11 @@
     <button class="nav-item" onclick="scrollToSection('newUsers', this)">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
       New Users
+    </button>
+
+    <button class="nav-item" onclick="scrollToSection('kycReviews', this)">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      KYC Reviews
     </button>
 
     <button class="nav-item" onclick="scrollToSection('sendFunds', this)">
@@ -666,17 +700,25 @@
     </div>
   </div>
 
-  <!-- NEW USERS (24H) WITH KYC -->
+  <!-- NEW USERS (24H) — NO KYC -->
   <div class="section-card" id="newUsers">
     <h3>🆕 New Users (24h)</h3>
-    <div class="filter-tabs" id="newUserFilterTabs">
-      <button class="filter-tab active" onclick="setNewUserFilter('all')">All</button>
-      <button class="filter-tab" onclick="setNewUserFilter('pending')">Pending KYC</button>
-      <button class="filter-tab" onclick="setNewUserFilter('approved')">KYC Approved</button>
-      <button class="filter-tab" onclick="setNewUserFilter('rejected')">KYC Rejected</button>
-    </div>
     <div id="newUsersList">
       <p class="no-data">Loading new users...</p>
+    </div>
+  </div>
+
+  <!-- KYC REVIEWS — SEPARATE SECTION -->
+  <div class="section-card" id="kycReviews">
+    <h3>🛡️ KYC Reviews</h3>
+    <div class="filter-tabs" id="kycFilterTabs">
+      <button class="filter-tab active" onclick="setKycFilter('all')">All</button>
+      <button class="filter-tab" onclick="setKycFilter('pending')">Pending</button>
+      <button class="filter-tab" onclick="setKycFilter('approved')">Approved</button>
+      <button class="filter-tab" onclick="setKycFilter('rejected')">Rejected</button>
+    </div>
+    <div id="kycList">
+      <p class="no-data">Loading KYC submissions...</p>
     </div>
   </div>
 
@@ -762,7 +804,7 @@ let investments = [];
 let filterStatus = "all";
 let withdrawFilterStatus = "all";
 let userFilterStatus = "all";
-let newUserFilterStatus = "all";
+let kycFilterStatus = "all";
 
 function showLoader() {
   const loader = document.getElementById('pageLoader');
@@ -947,6 +989,7 @@ function loadUsers() {
     }).join("");
 }
 
+/* ========== NEW USERS (24H) — CLEAN, NO KYC ========== */
 function loadNewUsers() {
   const now = Date.now();
   const oneDay = 24 * 60 * 60 * 1000;
@@ -956,14 +999,9 @@ function loadNewUsers() {
     return (now - regTime) < oneDay;
   });
 
-  if (newUserFilterStatus !== "all") {
-    list = list.filter(u => (u.kycStatus || "pending") === newUserFilterStatus);
-  }
-
   document.getElementById("newUsersList").innerHTML =
     list.length === 0 ? '<p class="no-data">No new users in the last 24 hours.</p>' :
     list.map(u => {
-      const kyc = u.kycStatus || "pending";
       const regTime = u.registeredAt || u.createdAt || Date.now();
       const hoursAgo = Math.floor((now - regTime) / (1000 * 60 * 60));
       const minsAgo = Math.floor((now - regTime) / (1000 * 60)) % 60;
@@ -973,15 +1011,70 @@ function loadNewUsers() {
         <h4>👤 ${u.username}</h4>
         <p>📧 Email: ${u.email || 'N/A'}</p>
         <p>🆔 Account ID: ${u.accountId || 'N/A'}</p>
+        <p>💰 Balance: $${Number(u.balance || 0).toFixed(2)}</p>
         <p>⏰ Registered: ${hoursAgo}h ${minsAgo}m ago</p>
-        <p>📊 KYC Status: <span class="status-badge ${kyc}">${kyc.toUpperCase()}</span></p>
+      </div>`;
+    }).join("");
+}
 
-        ${kyc === "pending" ? `
-          <div class="toggle-row" style="margin-top:12px;">
-            <button class="action-btn approve-btn" onclick="approveKYC('${u.username}')">✅ Approve KYC</button>
-            <button class="action-btn reject-btn" onclick="rejectKYC('${u.username}')">❌ Reject KYC</button>
-          </div>
-        ` : ""}
+/* ========== KYC REVIEWS — SEPARATE SECTION ========== */
+function loadKycReviews() {
+  let list = users.filter(u => u.kyc || u.kycStatus);
+
+  if (kycFilterStatus !== "all") {
+    list = list.filter(u => (u.kycStatus || "pending") === kycFilterStatus);
+  }
+
+  document.getElementById("kycList").innerHTML =
+    list.length === 0 ? '<p class="no-data">No KYC submissions found.</p>' :
+    list.map(u => {
+      const kyc = u.kyc || {};
+      const status = u.kycStatus || "pending";
+      const submittedAt = kyc.submittedAt || kyc.createdAt || u.registeredAt || Date.now();
+      const subDate = new Date(submittedAt).toLocaleString();
+
+      // Build detail rows for whatever fields exist
+      let details = [];
+      if (kyc.fullName) details.push(`<p><span class="label">Full Name:</span> <span class="value">${kyc.fullName}</span></p>`);
+      if (kyc.idType) details.push(`<p><span class="label">ID Type:</span> <span class="value">${kyc.idType}</span></p>`);
+      if (kyc.idNumber) details.push(`<p><span class="label">ID Number:</span> <span class="value">${kyc.idNumber}</span></p>`);
+      if (kyc.country) details.push(`<p><span class="label">Country:</span> <span class="value">${kyc.country}</span></p>`);
+      if (kyc.dob) details.push(`<p><span class="label">Date of Birth:</span> <span class="value">${kyc.dob}</span></p>`);
+      if (kyc.address) details.push(`<p><span class="label">Address:</span> <span class="value">${kyc.address}</span></p>`);
+      if (kyc.phone) details.push(`<p><span class="label">Phone:</span> <span class="value">${kyc.phone}</span></p>`);
+
+      // Image thumbnails
+      let images = [];
+      const imgFields = ['idFrontUrl', 'idBackUrl', 'selfieUrl', 'idFront', 'idBack', 'selfie', 'documentUrl', 'document'];
+      imgFields.forEach(field => {
+        if (kyc[field]) {
+          images.push(`<a href="${kyc[field]}" target="_blank"><img src="${kyc[field]}" class="kyc-img-thumb" alt="KYC Doc" onerror="this.style.display='none'"></a>`);
+        }
+      });
+
+      const detailHTML = details.length > 0 || images.length > 0 ? `
+        <div class="kyc-detail-box">
+          ${details.join('')}
+          ${images.length > 0 ? `<div class="kyc-images">${images.join('')}</div>` : ''}
+        </div>
+      ` : '<p style="color:var(--text-dim); font-size:13px; margin-top:10px;">No detailed KYC data available.</p>';
+
+      const actionButtons = status === "pending" ? `
+        <div class="toggle-row" style="margin-top:12px;">
+          <button class="action-btn approve-btn" onclick="approveKYC('${u.username}')">✅ Approve KYC</button>
+          <button class="action-btn reject-btn" onclick="rejectKYC('${u.username}')">❌ Reject KYC</button>
+        </div>
+      ` : '';
+
+      return `
+      <div class="kyc-card">
+        <h4>👤 ${u.username}</h4>
+        <p>📧 Email: ${u.email || 'N/A'}</p>
+        <p>🆔 Account ID: ${u.accountId || 'N/A'}</p>
+        <p>📊 KYC Status: <span class="status-badge ${status}">${status.toUpperCase()}</span></p>
+        <p>📅 Submitted: ${subDate}</p>
+        ${detailHTML}
+        ${actionButtons}
       </div>`;
     }).join("");
 }
@@ -1008,12 +1101,12 @@ window.rejectKYC = async function(username) {
   }
 };
 
-function setNewUserFilter(status) {
-  newUserFilterStatus = status;
+function setKycFilter(status) {
+  kycFilterStatus = status;
   let container = event.target.closest('.filter-tabs');
   container.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
   event.target.classList.add('active');
-  loadNewUsers();
+  loadKycReviews();
 }
 
 window.toggleInvest = async function(username, currentState) {
@@ -1182,6 +1275,7 @@ function loadInvestments() {
 function loadNotifications() {
   let pendingDeposits = deposits.filter(d => d.status === "pending").length;
   let pendingWithdrawals = withdrawals.filter(w => w.status === "pending").length;
+  let pendingKyc = users.filter(u => (u.kycStatus || "pending") === "pending" && u.kyc).length;
   let notifHTML = "";
 
   if (pendingDeposits > 0) {
@@ -1196,6 +1290,13 @@ function loadNotifications() {
       <div class="notification-box">
         <p>💸 ${pendingWithdrawals} pending withdrawal(s) waiting for approval</p>
         <p class="time">Check withdrawals section below</p>
+      </div>`;
+  }
+  if (pendingKyc > 0) {
+    notifHTML += `
+      <div class="notification-box">
+        <p>🛡️ ${pendingKyc} KYC submission(s) pending review</p>
+        <p class="time">Check KYC Reviews section below</p>
       </div>`;
   }
   if (notifHTML === "") {
@@ -1241,6 +1342,7 @@ async function logout() {
 function renderAll() {
   loadUsers();
   loadNewUsers();
+  loadKycReviews();
   loadDeposits();
   loadInvestments();
   loadWithdrawals();
@@ -1250,7 +1352,7 @@ function renderAll() {
 window.setFilter = setFilter;
 window.setWithdrawFilter = setWithdrawFilter;
 window.setUserFilter = setUserFilter;
-window.setNewUserFilter = setNewUserFilter;
+window.setKycFilter = setKycFilter;
 window.logout = logout;
 
 </script>
