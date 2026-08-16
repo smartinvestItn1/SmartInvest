@@ -666,6 +666,11 @@
       Users
     </button>
 
+    <button class="nav-item" onclick="scrollToSection('newUsers', this)">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+      New Users
+    </button>
+
     <button class="nav-item" onclick="scrollToSection('sendFunds', this)">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       Send Funds
@@ -725,6 +730,20 @@
 
     <div id="usersList">
       <p class="no-data">Loading users...</p>
+    </div>
+  </div>
+
+  <!-- NEW USERS (24H) -->
+  <div class="section-card" id="newUsers">
+    <h3>🆕 New Users (24h)</h3>
+    <div class="filter-tabs" id="newUserFilterTabs">
+      <button class="filter-tab active" onclick="setNewUserFilter('all')">All</button>
+      <button class="filter-tab" onclick="setNewUserFilter('pending')">Pending KYC</button>
+      <button class="filter-tab" onclick="setNewUserFilter('approved')">KYC Approved</button>
+      <button class="filter-tab" onclick="setNewUserFilter('rejected')">KYC Rejected</button>
+    </div>
+    <div id="newUsersList">
+      <p class="no-data">Loading new users...</p>
     </div>
   </div>
 
@@ -817,6 +836,7 @@ let investments = [];
 let filterStatus = "all";
 let withdrawFilterStatus = "all";
 let userFilterStatus = "all";
+let newUserFilterStatus = "all";
 
 /////////////////////////////////////////////////////
 // LOADER CONTROL
@@ -1041,6 +1061,79 @@ function loadUsers() {
         </div>
       </div>
     `}).join("");
+}
+
+/////////////////////////////////////////////////////
+// NEW USERS (24H) + KYC
+/////////////////////////////////////////////////////
+
+function loadNewUsers() {
+  const now = Date.now();
+  const oneDay = 24 * 60 * 60 * 1000;
+
+  let list = users.filter(u => {
+    const regTime = u.registeredAt || u.createdAt || 0;
+    return (now - regTime) < oneDay;
+  });
+
+  if (newUserFilterStatus !== "all") {
+    list = list.filter(u => (u.kycStatus || "pending") === newUserFilterStatus);
+  }
+
+  document.getElementById("newUsersList").innerHTML =
+    list.length === 0 ? '<p class="no-data">No new users in the last 24 hours.</p>' :
+    list.map(u => {
+      const kyc = u.kycStatus || "pending";
+      const regTime = u.registeredAt || u.createdAt || Date.now();
+      const hoursAgo = Math.floor((now - regTime) / (1000 * 60 * 60));
+      const minsAgo = Math.floor((now - regTime) / (1000 * 60)) % 60;
+
+      return `
+      <div class="user-card">
+        <h4>👤 ${u.username}</h4>
+        <p>📧 Email: ${u.email || 'N/A'}</p>
+        <p>🆔 Account ID: ${u.accountId || 'N/A'}</p>
+        <p>⏰ Registered: ${hoursAgo}h ${minsAgo}m ago</p>
+        <p>📊 KYC Status: <span class="status-badge ${kyc}">${kyc.toUpperCase()}</span></p>
+
+        ${kyc === "pending" ? `
+          <div class="toggle-row" style="margin-top:12px;">
+            <button class="action-btn approve-btn" onclick="approveKYC('${u.username}')">✅ Approve KYC</button>
+            <button class="action-btn reject-btn" onclick="rejectKYC('${u.username}')">❌ Reject KYC</button>
+          </div>
+        ` : ""}
+      </div>
+    `}).join("");
+}
+
+window.approveKYC = async function(username) {
+  if (!confirm(`Approve KYC for ${username}?`)) return;
+  try {
+    await update(ref(db, 'users/' + username), { kycStatus: "approved" });
+    alert(`✅ KYC approved for ${username}`);
+    loadData();
+  } catch (error) {
+    alert("Error: " + error.message);
+  }
+};
+
+window.rejectKYC = async function(username) {
+  if (!confirm(`Reject KYC for ${username}?`)) return;
+  try {
+    await update(ref(db, 'users/' + username), { kycStatus: "rejected" });
+    alert(`❌ KYC rejected for ${username}`);
+    loadData();
+  } catch (error) {
+    alert("Error: " + error.message);
+  }
+};
+
+function setNewUserFilter(status) {
+  newUserFilterStatus = status;
+  let container = event.target.closest('.filter-tabs');
+  container.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+  event.target.classList.add('active');
+  loadNewUsers();
 }
 
 /////////////////////////////////////////////////////
@@ -1304,104 +1397,4 @@ function loadInvestments() {
         <p><b>📊 Status:</b> <span class="status-badge ${i.status}">${i.status.toUpperCase()}</span></p>
         <p><b>📅 Time:</b> ${new Date(i.investTime).toLocaleString()}</p>
       </div>
-    `).join("");
-}
-
-/////////////////////////////////////////////////////
-// NOTIFICATIONS
-/////////////////////////////////////////////////////
-
-function loadNotifications() {
-  let pendingDeposits = deposits.filter(d => d.status === "pending").length;
-  let pendingWithdrawals = withdrawals.filter(w => w.status === "pending").length;
-
-  let notifHTML = "";
-
-  if (pendingDeposits > 0) {
-    notifHTML += `
-      <div class="notification-box">
-        <p>💰 ${pendingDeposits} pending deposit(s) waiting for approval</p>
-        <p class="time">Check deposits section below</p>
-      </div>
-    `;
-  }
-
-  if (pendingWithdrawals > 0) {
-    notifHTML += `
-      <div class="notification-box">
-        <p>💸 ${pendingWithdrawals} pending withdrawal(s) waiting for approval</p>
-        <p class="time">Check withdrawals section below</p>
-      </div>
-    `;
-  }
-
-  if (notifHTML === "") {
-    notifHTML = '<p class="no-data">No new notifications</p>';
-  }
-
-  document.getElementById("notificationsList").innerHTML = notifHTML;
-}
-
-/////////////////////////////////////////////////////
-// FILTERS
-/////////////////////////////////////////////////////
-
-function setFilter(status) {
-  filterStatus = status;
-  let container = event.target.closest('.filter-tabs');
-  container.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
-  event.target.classList.add('active');
-  loadDeposits();
-}
-
-function setWithdrawFilter(status) {
-  withdrawFilterStatus = status;
-  let container = event.target.closest('.filter-tabs');
-  container.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
-  event.target.classList.add('active');
-  loadWithdrawals();
-}
-
-function setUserFilter(status) {
-  userFilterStatus = status;
-  let container = event.target.closest('.filter-tabs');
-  container.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
-  event.target.classList.add('active');
-  loadUsers();
-}
-
-/////////////////////////////////////////////////////
-// LOGOUT
-/////////////////////////////////////////////////////
-
-async function logout() {
-  try {
-    await signOut(auth);
-    sessionStorage.clear();
-    window.location.href = "login.html";
-  } catch (error) {
-    console.error("Logout error:", error);
-  }
-}
-
-/////////////////////////////////////////////////////
-// RENDER ALL
-/////////////////////////////////////////////////////
-
-function renderAll() {
-  loadUsers();
-  loadDeposits();
-  loadInvestments();
-  loadWithdrawals();
-  loadNotifications();
-}
-
-window.setFilter = setFilter;
-window.setWithdrawFilter = setWithdrawFilter;
-window.setUserFilter = setUserFilter;
-window.logout = logout;
-window.toggleTransfer = toggleTransfer;
-
-</script>
-</body>
-</html>
+    `
