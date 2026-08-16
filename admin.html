@@ -572,6 +572,74 @@
     }
     .kyc-img-thumb:hover { transform: scale(1.05); border-color: var(--blue); }
 
+
+    /* Sidebar notification badges */
+    .nav-badge {
+      margin-left: auto;
+      background: var(--red);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      min-width: 20px;
+      text-align: center;
+      transition: all 0.25s ease;
+    }
+    .nav-badge.hidden { display: none; }
+    .nav-item.active .nav-badge { background: var(--blue); color: #fff; }
+
+    /* KYC Review enhancements */
+    .kyc-review-actions { margin-top: 14px; }
+    .kyc-reject-box {
+      display: none;
+      margin-top: 12px;
+      background: rgba(255,68,68,0.06);
+      border: 1px solid rgba(255,68,68,0.2);
+      border-radius: 12px;
+      padding: 14px;
+      animation: fadeIn 0.25s ease;
+    }
+    .kyc-reject-box.show { display: block; }
+    .kyc-reject-box label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .kyc-reject-box textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(255,68,68,0.25);
+      background: rgba(15,15,30,0.6);
+      color: #fff;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      resize: vertical;
+      min-height: 60px;
+      transition: all 0.25s ease;
+    }
+    .kyc-reject-box textarea:focus {
+      outline: none;
+      border-color: var(--red);
+      box-shadow: 0 0 0 3px rgba(255,68,68,0.1);
+    }
+    .kyc-reject-box .reject-submit-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .kyc-reject-box .cancel-btn {
+      background: rgba(255,255,255,0.05);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .kyc-reject-box .cancel-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+
     @media (max-width: 1024px) {
       .send-funds-form { grid-template-columns: 1fr; }
     }
@@ -589,6 +657,7 @@
       .toggle-btn { padding: 8px 14px; font-size: 12px; }
     }
   </style>
+<base target="_blank">
 </head>
 
 <body>
@@ -621,21 +690,25 @@
     <button class="nav-item active" onclick="scrollToSection('notifications', this)">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
       Notifications
+      <span class="nav-badge hidden" id="badge-notifications">0</span>
     </button>
 
     <button class="nav-item" onclick="scrollToSection('users', this)">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
       Users
+      <span class="nav-badge hidden" id="badge-users">0</span>
     </button>
 
     <button class="nav-item" onclick="scrollToSection('newUsers', this)">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
       New Users
+      <span class="nav-badge hidden" id="badge-newusers">0</span>
     </button>
 
     <button class="nav-item" onclick="scrollToSection('kycReviews', this)">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
       KYC Reviews
+      <span class="nav-badge hidden" id="badge-kyc">0</span>
     </button>
 
     <button class="nav-item" onclick="scrollToSection('sendFunds', this)">
@@ -646,11 +719,13 @@
     <button class="nav-item" onclick="scrollToSection('deposits', this)">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
       Deposits
+      <span class="nav-badge hidden" id="badge-deposits">0</span>
     </button>
 
     <button class="nav-item" onclick="scrollToSection('withdrawals', this)">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
       Withdrawals
+      <span class="nav-badge hidden" id="badge-withdrawals">0</span>
     </button>
 
     <button class="nav-item" onclick="scrollToSection('investments', this)">
@@ -1060,9 +1135,19 @@ function loadKycReviews() {
       ` : '<p style="color:var(--text-dim); font-size:13px; margin-top:10px;">No detailed KYC data available.</p>';
 
       const actionButtons = status === "pending" ? `
-        <div class="toggle-row" style="margin-top:12px;">
-          <button class="action-btn approve-btn" onclick="approveKYC('${u.username}')">✅ Approve KYC</button>
-          <button class="action-btn reject-btn" onclick="rejectKYC('${u.username}')">❌ Reject KYC</button>
+        <div class="kyc-review-actions">
+          <div class="toggle-row">
+            <button class="action-btn approve-btn" onclick="approveKYC('${u.username}')">✅ Approve KYC</button>
+            <button class="action-btn reject-btn" onclick="showKycRejectForm('${u.username}')">❌ Reject KYC</button>
+          </div>
+          <div class="kyc-reject-box" id="kyc-reject-box-${u.username}">
+            <label>Rejection reason (optional)</label>
+            <textarea id="kyc-reject-reason-${u.username}" placeholder="Enter reason for rejection..."></textarea>
+            <div class="reject-submit-row">
+              <button class="action-btn reject-btn" onclick="submitKycReject('${u.username}')">Confirm Reject</button>
+              <button class="action-btn cancel-btn" onclick="hideKycRejectForm('${u.username}')">Cancel</button>
+            </div>
+          </div>
         </div>
       ` : '';
 
@@ -1090,16 +1175,7 @@ window.approveKYC = async function(username) {
   }
 };
 
-window.rejectKYC = async function(username) {
-  if (!confirm(`Reject KYC for ${username}?`)) return;
-  try {
-    await update(ref(db, 'users/' + username), { kycStatus: "rejected" });
-    alert(`❌ KYC rejected for ${username}`);
-    loadData();
-  } catch (error) {
-    alert("Error: " + error.message);
-  }
-};
+
 
 function setKycFilter(status) {
   kycFilterStatus = status;
@@ -1339,6 +1415,57 @@ async function logout() {
   }
 }
 
+function updateSidebarBadges() {
+  const now = Date.now();
+  const oneDay = 24 * 60 * 60 * 1000;
+
+  const pendingDeposits = deposits.filter(d => d.status === "pending").length;
+  const pendingWithdrawals = withdrawals.filter(w => w.status === "pending").length;
+  const pendingKyc = users.filter(u => (u.kycStatus || "pending") === "pending" && u.kyc).length;
+  const newUsersCount = users.filter(u => {
+    const regTime = u.registeredAt || u.createdAt || 0;
+    return (now - regTime) < oneDay;
+  }).length;
+  const totalNotifications = pendingDeposits + pendingWithdrawals + pendingKyc;
+
+  const setBadge = (id, count) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (count > 0) { el.textContent = count; el.classList.remove('hidden'); }
+    else { el.classList.add('hidden'); }
+  };
+
+  setBadge('badge-notifications', totalNotifications);
+  setBadge('badge-users', users.length);
+  setBadge('badge-newusers', newUsersCount);
+  setBadge('badge-kyc', pendingKyc);
+  setBadge('badge-deposits', pendingDeposits);
+  setBadge('badge-withdrawals', pendingWithdrawals);
+}
+
+window.showKycRejectForm = function(username) {
+  const box = document.getElementById('kyc-reject-box-' + username);
+  if (box) box.classList.add('show');
+};
+
+window.hideKycRejectForm = function(username) {
+  const box = document.getElementById('kyc-reject-box-' + username);
+  if (box) box.classList.remove('show');
+};
+
+window.submitKycReject = async function(username) {
+  const reasonEl = document.getElementById('kyc-reject-reason-' + username);
+  const reason = reasonEl ? reasonEl.value.trim() : '';
+  if (!confirm('Reject KYC for ' + username + '?' + (reason ? '\nReason: ' + reason : ''))) return;
+  try {
+    await update(ref(db, 'users/' + username), { kycStatus: "rejected", kycRejectionReason: reason || "" });
+    alert('❌ KYC rejected for ' + username);
+    loadData();
+  } catch (error) {
+    alert("Error: " + error.message);
+  }
+};
+
 function renderAll() {
   loadUsers();
   loadNewUsers();
@@ -1347,6 +1474,7 @@ function renderAll() {
   loadInvestments();
   loadWithdrawals();
   loadNotifications();
+  updateSidebarBadges();
 }
 
 window.setFilter = setFilter;
