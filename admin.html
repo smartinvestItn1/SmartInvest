@@ -585,12 +585,64 @@
       min-width: 20px;
       text-align: center;
       transition: all 0.25s ease;
+      flex-shrink: 0;
     }
-    .nav-badge.hidden { display: none; }
+    .nav-badge.hidden { display: none !important; }
     .nav-item.active .nav-badge { background: var(--blue); color: #fff; }
 
     /* KYC Review enhancements */
     .kyc-review-actions { margin-top: 14px; }
+    .kyc-detail-toggle {
+      background: rgba(51, 181, 229, 0.1);
+      color: var(--blue);
+      border: 1px solid rgba(51, 181, 229, 0.25);
+      padding: 10px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.25s ease;
+      margin-bottom: 12px;
+    }
+    .kyc-detail-toggle:hover {
+      background: rgba(51, 181, 229, 0.18);
+      box-shadow: 0 0 20px rgba(51, 181, 229, 0.15);
+    }
+    .kyc-detail-panel {
+      display: none;
+      background: rgba(15, 15, 30, 0.8);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 12px;
+      animation: fadeIn 0.25s ease;
+    }
+    .kyc-detail-panel.open { display: block; }
+    .kyc-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 24px;
+    }
+    .kyc-detail-grid .kyc-row { display: flex; flex-direction: column; gap: 4px; }
+    .kyc-detail-grid .kyc-label { color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+    .kyc-detail-grid .kyc-value { color: var(--text); font-size: 13px; font-weight: 600; word-break: break-word; }
+    .kyc-images-grid {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .kyc-img-thumb {
+      width: 110px;
+      height: 78px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .kyc-img-thumb:hover { transform: scale(1.05); border-color: var(--blue); }
     .kyc-reject-box {
       display: none;
       margin-top: 12px;
@@ -639,6 +691,47 @@
       border: 1px solid var(--border);
     }
     .kyc-reject-box .cancel-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+
+    /* Image lightbox */
+    .img-lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      cursor: zoom-out;
+    }
+    .img-lightbox.open { display: flex; }
+    .img-lightbox img {
+      max-width: 90vw;
+      max-height: 90vh;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .img-lightbox .close-lightbox {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .img-lightbox .close-lightbox:hover { background: rgba(255,255,255,0.2); }
+
+    @media (max-width: 768px) {
+      .kyc-detail-grid { grid-template-columns: 1fr; }
+    }
 
     @media (max-width: 1024px) {
       .send-funds-form { grid-template-columns: 1fr; }
@@ -1092,7 +1185,7 @@ function loadNewUsers() {
     }).join("");
 }
 
-/* ========== KYC REVIEWS — SEPARATE SECTION ========== */
+/* ========== KYC REVIEWS — ENHANCED WITH FULL DETAIL REVIEW ========== */
 function loadKycReviews() {
   let list = users.filter(u => u.kyc || u.kycStatus);
 
@@ -1108,31 +1201,49 @@ function loadKycReviews() {
       const submittedAt = kyc.submittedAt || kyc.createdAt || u.registeredAt || Date.now();
       const subDate = new Date(submittedAt).toLocaleString();
 
-      // Build detail rows for whatever fields exist
-      let details = [];
-      if (kyc.fullName) details.push(`<p><span class="label">Full Name:</span> <span class="value">${kyc.fullName}</span></p>`);
-      if (kyc.idType) details.push(`<p><span class="label">ID Type:</span> <span class="value">${kyc.idType}</span></p>`);
-      if (kyc.idNumber) details.push(`<p><span class="label">ID Number:</span> <span class="value">${kyc.idNumber}</span></p>`);
-      if (kyc.country) details.push(`<p><span class="label">Country:</span> <span class="value">${kyc.country}</span></p>`);
-      if (kyc.dob) details.push(`<p><span class="label">Date of Birth:</span> <span class="value">${kyc.dob}</span></p>`);
-      if (kyc.address) details.push(`<p><span class="label">Address:</span> <span class="value">${kyc.address}</span></p>`);
-      if (kyc.phone) details.push(`<p><span class="label">Phone:</span> <span class="value">${kyc.phone}</span></p>`);
+      // Build ALL detail rows dynamically from every key in kyc object
+      let detailRows = [];
+      let imageUrls = [];
+      const imgKeyPatterns = /url|image|photo|pic|doc|selfie|front|back|file|scan/i;
+      const skipKeys = ['submittedAt', 'createdAt', 'updatedAt', 'status'];
 
-      // Image thumbnails
-      let images = [];
-      const imgFields = ['idFrontUrl', 'idBackUrl', 'selfieUrl', 'idFront', 'idBack', 'selfie', 'documentUrl', 'document'];
-      imgFields.forEach(field => {
-        if (kyc[field]) {
-          images.push(`<a href="${kyc[field]}" target="_blank"><img src="${kyc[field]}" class="kyc-img-thumb" alt="KYC Doc" onerror="this.style.display='none'"></a>`);
+      Object.keys(kyc).forEach(key => {
+        const val = kyc[key];
+        if (val === null || val === undefined || val === '') return;
+        if (skipKeys.includes(key)) return;
+
+        const strVal = String(val);
+        // Detect image URLs
+        if (imgKeyPatterns.test(key) && (strVal.startsWith('http') || strVal.startsWith('data:image'))) {
+          imageUrls.push(strVal);
+        } else if (strVal.startsWith('http') && /\.(jpg|jpeg|png|gif|webp|bmp)(\?.*)?$/i.test(strVal)) {
+          imageUrls.push(strVal);
+        } else {
+          // Format key name: idType -> ID Type, fullName -> Full Name
+          const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase()).trim();
+          detailRows.push(`<div class="kyc-row"><span class="kyc-label">${label}</span><span class="kyc-value">${strVal}</span></div>`);
         }
       });
 
-      const detailHTML = details.length > 0 || images.length > 0 ? `
-        <div class="kyc-detail-box">
-          ${details.join('')}
-          ${images.length > 0 ? `<div class="kyc-images">${images.join('')}</div>` : ''}
+      // Also check top-level user object for any kyc-related image fields
+      const topImgFields = ['idFrontUrl', 'idBackUrl', 'selfieUrl', 'idFront', 'idBack', 'selfie', 'documentUrl', 'document', 'passportUrl', 'licenseUrl'];
+      topImgFields.forEach(field => {
+        if (u[field] && !imageUrls.includes(u[field])) imageUrls.push(u[field]);
+        if (kyc[field] && !imageUrls.includes(kyc[field])) imageUrls.push(kyc[field]);
+      });
+
+      const hasDetails = detailRows.length > 0 || imageUrls.length > 0;
+
+      const detailPanelHTML = hasDetails ? `
+        <div class="kyc-detail-panel" id="kyc-panel-${u.username}">
+          ${detailRows.length > 0 ? `<div class="kyc-detail-grid">${detailRows.join('')}</div>` : ''}
+          ${imageUrls.length > 0 ? `
+            <div class="kyc-images-grid">
+              ${imageUrls.map((url, idx) => `<img src="${url}" class="kyc-img-thumb" alt="KYC" onerror="this.style.display='none'" onclick="openLightbox('${url}')">`).join('')}
+            </div>
+          ` : ''}
         </div>
-      ` : '<p style="color:var(--text-dim); font-size:13px; margin-top:10px;">No detailed KYC data available.</p>';
+      ` : `<div class="kyc-detail-panel" id="kyc-panel-${u.username}"><p style="color:var(--text-dim); font-size:13px;">No detailed KYC data available.</p></div>`;
 
       const actionButtons = status === "pending" ? `
         <div class="kyc-review-actions">
@@ -1149,7 +1260,7 @@ function loadKycReviews() {
             </div>
           </div>
         </div>
-      ` : '';
+      ` : (u.kycRejectionReason ? `<p style="color:var(--red); margin-top:10px; font-size:13px;">📝 Rejection reason: ${u.kycRejectionReason}</p>` : '');
 
       return `
       <div class="kyc-card">
@@ -1158,11 +1269,62 @@ function loadKycReviews() {
         <p>🆔 Account ID: ${u.accountId || 'N/A'}</p>
         <p>📊 KYC Status: <span class="status-badge ${status}">${status.toUpperCase()}</span></p>
         <p>📅 Submitted: ${subDate}</p>
-        ${detailHTML}
+        <button class="kyc-detail-toggle" onclick="toggleKycPanel('${u.username}')" id="kyc-toggle-${u.username}">
+          🔍 Review KYC Details
+        </button>
+        ${detailPanelHTML}
         ${actionButtons}
       </div>`;
     }).join("");
 }
+
+window.toggleKycPanel = function(username) {
+  const panel = document.getElementById('kyc-panel-' + username);
+  const btn = document.getElementById('kyc-toggle-' + username);
+  if (!panel || !btn) return;
+  const isOpen = panel.classList.contains('open');
+  if (isOpen) {
+    panel.classList.remove('open');
+    btn.textContent = '🔍 Review KYC Details';
+  } else {
+    panel.classList.add('open');
+    btn.textContent = '🔼 Hide KYC Details';
+  }
+};
+
+window.openLightbox = function(url) {
+  const box = document.getElementById('imgLightbox');
+  const img = document.getElementById('lightboxImg');
+  if (box && img) { img.src = url; box.classList.add('open'); }
+};
+
+window.closeLightbox = function() {
+  const box = document.getElementById('imgLightbox');
+  if (box) box.classList.remove('open');
+};
+
+window.showKycRejectForm = function(username) {
+  const box = document.getElementById('kyc-reject-box-' + username);
+  if (box) box.classList.add('show');
+};
+
+window.hideKycRejectForm = function(username) {
+  const box = document.getElementById('kyc-reject-box-' + username);
+  if (box) box.classList.remove('show');
+};
+
+window.submitKycReject = async function(username) {
+  const reasonEl = document.getElementById('kyc-reject-reason-' + username);
+  const reason = reasonEl ? reasonEl.value.trim() : '';
+  if (!confirm('Reject KYC for ' + username + '?' + (reason ? '\nReason: ' + reason : ''))) return;
+  try {
+    await update(ref(db, 'users/' + username), { kycStatus: "rejected", kycRejectionReason: reason || "" });
+    alert('❌ KYC rejected for ' + username);
+    loadData();
+  } catch (error) {
+    alert("Error: " + error.message);
+  }
+};
 
 window.approveKYC = async function(username) {
   if (!confirm(`Approve KYC for ${username}?`)) return;
@@ -1416,55 +1578,34 @@ async function logout() {
 }
 
 function updateSidebarBadges() {
-  const now = Date.now();
-  const oneDay = 24 * 60 * 60 * 1000;
-
-  const pendingDeposits = deposits.filter(d => d.status === "pending").length;
-  const pendingWithdrawals = withdrawals.filter(w => w.status === "pending").length;
-  const pendingKyc = users.filter(u => (u.kycStatus || "pending") === "pending" && u.kyc).length;
-  const newUsersCount = users.filter(u => {
-    const regTime = u.registeredAt || u.createdAt || 0;
-    return (now - regTime) < oneDay;
-  }).length;
-  const totalNotifications = pendingDeposits + pendingWithdrawals + pendingKyc;
-
-  const setBadge = (id, count) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (count > 0) { el.textContent = count; el.classList.remove('hidden'); }
-    else { el.classList.add('hidden'); }
-  };
-
-  setBadge('badge-notifications', totalNotifications);
-  setBadge('badge-users', users.length);
-  setBadge('badge-newusers', newUsersCount);
-  setBadge('badge-kyc', pendingKyc);
-  setBadge('badge-deposits', pendingDeposits);
-  setBadge('badge-withdrawals', pendingWithdrawals);
-}
-
-window.showKycRejectForm = function(username) {
-  const box = document.getElementById('kyc-reject-box-' + username);
-  if (box) box.classList.add('show');
-};
-
-window.hideKycRejectForm = function(username) {
-  const box = document.getElementById('kyc-reject-box-' + username);
-  if (box) box.classList.remove('show');
-};
-
-window.submitKycReject = async function(username) {
-  const reasonEl = document.getElementById('kyc-reject-reason-' + username);
-  const reason = reasonEl ? reasonEl.value.trim() : '';
-  if (!confirm('Reject KYC for ' + username + '?' + (reason ? '\nReason: ' + reason : ''))) return;
   try {
-    await update(ref(db, 'users/' + username), { kycStatus: "rejected", kycRejectionReason: reason || "" });
-    alert('❌ KYC rejected for ' + username);
-    loadData();
-  } catch (error) {
-    alert("Error: " + error.message);
-  }
-};
+    const now = Date.now();
+    const oneDay = 24 * 60 * 60 * 1000;
+
+    const pendingDeposits = deposits.filter(d => d.status === "pending").length;
+    const pendingWithdrawals = withdrawals.filter(w => w.status === "pending").length;
+    const pendingKyc = users.filter(u => (u.kycStatus || "pending") === "pending" && (u.kyc || u.kycStatus)).length;
+    const newUsersCount = users.filter(u => {
+      const regTime = u.registeredAt || u.createdAt || 0;
+      return (now - regTime) < oneDay;
+    }).length;
+    const totalNotifications = pendingDeposits + pendingWithdrawals + pendingKyc;
+
+    const setBadge = (id, count) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (count > 0) { el.textContent = count; el.classList.remove('hidden'); }
+      else { el.classList.add('hidden'); }
+    };
+
+    setBadge('badge-notifications', totalNotifications);
+    setBadge('badge-users', users.length);
+    setBadge('badge-newusers', newUsersCount);
+    setBadge('badge-kyc', pendingKyc);
+    setBadge('badge-deposits', pendingDeposits);
+    setBadge('badge-withdrawals', pendingWithdrawals);
+  } catch (e) { console.error("Badge update error:", e); }
+}
 
 function renderAll() {
   loadUsers();
@@ -1484,5 +1625,12 @@ window.setKycFilter = setKycFilter;
 window.logout = logout;
 
 </script>
+
+<!-- IMAGE LIGHTBOX -->
+<div class="img-lightbox" id="imgLightbox" onclick="closeLightbox()">
+  <button class="close-lightbox" onclick="event.stopPropagation(); closeLightbox()">&times;</button>
+  <img id="lightboxImg" src="" alt="KYC Document">
+</div>
+
 </body>
 </html>
