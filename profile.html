@@ -44,6 +44,43 @@
       overflow-x: hidden;
     }
 
+    /* ===== PROFILE LOADER ===== */
+    .profile-loader {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-deep);
+      z-index: 999999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    .profile-loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .profile-loader-ring {
+      width: 56px;
+      height: 56px;
+      border: 3px solid rgba(255, 187, 51, 0.1);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+    .profile-loader-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-weight: 600;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
     /* Orbs Background */
     .bg-orbs {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -440,6 +477,7 @@
     .kyc-badge.verified { background: rgba(0,200,81,0.1); color: var(--green); border: 1px solid rgba(0,200,81,0.2); }
     .kyc-badge.pending { background: rgba(255,187,51,0.1); color: var(--gold); border: 1px solid rgba(255,187,51,0.2); }
     .kyc-badge.rejected { background: rgba(255,68,68,0.1); color: var(--red); border: 1px solid rgba(255,68,68,0.2); }
+    .kyc-badge.not-verified { background: rgba(90,90,120,0.15); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.08); }
 
     .kyc-btn {
       display: inline-flex;
@@ -504,48 +542,13 @@
       .kyc-row { flex-wrap: wrap; gap: 10px; }
       .kyc-badge { width: 100%; text-align: center; }
     }
-    /* ===== PROFILE LOADER ===== */
-.profile-loader {
-  position: fixed;
-  inset: 0;
-  background: var(--bg-deep);
-  z-index: 999999;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  transition: opacity 0.5s ease, visibility 0.5s ease;
-}
-.profile-loader.hidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-.profile-loader-ring {
-  width: 56px;
-  height: 56px;
-  border: 3px solid rgba(255, 187, 51, 0.1);
-  border-top-color: var(--gold);
-  border-radius: 50%;
-  animation: spin 0.9s linear infinite;
-}
-.profile-loader-text {
-  font-size: 13px;
-  color: var(--text-secondary);
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  font-weight: 600;
-  animation: pulse 1.5s ease-in-out infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-@keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
   </style>
 <base target="_blank">
 </head>
 
 <body>
-  <!-- PROFILE LOADER -->
+
+<!-- PROFILE LOADER -->
 <div class="profile-loader" id="profileLoader">
   <div class="profile-loader-ring"></div>
   <div class="profile-loader-text">Loading Profile</div>
@@ -661,11 +664,11 @@
               <div class="kyc-title" id="kycTitle">KYC Verification</div>
               <div class="kyc-desc" id="kycDesc">Checking your verification status...</div>
             </div>
-            <span class="kyc-badge pending" id="kycBadge">Loading</span>
+            <span class="kyc-badge not-verified" id="kycBadge">Loading</span>
           </div>
           
           <a href="kyc.html" class="kyc-btn gold" id="kycBtn" style="display:none;">
-            <i class="fas fa-id-card"></i> Complete KYC
+            <i class="fas fa-id-card"></i> Start
           </a>
         </div>
       </div>
@@ -791,6 +794,10 @@ onAuthStateChanged(auth, async (user) => {
       // KYC Status
       renderKycStatus(data.kycStatus);
 
+      // Hide loader after data loads
+      const loader = document.getElementById('profileLoader');
+      if (loader) loader.classList.add('hidden');
+
       // Load activity
       loadActivity();
     }
@@ -805,8 +812,8 @@ function renderKycStatus(status) {
   const btn = document.getElementById("kycBtn");
   const title = document.getElementById("kycTitle");
 
-  // Default to pending if no status
-  const kyc = status || "pending";
+  // Default to not-verified if no status
+  const kyc = status || "not-verified";
 
   if (kyc === "approved") {
     badge.className = "kyc-badge verified";
@@ -828,23 +835,29 @@ function renderKycStatus(status) {
     btn.className = "kyc-btn red";
     btn.innerHTML = '<i class="fas fa-redo"></i> Try Again';
   } 
-  else {
-    // pending or not submitted
+  else if (kyc === "pending") {
     badge.className = "kyc-badge pending";
     badge.innerText = "Pending Review";
+    desc.innerText = "Your KYC is under review. You will be notified once it is processed.";
+    icon.className = "kyc-icon pending";
+    icon.innerHTML = "⏳";
+    title.innerText = "Under Review";
+    btn.style.display = "none";
+  }
+  else {
+    // not verified / no submission yet
+    badge.className = "kyc-badge not-verified";
+    badge.innerText = "Not Verified";
     desc.innerText = "Complete your KYC to unlock withdrawals and higher limits.";
     icon.className = "kyc-icon pending";
     icon.innerHTML = "🔐";
     title.innerText = "KYC Verification";
     btn.style.display = "inline-flex";
     btn.className = "kyc-btn gold";
-    btn.innerHTML = '<i class="fas fa-id-card"></i> Complete KYC';
+    btn.innerHTML = '<i class="fas fa-id-card"></i> Start';
   }
 }
-// Hide profile loader after data loads
-const loader = document.getElementById('profileLoader');
-if (loader) loader.classList.add('hidden');
-  
+
 // Load recent activity from deposits and withdrawals
 async function loadActivity() {
   if (!currentUsername) return;
