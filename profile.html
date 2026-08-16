@@ -405,26 +405,70 @@
     .status-pending { background: rgba(255,187,51,0.1); color: var(--gold); }
     .status-approved { background: rgba(0,200,81,0.1); color: var(--green); }
 
-    /* KYC Badge */
+    /* ===== KYC SECTION ===== */
+    .kyc-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
     .kyc-row {
-      display: flex; align-items: center; gap: 12px;
-      padding: 14px 16px;
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px;
       background: rgba(15,15,30,0.4);
-      border-radius: 12px;
+      border-radius: 14px;
       border: 1px solid rgba(255,255,255,0.03);
-      margin-bottom: 20px;
     }
-    .kyc-icon { font-size: 20px; }
+    .kyc-icon {
+      width: 46px; height: 46px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .kyc-icon.verified { background: rgba(0,200,81,0.1); }
+    .kyc-icon.pending { background: rgba(255,187,51,0.1); }
+    .kyc-icon.rejected { background: rgba(255,68,68,0.1); }
     .kyc-info { flex: 1; }
-    .kyc-info .kyc-title { font-size: 14px; font-weight: 600; }
-    .kyc-info .kyc-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .kyc-info .kyc-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+    .kyc-info .kyc-desc { font-size: 13px; color: var(--text-secondary); margin-top: 4px; line-height: 1.4; }
     .kyc-badge {
-      font-size: 10px; font-weight: 700;
+      font-size: 11px; font-weight: 800;
       text-transform: uppercase; letter-spacing: 0.5px;
-      padding: 4px 12px; border-radius: 20px;
+      padding: 6px 14px; border-radius: 20px;
+      white-space: nowrap;
     }
-    .kyc-verified { background: rgba(0,200,81,0.1); color: var(--green); border: 1px solid rgba(0,200,81,0.2); }
-    .kyc-pending { background: rgba(255,187,51,0.1); color: var(--gold); border: 1px solid rgba(255,187,51,0.2); }
+    .kyc-badge.verified { background: rgba(0,200,81,0.1); color: var(--green); border: 1px solid rgba(0,200,81,0.2); }
+    .kyc-badge.pending { background: rgba(255,187,51,0.1); color: var(--gold); border: 1px solid rgba(255,187,51,0.2); }
+    .kyc-badge.rejected { background: rgba(255,68,68,0.1); color: var(--red); border: 1px solid rgba(255,68,68,0.2); }
+
+    .kyc-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 22px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Inter', sans-serif;
+      border: none;
+      width: 100%;
+    }
+    .kyc-btn.gold {
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+      color: #0c0c14;
+      box-shadow: 0 4px 20px rgba(255,187,51,0.25);
+    }
+    .kyc-btn.gold:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(255,187,51,0.4); }
+    .kyc-btn.red {
+      background: rgba(255,68,68,0.1);
+      color: var(--red);
+      border: 1.5px solid rgba(255,68,68,0.3);
+    }
+    .kyc-btn.red:hover { background: rgba(255,68,68,0.18); border-color: var(--red); }
 
     /* Mobile Nav */
     .mobile-nav {
@@ -457,6 +501,8 @@
       .page-header h1 { font-size: 26px; }
       .input-row { flex-direction: column; }
       .btn-icon { padding: 14px; }
+      .kyc-row { flex-wrap: wrap; gap: 10px; }
+      .kyc-badge { width: 100%; text-align: center; }
     }
   </style>
 <base target="_blank">
@@ -565,14 +611,21 @@
 
       <!-- KYC Status -->
       <div class="card" style="margin-top:20px;">
-        <div class="section-title"><i class="fas fa-shield-alt"></i> Verification</div>
-        <div class="kyc-row">
-          <div class="kyc-icon">🔐</div>
-          <div class="kyc-info">
-            <div class="kyc-title">KYC Verification</div>
-            <div class="kyc-desc">Identity verified for secure transactions</div>
+        <div class="section-title"><i class="fas fa-shield-alt"></i> Identity Verification</div>
+        
+        <div class="kyc-wrap">
+          <div class="kyc-row">
+            <div class="kyc-icon" id="kycIcon">🔐</div>
+            <div class="kyc-info">
+              <div class="kyc-title" id="kycTitle">KYC Verification</div>
+              <div class="kyc-desc" id="kycDesc">Checking your verification status...</div>
+            </div>
+            <span class="kyc-badge pending" id="kycBadge">Loading</span>
           </div>
-          <span class="kyc-badge kyc-verified" id="kycBadge">Verified</span>
+          
+          <a href="kyc.html" class="kyc-btn gold" id="kycBtn" style="display:none;">
+            <i class="fas fa-id-card"></i> Complete KYC
+          </a>
         </div>
       </div>
 
@@ -694,21 +747,59 @@ onAuthStateChanged(auth, async (user) => {
         document.getElementById("iavatar").src = data.image;
       }
 
-      // KYC
-      const kycBadge = document.getElementById("kycBadge");
-      if (data.kycVerified) {
-        kycBadge.className = "kyc-badge kyc-verified";
-        kycBadge.innerText = "Verified";
-      } else {
-        kycBadge.className = "kyc-badge kyc-pending";
-        kycBadge.innerText = "Pending";
-      }
+      // KYC Status
+      renderKycStatus(data.kycStatus);
 
       // Load activity
       loadActivity();
     }
   });
 });
+
+// Render KYC status on profile
+function renderKycStatus(status) {
+  const badge = document.getElementById("kycBadge");
+  const desc = document.getElementById("kycDesc");
+  const icon = document.getElementById("kycIcon");
+  const btn = document.getElementById("kycBtn");
+  const title = document.getElementById("kycTitle");
+
+  // Default to pending if no status
+  const kyc = status || "pending";
+
+  if (kyc === "approved") {
+    badge.className = "kyc-badge verified";
+    badge.innerText = "Verified";
+    desc.innerText = "Your identity has been verified. You have full access to all platform features.";
+    icon.className = "kyc-icon verified";
+    icon.innerHTML = "✅";
+    title.innerText = "Identity Verified";
+    btn.style.display = "none";
+  } 
+  else if (kyc === "rejected") {
+    badge.className = "kyc-badge rejected";
+    badge.innerText = "Failed — Try Again";
+    desc.innerText = "Your KYC submission was rejected. Please review your documents and submit again.";
+    icon.className = "kyc-icon rejected";
+    icon.innerHTML = "❌";
+    title.innerText = "Verification Failed";
+    btn.style.display = "inline-flex";
+    btn.className = "kyc-btn red";
+    btn.innerHTML = '<i class="fas fa-redo"></i> Try Again';
+  } 
+  else {
+    // pending or not submitted
+    badge.className = "kyc-badge pending";
+    badge.innerText = "Pending Review";
+    desc.innerText = "Complete your KYC to unlock withdrawals and higher limits.";
+    icon.className = "kyc-icon pending";
+    icon.innerHTML = "🔐";
+    title.innerText = "KYC Verification";
+    btn.style.display = "inline-flex";
+    btn.className = "kyc-btn gold";
+    btn.innerHTML = '<i class="fas fa-id-card"></i> Complete KYC';
+  }
+}
 
 // Load recent activity from deposits and withdrawals
 async function loadActivity() {
