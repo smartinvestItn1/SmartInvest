@@ -1201,49 +1201,89 @@ function loadKycReviews() {
       const submittedAt = kyc.submittedAt || kyc.createdAt || u.registeredAt || Date.now();
       const subDate = new Date(submittedAt).toLocaleString();
 
-      // Build ALL detail rows dynamically from every key in kyc object
-      let detailRows = [];
+      // Collect ALL possible KYC fields from both u.kyc and top-level u
+      let allFields = {};
       let imageUrls = [];
-      const imgKeyPatterns = /url|image|photo|pic|doc|selfie|front|back|file|scan/i;
-      const skipKeys = ['submittedAt', 'createdAt', 'updatedAt', 'status'];
 
-      Object.keys(kyc).forEach(key => {
-        const val = kyc[key];
-        if (val === null || val === undefined || val === '') return;
-        if (skipKeys.includes(key)) return;
+      // 1. Known KYC field names to check everywhere
+      const knownFields = [
+        'fullName', 'firstName', 'lastName', 'surname', 'name',
+        'idType', 'idNumber', 'idExpiry', 'idIssueDate',
+        'country', 'nationality', 'citizenship',
+        'dob', 'dateOfBirth', 'birthDate',
+        'address', 'city', 'state', 'zip', 'postalCode', 'postal',
+        'phone', 'mobile', 'telephone', 'phoneNumber',
+        'email', 'occupation', 'income', 'sourceOfFunds'
+      ];
 
-        const strVal = String(val);
-        // Detect image URLs
-        if (imgKeyPatterns.test(key) && (strVal.startsWith('http') || strVal.startsWith('data:image'))) {
-          imageUrls.push(strVal);
-        } else if (strVal.startsWith('http') && /\.(jpg|jpeg|png|gif|webp|bmp)(\?.*)?$/i.test(strVal)) {
-          imageUrls.push(strVal);
-        } else {
-          // Format key name: idType -> ID Type, fullName -> Full Name
-          const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase()).trim();
-          detailRows.push(`<div class="kyc-row"><span class="kyc-label">${label}</span><span class="kyc-value">${strVal}</span></div>`);
+      // Check in u.kyc object
+      knownFields.forEach(key => {
+        if (kyc[key] !== undefined && kyc[key] !== '' && kyc[key] !== null) {
+          allFields[key] = kyc[key];
+        }
+      });
+      // Also check top-level user object
+      knownFields.forEach(key => {
+        if (u[key] !== undefined && u[key] !== '' && u[key] !== null && !allFields[key]) {
+          allFields[key] = u[key];
         }
       });
 
-      // Also check top-level user object for any kyc-related image fields
-      const topImgFields = ['idFrontUrl', 'idBackUrl', 'selfieUrl', 'idFront', 'idBack', 'selfie', 'documentUrl', 'document', 'passportUrl', 'licenseUrl'];
-      topImgFields.forEach(field => {
-        if (u[field] && !imageUrls.includes(u[field])) imageUrls.push(u[field]);
-        if (kyc[field] && !imageUrls.includes(kyc[field])) imageUrls.push(kyc[field]);
+      // 2. Scan ALL keys in u.kyc for anything we missed
+      Object.keys(kyc).forEach(key => {
+        const val = kyc[key];
+        if (val === null || val === undefined || val === '') return;
+        if (['submittedAt','createdAt','updatedAt','status','time','timestamp'].includes(key)) return;
+        if (!allFields[key]) allFields[key] = val;
       });
 
-      const hasDetails = detailRows.length > 0 || imageUrls.length > 0;
+      // 3. Scan ALL keys in u object for KYC-like fields
+      Object.keys(u).forEach(key => {
+        const val = u[key];
+        if (val === null || val === undefined || val === '') return;
+        if (['username','email','password','balance','role','adminFlags','kyc','kycStatus','kycRejectionReason','registeredAt','createdAt','updatedAt','wallet','accountId','investments'].includes(key)) return;
+        if (!allFields[key]) allFields[key] = val;
+      });
 
-      const detailPanelHTML = hasDetails ? `
+      // 4. Extract image URLs from anywhere
+      const imgKeys = ['idFrontUrl','idBackUrl','selfieUrl','idFront','idBack','selfie','documentUrl','document','passportUrl','licenseUrl','photoUrl','photo','imageUrl','image','fileUrl','file','idPhoto','idImage'];
+      imgKeys.forEach(key => {
+        if (kyc[key] && typeof kyc[key] === 'string' && kyc[key].startsWith('http')) {
+          if (!imageUrls.includes(kyc[key])) imageUrls.push(kyc[key]);
+        }
+        if (u[key] && typeof u[key] === 'string' && u[key].startsWith('http')) {
+          if (!imageUrls.includes(u[key])) imageUrls.push(u[key]);
+        }
+      });
+      // Also scan all string values that look like image URLs
+      [kyc, u].forEach(obj => {
+        Object.values(obj).forEach(val => {
+          if (typeof val === 'string' && val.startsWith('http') && /\.(jpg|jpeg|png|gif|webp|bmp)/i.test(val)) {
+            if (!imageUrls.includes(val)) imageUrls.push(val);
+          }
+        });
+      });
+
+      // Build detail rows
+      let detailRows = [];
+      Object.keys(allFields).forEach(key => {
+        const val = allFields[key];
+        const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase()).trim();
+        detailRows.push(`<div class="kyc-row"><span class="kyc-label">${label}</span><span class="kyc-value">${val}</span></div>`);
+      });
+
+      const hasContent = detailRows.length > 0 || imageUrls.length > 0;
+
+      const detailPanelHTML = hasContent ? `
         <div class="kyc-detail-panel" id="kyc-panel-${u.username}">
           ${detailRows.length > 0 ? `<div class="kyc-detail-grid">${detailRows.join('')}</div>` : ''}
           ${imageUrls.length > 0 ? `
             <div class="kyc-images-grid">
-              ${imageUrls.map((url, idx) => `<img src="${url}" class="kyc-img-thumb" alt="KYC" onerror="this.style.display='none'" onclick="openLightbox('${url}')">`).join('')}
+              ${imageUrls.map(url => `<img src="${url}" class="kyc-img-thumb" alt="KYC" onerror="this.style.display='none'" onclick="openLightbox('${url}')">`).join('')}
             </div>
           ` : ''}
         </div>
-      ` : `<div class="kyc-detail-panel" id="kyc-panel-${u.username}"><p style="color:var(--text-dim); font-size:13px;">No detailed KYC data available.</p></div>`;
+      ` : `<div class="kyc-detail-panel" id="kyc-panel-${u.username}"><p style="color:var(--text-dim); font-size:13px; padding:10px 0;">No detailed KYC data available.</p></div>`;
 
       const actionButtons = status === "pending" ? `
         <div class="kyc-review-actions">
