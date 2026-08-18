@@ -1187,7 +1187,9 @@ function loadNewUsers() {
 
 /* ========== KYC REVIEWS — ENHANCED WITH FULL DETAIL REVIEW ========== */
 function loadKycReviews() {
-  let list = users.filter(u => u.kyc || u.kycStatus);
+  // The customer KYC form stores its fields in `kycData`. Keep `kyc` as a
+  // fallback so this page also supports older submissions.
+  let list = users.filter(u => u.kycData || u.kyc || u.kycStatus);
 
   if (kycFilterStatus !== "all") {
     list = list.filter(u => (u.kycStatus || "pending") === kycFilterStatus);
@@ -1196,10 +1198,12 @@ function loadKycReviews() {
   document.getElementById("kycList").innerHTML =
     list.length === 0 ? '<p class="no-data">No KYC submissions found.</p>' :
     list.map(u => {
-      const kyc = u.kyc || {};
+      const kyc = u.kycData || u.kyc || {};
       const status = u.kycStatus || "pending";
       const submittedAt = kyc.submittedAt || kyc.createdAt || u.registeredAt || Date.now();
       const subDate = new Date(submittedAt).toLocaleString();
+      const isImageSource = value => typeof value === 'string' &&
+        (/^data:image\//i.test(value) || /^https?:\/\//i.test(value));
 
       // Collect ALL possible KYC fields from both u.kyc and top-level u
       let allFields = {};
@@ -1234,6 +1238,7 @@ function loadKycReviews() {
         const val = kyc[key];
         if (val === null || val === undefined || val === '') return;
         if (['submittedAt','createdAt','updatedAt','status','time','timestamp'].includes(key)) return;
+        if (isImageSource(val)) return;
         if (!allFields[key]) allFields[key] = val;
       });
 
@@ -1241,24 +1246,25 @@ function loadKycReviews() {
       Object.keys(u).forEach(key => {
         const val = u[key];
         if (val === null || val === undefined || val === '') return;
-        if (['username','email','password','balance','role','adminFlags','kyc','kycStatus','kycRejectionReason','registeredAt','createdAt','updatedAt','wallet','accountId','investments'].includes(key)) return;
+        if (['username','email','password','balance','role','adminFlags','kyc','kycData','kycStatus','kycRejectionReason','registeredAt','createdAt','updatedAt','wallet','accountId','investments'].includes(key)) return;
+        if (typeof val === 'object' || isImageSource(val)) return;
         if (!allFields[key]) allFields[key] = val;
       });
 
       // 4. Extract image URLs from anywhere
       const imgKeys = ['idFrontUrl','idBackUrl','selfieUrl','idFront','idBack','selfie','documentUrl','document','passportUrl','licenseUrl','photoUrl','photo','imageUrl','image','fileUrl','file','idPhoto','idImage'];
       imgKeys.forEach(key => {
-        if (kyc[key] && typeof kyc[key] === 'string' && kyc[key].startsWith('http')) {
+        if (isImageSource(kyc[key])) {
           if (!imageUrls.includes(kyc[key])) imageUrls.push(kyc[key]);
         }
-        if (u[key] && typeof u[key] === 'string' && u[key].startsWith('http')) {
+        if (isImageSource(u[key])) {
           if (!imageUrls.includes(u[key])) imageUrls.push(u[key]);
         }
       });
       // Also scan all string values that look like image URLs
       [kyc, u].forEach(obj => {
         Object.values(obj).forEach(val => {
-          if (typeof val === 'string' && val.startsWith('http') && /\.(jpg|jpeg|png|gif|webp|bmp)/i.test(val)) {
+          if (isImageSource(val)) {
             if (!imageUrls.includes(val)) imageUrls.push(val);
           }
         });
@@ -1553,7 +1559,7 @@ function loadInvestments() {
 function loadNotifications() {
   let pendingDeposits = deposits.filter(d => d.status === "pending").length;
   let pendingWithdrawals = withdrawals.filter(w => w.status === "pending").length;
-  let pendingKyc = users.filter(u => (u.kycStatus || "pending") === "pending" && u.kyc).length;
+  let pendingKyc = users.filter(u => (u.kycStatus || "pending") === "pending" && (u.kycData || u.kyc)).length;
   let notifHTML = "";
 
   if (pendingDeposits > 0) {
@@ -1624,7 +1630,7 @@ function updateSidebarBadges() {
 
     const pendingDeposits = deposits.filter(d => d.status === "pending").length;
     const pendingWithdrawals = withdrawals.filter(w => w.status === "pending").length;
-    const pendingKyc = users.filter(u => (u.kycStatus || "pending") === "pending" && (u.kyc || u.kycStatus)).length;
+    const pendingKyc = users.filter(u => (u.kycStatus || "pending") === "pending" && (u.kycData || u.kyc || u.kycStatus)).length;
     const newUsersCount = users.filter(u => {
       const regTime = u.registeredAt || u.createdAt || 0;
       return (now - regTime) < oneDay;
