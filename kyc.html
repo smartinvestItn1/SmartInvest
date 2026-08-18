@@ -766,7 +766,8 @@ function updateKycUI() {
 
   card.classList.remove('verified', 'pending', 'rejected');
 
-  if (status === 'verified') {
+  // The admin page saves an accepted review as "approved".
+  if (status === 'approved') {
     card.classList.add('verified');
     title.innerText = 'Identity Verified';
     desc.innerText = 'Your account has passed all verification checks';
