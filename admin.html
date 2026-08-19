@@ -502,6 +502,9 @@
       opacity: 0.7;
     }
     .section-card h3 { display: flex; align-items: center; gap: 9px; margin-bottom: 22px; }
+    .section-card h3 svg { width: 19px; height: 19px; color: var(--blue); }
+    .section-card h3 .gold-icon { color: var(--gold); }
+    .section-card h3 .green-icon { color: var(--green); }
     .user-card, .deposit-card, .withdraw-card, .kyc-card {
       position: relative;
       padding: 22px;
@@ -582,6 +585,17 @@
     }
     .filter-tabs { padding: 5px; width: fit-content; max-width: 100%; border: 1px solid var(--border); border-radius: 14px; background: rgba(15,15,30,0.45); }
     .filter-tab { border: 0; }
+
+    /* Touch-friendly mobile application controls */
+    button { -webkit-tap-highlight-color: transparent; }
+    .action-btn, .toggle-btn, .filter-tab, .kyc-detail-toggle, .sidebar-logout, .nav-item {
+      min-height: 44px;
+      border-radius: 12px;
+    }
+    .action-btn, .toggle-btn, .kyc-detail-toggle { display: inline-flex; align-items: center; justify-content: center; }
+    .toggle-btn { padding: 10px 14px; font-size: 12px; }
+    .toggle-row { gap: 8px; }
+    .action-btn:active, .toggle-btn:active, .filter-tab:active, .kyc-detail-toggle:active { opacity: 0.78; }
 
     .status-badge {
       display: inline-block;
@@ -932,7 +946,7 @@
 <!-- MOBILE HEADER -->
 <div class="mobile-header">
   <button class="hamburger" onclick="toggleSidebar()">☰</button>
-  <h2>🔐 Admin</h2>
+  <h2>Admin</h2>
   <div style="width:40px;"></div>
 </div>
 
@@ -942,7 +956,7 @@
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
-    <h2>🔐 Admin Panel</h2>
+    <h2>Admin Panel</h2>
     <p>SmartInvest Management</p>
   </div>
 
@@ -1012,7 +1026,7 @@
 
   <!-- NOTIFICATIONS -->
   <div class="section-card" id="notifications">
-    <h3>🔔 Notifications</h3>
+    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>Notifications</h3>
     <div id="notificationsList">
       <p class="no-data">Loading notifications...</p>
     </div>
@@ -1020,7 +1034,7 @@
 
   <!-- USER CONTROL -->
   <div class="section-card" id="users">
-    <h3>👥 User Control</h3>
+    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>User Control</h3>
     <input id="searchUser" class="search-box" placeholder="Search users by username or email..." onkeyup="loadUsers()">
 
     <div class="filter-tabs" id="userFilterTabs">
@@ -1045,7 +1059,7 @@
 
   <!-- KYC REVIEWS — SEPARATE SECTION -->
   <div class="section-card" id="kycReviews">
-    <h3>🛡️ KYC Reviews</h3>
+    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>KYC Reviews</h3>
     <div class="filter-tabs" id="kycFilterTabs">
       <button class="filter-tab active" onclick="setKycFilter('all')">All</button>
       <button class="filter-tab" onclick="setKycFilter('pending')">Pending</button>
@@ -1059,7 +1073,7 @@
 
   <!-- SEND FUNDS -->
   <div class="section-card" id="sendFunds">
-    <h3>💸 Send Funds to User</h3>
+    <h3><svg class="green-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4Z"/></svg>Send Funds to User</h3>
     <div class="send-funds-form">
       <div class="form-group">
         <label>Account ID</label>
@@ -1076,7 +1090,7 @@
 
   <!-- DEPOSITS -->
   <div class="section-card" id="deposits">
-    <h3>💰 Deposits</h3>
+    <h3><svg class="green-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"/></svg>Deposits</h3>
     <div class="filter-tabs">
       <button class="filter-tab active" onclick="setFilter('all')">All</button>
       <button class="filter-tab" onclick="setFilter('pending')">Pending</button>
@@ -1090,7 +1104,7 @@
 
   <!-- WITHDRAWALS -->
   <div class="section-card" id="withdrawals">
-    <h3>💸 Withdrawals</h3>
+    <h3><svg class="gold-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"/></svg>Withdrawals</h3>
     <div class="filter-tabs">
       <button class="filter-tab active" onclick="setWithdrawFilter('all')">All</button>
       <button class="filter-tab" onclick="setWithdrawFilter('pending')">Pending</button>
@@ -1104,7 +1118,7 @@
 
   <!-- INVESTMENTS -->
   <div class="section-card" id="investments">
-    <h3>📈 Investments</h3>
+    <h3><svg class="green-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 17 6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>Investments</h3>
     <div class="investment-summary" id="investmentSummary">
       <div class="investment-stat active">
         <span class="investment-stat-label">Active investments</span>
@@ -1263,7 +1277,7 @@ window.sendFunds = async function() {
     const transferRef = push(ref(db, 'adminTransfers'));
     await update(ref(db), { ['adminTransfers/' + transferRef.key]: transferRecord });
 
-    showSendResult(`✅ Successfully sent $${amount.toFixed(2)} to ${targetUser.username}. New balance: $${newBalance.toFixed(2)}`, 'success');
+    showSendResult(`Successfully sent $${amount.toFixed(2)} to ${targetUser.username}. New balance: $${newBalance.toFixed(2)}`, 'success');
     accountIdInput.value = '';
     amountInput.value = '';
     loadData();
@@ -1303,29 +1317,24 @@ function loadUsers() {
       let flags = u.adminFlags || { canInvest: true, canWithdraw: true, canTransfer: true, blockReason: "" };
       return `
       <div class="user-card">
-        <h4>👤 ${u.username}</h4>
-        <p>📧 Email: ${u.email || 'N/A'}</p>
-        <p class="balance">💰 Balance: $${Number(u.balance || 0).toFixed(2)}</p>
-        <p>🏷️ Role: ${u.role || 'user'}</p>
-        <p>🆔 Account ID: ${u.accountId || 'N/A'}</p>
-        <p>💼 Wallet: ${u.wallet ? '<span class="wallet-address">' + u.wallet + '</span>' : '<span style="color:#ff4444;">❌ Not set</span>'}</p>
+        <h4>${u.username}</h4><p>Email: ${u.email || 'N/A'}</p><p class="balance">Balance: $${Number(u.balance || 0).toFixed(2)}</p><p>Role: ${u.role || 'user'}</p><p>Account ID: ${u.accountId || 'N/A'}</p><p>Wallet: ${u.wallet ? '<span class="wallet-address">' + u.wallet + '</span>' : '<span style="color:#ff4444;">Not set</span>'}</p>
 
         <div class="toggle-row">
           <button class="toggle-btn ${flags.canInvest !== false ? 'enabled' : 'disabled'}" 
             onclick="toggleInvest('${u.username}', ${flags.canInvest !== false})">
-            ${flags.canInvest !== false ? '✅ Invest ON' : '❌ Invest OFF'}
+            ${flags.canInvest !== false ? 'Invest enabled' : 'Invest disabled'}
           </button>
           <button class="toggle-btn ${flags.canWithdraw !== false ? 'enabled' : 'disabled'}" 
             onclick="toggleWithdraw('${u.username}', ${flags.canWithdraw !== false})">
-            ${flags.canWithdraw !== false ? '✅ Withdraw ON' : '❌ Withdraw OFF'}
+            ${flags.canWithdraw !== false ? 'Withdraw enabled' : 'Withdraw disabled'}
           </button>
           <button class="toggle-btn ${flags.canTransfer !== false ? 'transfer-on' : 'transfer-off'}" 
             onclick="toggleTransfer('${u.username}', ${flags.canTransfer !== false})">
-            ${flags.canTransfer !== false ? '✅ Transfer ON' : '❌ Transfer OFF'}
+            ${flags.canTransfer !== false ? 'Transfer enabled' : 'Transfer disabled'}
           </button>
         </div>
 
-        ${flags.blockReason ? `<p style="color:#ff4444; margin-top:10px;">📝 Reason: ${flags.blockReason}</p>` : ''}
+        ${flags.blockReason ? `<p style="color:#ff4444; margin-top:10px;">Reason: ${flags.blockReason}</p>` : ''}
 
         <div style="margin-top:15px;">
           <input type="text" id="blockReason_${u.username}" placeholder="Block reason (optional)" 
@@ -1358,11 +1367,9 @@ function loadNewUsers() {
 
       return `
       <div class="user-card">
-        <h4>👤 ${u.username}</h4>
-        <p>📧 Email: ${u.email || 'N/A'}</p>
+        <h4>${u.username}</h4><p>Email: ${u.email || 'N/A'}</p>
         <p>🆔 Account ID: ${u.accountId || 'N/A'}</p>
-        <p>💰 Balance: $${Number(u.balance || 0).toFixed(2)}</p>
-        <p>⏰ Registered: ${hoursAgo}h ${minsAgo}m ago</p>
+        <p>Balance: $${Number(u.balance || 0).toFixed(2)}</p><p>Registered: ${hoursAgo}h ${minsAgo}m ago</p>
       </div>`;
     }).join("");
 }
@@ -1488,17 +1495,15 @@ function loadKycReviews() {
             </div>
           </div>
         </div>
-      ` : (u.kycRejectionReason ? `<p style="color:var(--red); margin-top:10px; font-size:13px;">📝 Rejection reason: ${u.kycRejectionReason}</p>` : '');
+      ` : (u.kycRejectionReason ? `<p style="color:var(--red); margin-top:10px; font-size:13px;">Rejection reason: ${u.kycRejectionReason}</p>` : '');
 
       return `
       <div class="kyc-card">
-        <h4>👤 ${u.username}</h4>
-        <p>📧 Email: ${u.email || 'N/A'}</p>
+        <h4>${u.username}</h4><p>Email: ${u.email || 'N/A'}</p>
         <p>🆔 Account ID: ${u.accountId || 'N/A'}</p>
-        <p>📊 KYC Status: <span class="status-badge ${status}">${status.toUpperCase()}</span></p>
-        <p>📅 Submitted: ${subDate}</p>
+        <p>KYC status: <span class="status-badge ${status}">${status.toUpperCase()}</span></p><p>Submitted: ${subDate}</p>
         <button class="kyc-detail-toggle" onclick="toggleKycPanel('${u.username}')" id="kyc-toggle-${u.username}">
-          🔍 Review KYC Details
+          Review KYC Details
         </button>
         ${detailPanelHTML}
         ${actionButtons}
@@ -1513,10 +1518,10 @@ window.toggleKycPanel = function(username) {
   const isOpen = panel.classList.contains('open');
   if (isOpen) {
     panel.classList.remove('open');
-    btn.textContent = '🔍 Review KYC Details';
+    btn.textContent = 'Review KYC Details';
   } else {
     panel.classList.add('open');
-    btn.textContent = '🔼 Hide KYC Details';
+    btn.textContent = 'Hide KYC Details';
   }
 };
 
@@ -1547,7 +1552,7 @@ window.submitKycReject = async function(username) {
   if (!confirm('Reject KYC for ' + username + '?' + (reason ? '\nReason: ' + reason : ''))) return;
   try {
     await update(ref(db, 'users/' + username), { kycStatus: "rejected", kycRejectionReason: reason || "" });
-    alert('❌ KYC rejected for ' + username);
+    alert('KYC rejected for ' + username);
     loadData();
   } catch (error) {
     alert("Error: " + error.message);
@@ -1558,7 +1563,7 @@ window.approveKYC = async function(username) {
   if (!confirm(`Approve KYC for ${username}?`)) return;
   try {
     await update(ref(db, 'users/' + username), { kycStatus: "approved" });
-    alert(`✅ KYC approved for ${username}`);
+    alert(`KYC approved for ${username}`);
     loadData();
   } catch (error) {
     alert("Error: " + error.message);
@@ -1581,7 +1586,7 @@ window.toggleInvest = async function(username, currentState) {
   if (reason === null) return;
   try {
     await update(ref(db, 'users/' + username + '/adminFlags'), { canInvest: newState, blockReason: reason || "" });
-    alert(newState ? `✅ Investing enabled for ${username}` : `❌ Investing disabled for ${username}`);
+    alert(newState ? `Investing enabled for ${username}` : `Investing disabled for ${username}`);
     loadData();
   } catch (error) {
     alert("Error: " + error.message);
@@ -1594,7 +1599,7 @@ window.toggleWithdraw = async function(username, currentState) {
   if (reason === null) return;
   try {
     await update(ref(db, 'users/' + username + '/adminFlags'), { canWithdraw: newState, blockReason: reason || "" });
-    alert(newState ? `✅ Withdrawal enabled for ${username}` : `❌ Withdrawal disabled for ${username}`);
+    alert(newState ? `Withdrawal enabled for ${username}` : `Withdrawal disabled for ${username}`);
     loadData();
   } catch (error) {
     alert("Error: " + error.message);
@@ -1607,7 +1612,7 @@ window.toggleTransfer = async function(username, currentState) {
   if (reason === null) return;
   try {
     await update(ref(db, 'users/' + username + '/adminFlags'), { canTransfer: newState, blockReason: reason || "" });
-    alert(newState ? `✅ Transfers enabled for ${username}` : `❌ Transfers disabled for ${username}`);
+    alert(newState ? `Transfers enabled for ${username}` : `Transfers disabled for ${username}`);
     loadData();
   } catch (error) {
     alert("Error: " + error.message);
@@ -1618,7 +1623,7 @@ window.saveBlockReason = async function(username) {
   let reason = document.getElementById('blockReason_' + username).value;
   try {
     await update(ref(db, 'users/' + username + '/adminFlags'), { blockReason: reason });
-    alert(`✅ Block reason saved for ${username}`);
+    alert(`Block reason saved for ${username}`);
     loadData();
   } catch (error) {
     alert("Error: " + error.message);
@@ -1631,11 +1636,7 @@ function loadDeposits() {
     list.length === 0 ? '<p class="no-data">No deposits found.</p>' :
     list.map(d => `
       <div class="deposit-card">
-        <p><b>👤 User:</b> ${d.user}</p>
-        <p><b>💰 Amount:</b> $${d.amount}</p>
-        <p><b>🪙 Coin:</b> ${d.coin}</p>
-        <p><b>📊 Status:</b> <span class="status-badge ${d.status}">${d.status.toUpperCase()}</span></p>
-        <p><b>📅 Time:</b> ${new Date(d.time).toLocaleString()}</p>
+        <p><b>User:</b> ${d.user}</p><p><b>Amount:</b> $${d.amount}</p><p><b>Coin:</b> ${d.coin}</p><p><b>Status:</b> <span class="status-badge ${d.status}">${d.status.toUpperCase()}</span></p><p><b>Time:</b> ${new Date(d.time).toLocaleString()}</p>
         ${d.status === "pending" ? `
           <button class="action-btn approve-btn" onclick="approveDeposit('${d.id}', '${d.user}', ${d.amount})">Approve</button>
           <button class="action-btn reject-btn" onclick="rejectDeposit('${d.id}')">Reject</button>
@@ -1653,7 +1654,7 @@ window.approveDeposit = async function(depositId, username, amount) {
       let newBalance = currentBalance + Number(amount);
       await update(ref(db, 'users/' + username), { balance: newBalance });
     }
-    alert(`✅ Deposit approved! $${amount} added to ${username}'s balance.`);
+    alert(`Deposit approved. $${amount} added to ${username}'s balance.`);
     loadData();
   } catch (error) {
     alert("Error approving deposit: " + error.message);
@@ -1665,7 +1666,7 @@ window.rejectDeposit = async function(depositId) {
   if (!confirm("Reject this deposit?")) return;
   try {
     await update(ref(db, 'deposits/' + depositId), { status: "rejected" });
-    alert("❌ Deposit rejected.");
+    alert("Deposit rejected.");
     loadData();
   } catch (error) {
     alert("Error rejecting deposit: " + error.message);
@@ -1679,12 +1680,7 @@ function loadWithdrawals() {
     list.length === 0 ? '<p class="no-data">No withdrawals found.</p>' :
     list.map(w => `
       <div class="withdraw-card">
-        <p><b>👤 User:</b> ${w.user}</p>
-        <p><b>💰 Amount:</b> $${w.amount}</p>
-        <p><b>🪙 Coin:</b> ${w.coin || 'N/A'}</p>
-        <p><b>💼 Wallet:</b> <span class="wallet-address">${w.wallet}</span></p>
-        <p><b>📊 Status:</b> <span class="status-badge ${w.status}">${w.status.toUpperCase()}</span></p>
-        <p><b>📅 Time:</b> ${new Date(w.time).toLocaleString()}</p>
+        <p><b>User:</b> ${w.user}</p><p><b>Amount:</b> $${w.amount}</p><p><b>Coin:</b> ${w.coin || 'N/A'}</p><p><b>Wallet:</b> <span class="wallet-address">${w.wallet}</span></p><p><b>Status:</b> <span class="status-badge ${w.status}">${w.status.toUpperCase()}</span></p><p><b>Time:</b> ${new Date(w.time).toLocaleString()}</p>
         ${w.status === "pending" ? `
           <button class="action-btn approve-btn" onclick="approveWithdraw('${w.id}', '${w.user}', ${w.amount})">Approve</button>
           <button class="action-btn reject-btn" onclick="rejectWithdraw('${w.id}', '${w.user}', ${w.amount})">Reject</button>
@@ -1696,7 +1692,7 @@ window.approveWithdraw = async function(withdrawId, username, amount) {
   if (!confirm(`Approve withdrawal of $${amount} for ${username}?`)) return;
   try {
     await update(ref(db, 'withdrawals/' + withdrawId), { status: "approved" });
-    alert(`✅ Withdrawal approved! $${amount} was already deducted from ${username}'s balance.`);
+    alert(`Withdrawal approved. $${amount} was already deducted from ${username}'s balance.`);
     loadData();
   } catch (error) {
     alert("Error approving withdrawal: " + error.message);
@@ -1714,7 +1710,7 @@ window.rejectWithdraw = async function(withdrawId, username, amount) {
       let newBalance = currentBalance + Number(amount);
       await update(ref(db, 'users/' + username), { balance: newBalance });
     }
-    alert(`❌ Withdrawal rejected. $${amount} has been refunded to ${username}'s balance.`);
+    alert(`Withdrawal rejected. $${amount} has been refunded to ${username}'s balance.`);
     loadData();
   } catch (error) {
     alert("Error rejecting withdrawal: " + error.message);
@@ -1835,21 +1831,21 @@ function loadNotifications() {
   if (pendingDeposits > 0) {
     notifHTML += `
       <div class="notification-box">
-        <p>💰 ${pendingDeposits} pending deposit(s) waiting for approval</p>
+        <p>${pendingDeposits} pending deposit(s) waiting for approval</p>
         <p class="time">Check deposits section below</p>
       </div>`;
   }
   if (pendingWithdrawals > 0) {
     notifHTML += `
       <div class="notification-box">
-        <p>💸 ${pendingWithdrawals} pending withdrawal(s) waiting for approval</p>
+        <p>${pendingWithdrawals} pending withdrawal(s) waiting for approval</p>
         <p class="time">Check withdrawals section below</p>
       </div>`;
   }
   if (pendingKyc > 0) {
     notifHTML += `
       <div class="notification-box">
-        <p>🛡️ ${pendingKyc} KYC submission(s) pending review</p>
+        <p>${pendingKyc} KYC submission(s) pending review</p>
         <p class="time">Check KYC Reviews section below</p>
       </div>`;
   }
