@@ -347,7 +347,67 @@
     .user-card p { color: var(--text-muted); margin: 6px 0; font-size: 14px; }
     .user-card .balance { color: var(--gold); font-size: 20px; font-weight: 700; }
 
-    .toggle-row { display: flex; gap: 12px; margin-top: 15px; flex-wrap: wrap; }
+    .toggle-row { display: flex; gap: 18px; margin-top: 15px; flex-wrap: wrap; }
+
+    .switch-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      cursor: pointer;
+      user-select: none;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .switch-control input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .switch {
+      position: relative;
+      width: 46px;
+      height: 26px;
+      flex-shrink: 0;
+      border-radius: 999px;
+      background: rgba(255, 68, 68, 0.22);
+      border: 1px solid rgba(255, 68, 68, 0.4);
+      transition: all 0.25s ease;
+    }
+
+    .switch::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+      transition: transform 0.25s ease;
+    }
+
+    .switch-control input:checked + .switch {
+      background: rgba(0, 200, 81, 0.25);
+      border-color: rgba(0, 200, 81, 0.55);
+      box-shadow: 0 0 16px rgba(0, 200, 81, 0.18);
+    }
+
+    .switch-control input:checked + .switch::after {
+      transform: translateX(20px);
+    }
+
+    .switch-control input:focus-visible + .switch {
+      outline: 2px solid var(--blue);
+      outline-offset: 2px;
+    }
+
+    .switch-label {
+      min-width: 76px;
+    }
 
     .toggle-btn {
       padding: 10px 20px;
@@ -484,7 +544,7 @@
     .investment-progress { height: 5px; margin-top: 11px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,0.07); }
     .investment-progress-bar { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--green), #42e88a); transition: width 1s linear; }
     .investment-card.completed .investment-progress-bar { background: var(--text-dim); }
-
+    
     /* Shared redesigned workspace cards */
     .section-card {
       position: relative;
@@ -642,7 +702,6 @@
       box-shadow: 0 0 15px rgba(51, 181, 229, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
     }
     .view-btn:hover { box-shadow: 0 0 25px rgba(51, 181, 229, 0.3), 0 8px 20px rgba(0,0,0,0.2); border-color: rgba(51, 181, 229, 0.4); }
-
     .send-btn {
       background: linear-gradient(135deg, rgba(0,200,81,0.2), rgba(0,180,70,0.15));
       color: var(--green);
@@ -903,9 +962,8 @@
       cursor: pointer;
       display: flex;
       align-items: center;
-      justify-content: center;
-    }
-    .img-lightbox .close-lightbox:hover { background: rgba(255,255,255,0.2); }
+      justify-content: center;}
+      .img-lightbox .close-lightbox:hover { background: rgba(255,255,255,0.2); }
 
     @media (max-width: 768px) {
       .kyc-detail-grid { grid-template-columns: 1fr; }
@@ -1036,8 +1094,7 @@
   <div class="section-card" id="users">
     <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>User Control</h3>
     <input id="searchUser" class="search-box" placeholder="Search users by username or email..." onkeyup="loadUsers()">
-
-    <div class="filter-tabs" id="userFilterTabs">
+          <div class="filter-tabs" id="userFilterTabs">
       <button class="filter-tab active" onclick="setUserFilter('all')">All Users</button>
       <button class="filter-tab" onclick="setUserFilter('active')">Active</button>
       <button class="filter-tab" onclick="setUserFilter('blocked')">Blocked</button>
@@ -1157,7 +1214,7 @@ onAuthStateChanged(auth, (user) => {
     return;
   }
   loadData();
-});
+  });
 
 let users = [];
 let deposits = [];
@@ -1300,8 +1357,8 @@ function loadUsers() {
 
   if (userFilterStatus !== "all") {
     filtered = filtered.filter(u => {
-      let f = u.adminFlags || { canInvest: true, canWithdraw: true, canTransfer: true };
-      let isBlocked = f.canInvest === false || f.canWithdraw === false || f.canTransfer === false;
+      let f = u.adminFlags || { canDeposit: true, canWithdraw: true, canTransfer: true };
+      let isBlocked = f.canDeposit === false || f.canWithdraw === false || f.canTransfer === false;
       let isTransferBlocked = f.canTransfer === false;
 
       if (userFilterStatus === "active") return !isBlocked;
@@ -1314,26 +1371,36 @@ function loadUsers() {
   document.getElementById("usersList").innerHTML =
     filtered.length === 0 ? '<p class="no-data">No users found.</p>' :
     filtered.map(u => {
-      let flags = u.adminFlags || { canInvest: true, canWithdraw: true, canTransfer: true, blockReason: "" };
+      let flags = u.adminFlags || { canDeposit: true, canWithdraw: true, canTransfer: true, blockReason: "" };
       return `
       <div class="user-card">
         <h4>${u.username}</h4><p>Email: ${u.email || 'N/A'}</p><p class="balance">Balance: $${Number(u.balance || 0).toFixed(2)}</p><p>Role: ${u.role || 'user'}</p><p>Account ID: ${u.accountId || 'N/A'}</p><p>Wallet: ${u.wallet ? '<span class="wallet-address">' + u.wallet + '</span>' : '<span style="color:#ff4444;">Not set</span>'}</p>
 
         <div class="toggle-row">
-          <button class="toggle-btn ${flags.canInvest !== false ? 'enabled' : 'disabled'}" 
-            onclick="toggleInvest('${u.username}', ${flags.canInvest !== false})">
-            ${flags.canInvest !== false ? 'Invest enabled' : 'Invest disabled'}
-          </button>
-          <button class="toggle-btn ${flags.canWithdraw !== false ? 'enabled' : 'disabled'}" 
-            onclick="toggleWithdraw('${u.username}', ${flags.canWithdraw !== false})">
-            ${flags.canWithdraw !== false ? 'Withdraw enabled' : 'Withdraw disabled'}
-          </button>
-          <button class="toggle-btn ${flags.canTransfer !== false ? 'transfer-on' : 'transfer-off'}" 
-            onclick="toggleTransfer('${u.username}', ${flags.canTransfer !== false})">
-            ${flags.canTransfer !== false ? 'Transfer enabled' : 'Transfer disabled'}
-          </button>
-        </div>
+          <label class="switch-control">
+            <input type="checkbox"
+              ${flags.canDeposit !== false ? 'checked' : ''}
+              onchange="toggleDeposit('${u.username}', this.checked)">
+            <span class="switch"></span>
+            <span class="switch-label">Deposit</span>
+          </label>
 
+          <label class="switch-control">
+            <input type="checkbox"
+              ${flags.canWithdraw !== false ? 'checked' : ''}
+              onchange="toggleWithdraw('${u.username}', this.checked)">
+            <span class="switch"></span>
+            <span class="switch-label">Withdraw</span>
+          </label>
+
+          <label class="switch-control">
+            <input type="checkbox"
+              ${flags.canTransfer !== false ? 'checked' : ''}
+              onchange="toggleTransfer('${u.username}', this.checked)">
+            <span class="switch"></span>
+            <span class="switch-label">Transfer</span>
+          </label>
+        </div>
         ${flags.blockReason ? `<p style="color:#ff4444; margin-top:10px;">Reason: ${flags.blockReason}</p>` : ''}
 
         <div style="margin-top:15px;">
@@ -1479,7 +1546,6 @@ function loadKycReviews() {
           ` : ''}
         </div>
       ` : `<div class="kyc-detail-panel" id="kyc-panel-${u.username}"><p style="color:var(--text-dim); font-size:13px; padding:10px 0;">No detailed KYC data available.</p></div>`;
-
       const actionButtons = status === "pending" ? `
         <div class="kyc-review-actions">
           <div class="toggle-row">
@@ -1580,42 +1646,33 @@ function setKycFilter(status) {
   loadKycReviews();
 }
 
-window.toggleInvest = async function(username, currentState) {
-  let newState = !currentState;
-  let reason = prompt(newState ? "Enable investing for " + username + "?" : "Disable investing for " + username + "?\n\nEnter reason (optional):");
-  if (reason === null) return;
+window.toggleDeposit = async function(username, newState) {
   try {
-    await update(ref(db, 'users/' + username + '/adminFlags'), { canInvest: newState, blockReason: reason || "" });
-    alert(newState ? `Investing enabled for ${username}` : `Investing disabled for ${username}`);
+    await update(ref(db, 'users/' + username + '/adminFlags'), { canDeposit: newState });
     loadData();
   } catch (error) {
     alert("Error: " + error.message);
+    loadData();
   }
 };
 
-window.toggleWithdraw = async function(username, currentState) {
-  let newState = !currentState;
-  let reason = prompt(newState ? "Enable withdrawal for " + username + "?" : "Disable withdrawal for " + username + "?\n\nEnter reason (optional):");
-  if (reason === null) return;
+window.toggleWithdraw = async function(username, newState) {
   try {
-    await update(ref(db, 'users/' + username + '/adminFlags'), { canWithdraw: newState, blockReason: reason || "" });
-    alert(newState ? `Withdrawal enabled for ${username}` : `Withdrawal disabled for ${username}`);
+    await update(ref(db, 'users/' + username + '/adminFlags'), { canWithdraw: newState });
     loadData();
   } catch (error) {
     alert("Error: " + error.message);
+    loadData();
   }
 };
 
-window.toggleTransfer = async function(username, currentState) {
-  let newState = !currentState;
-  let reason = prompt(newState ? "Enable transfers for " + username + "?" : "Disable transfers for " + username + "?\n\nEnter reason (optional):");
-  if (reason === null) return;
+window.toggleTransfer = async function(username, newState) {
   try {
-    await update(ref(db, 'users/' + username + '/adminFlags'), { canTransfer: newState, blockReason: reason || "" });
-    alert(newState ? `Transfers enabled for ${username}` : `Transfers disabled for ${username}`);
+    await update(ref(db, 'users/' + username + '/adminFlags'), { canTransfer: newState });
     loadData();
   } catch (error) {
     alert("Error: " + error.message);
+    loadData();
   }
 };
 
