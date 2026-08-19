@@ -188,7 +188,10 @@
       color: var(--text-primary); font-size: 13px; font-weight: 500; z-index: 9999;
       box-shadow: 0 8px 30px rgba(0,0,0,0.5), 0 0 20px rgba(255,187,51,0.05);
       transition: all 1s ease; opacity: 0; pointer-events: none; max-width: 280px; line-height: 1.5;
+      right: 22px !important; bottom: 96px !important; left: auto !important; top: auto !important;
     }
+    .live-profit-toast .profit-demo-label { color: var(--text-muted); font-size: 10px; font-weight: 700; letter-spacing: 0.7px; text-transform: uppercase; margin-bottom: 4px; }
+    .float-feedback { display: none !important; }
     .live-profit-toast .profit-amount { color: var(--gold); font-weight: 700; }
     .live-profit-toast .profit-plan { color: var(--text-secondary); font-size: 11px; }
     .live-profit-toast .profit-time { color: var(--text-muted); font-size: 11px; }
@@ -925,6 +928,8 @@
   ];
 
   function showLiveProfit() {
+    // Keep one fixed notification visible instead of scattering pop-ups across the page.
+    document.querySelectorAll('.live-profit-toast').forEach(toast => toast.remove());
     let name = names[Math.floor(Math.random() * names.length)];
     let plan = planNames[Math.floor(Math.random() * planNames.length)];
     let country = countries[Math.floor(Math.random() * countries.length)];
@@ -935,12 +940,11 @@
     let div = document.createElement("div");
     div.className = "live-profit-toast";
     div.innerHTML = `
+      <div class="profit-demo-label">Demo activity</div>
       <div>${country.flag} <strong>${name}</strong> just earned <span class="profit-amount">+$${amount.toLocaleString()}</span></div>
       <div class="profit-plan">${plan} Plan &bull; ${country.name}</div>
       <div class="profit-time">${time}</div>
     `;
-    div.style.left = Math.random() * 70 + 10 + "vw";
-    div.style.top = Math.random() * 60 + 10 + "vh";
     document.body.appendChild(div);
     requestAnimationFrame(() => { div.style.opacity = "1"; });
     setTimeout(() => { div.style.opacity = "0"; setTimeout(() => div.remove(), 1000); }, 4000);
