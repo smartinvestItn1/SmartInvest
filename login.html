@@ -10,7 +10,7 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #000000;
+      background: #0b0a08;
       color: #e8e8ec;
       font-family: 'Inter', 'Segoe UI', sans-serif;
       font-weight: 700;
@@ -29,14 +29,14 @@
       position: fixed;
       top: -50%; left: -50%;
       width: 200%; height: 200%;
-      background: radial-gradient(circle at 50% 50%, rgba(212, 160, 23, 0.03) 0%, transparent 50%),
-                  radial-gradient(circle at 20% 80%, rgba(255, 107, 0, 0.02) 0%, transparent 40%);
+      background: radial-gradient(circle at 50% 32%, rgba(212, 160, 23, 0.055) 0%, transparent 48%),
+                  radial-gradient(circle at 20% 80%, rgba(255, 107, 0, 0.025) 0%, transparent 40%);
       pointer-events: none; z-index: 0;
-      animation: bgPulse 8s ease-in-out infinite;
+      animation: bgPulse 14s ease-in-out infinite;
     }
     @keyframes bgPulse {
       0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.1); opacity: 0.8; }
+      50% { transform: scale(1.035); opacity: 0.88; }
     }
 
     /* ===== LIVE TICKER ===== */
@@ -100,15 +100,17 @@
     .back-link svg { width: 16px; height: 16px; }
 
     .login-card {
-      background: linear-gradient(145deg, rgba(20,20,20,0.95), rgba(10,10,10,0.98));
-      border: 1px solid rgba(212, 160, 23, 0.1);
+      background: linear-gradient(145deg, rgba(29,27,22,0.96), rgba(13,12,10,0.98));
+      border: 1px solid rgba(212, 160, 23, 0.16);
       border-radius: 24px; padding: 40px 32px;
       backdrop-filter: blur(20px);
-      box-shadow: 0 25px 80px rgba(0,0,0,0.6),
-                  0 0 0 1px rgba(212,160,23,0.05),
+      box-shadow: 0 20px 56px rgba(0,0,0,0.45),
+                  0 0 0 1px rgba(212,160,23,0.07),
                   inset 0 1px 0 rgba(255,255,255,0.03);
       position: relative; overflow: hidden;
+      animation: cardEnter 0.45s ease-out both;
     }
+    @keyframes cardEnter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .login-card::before {
       content: ""; position: absolute; top: 0;
       left: 20%; right: 20%; height: 2px;
@@ -127,7 +129,7 @@
     .logo-ring::after {
       content: ""; position: absolute; inset: -4px;
       border-radius: 24px; border: 1px solid rgba(212,160,23,0.12);
-      animation: ringPulse 3s ease-in-out infinite;
+      animation: ringPulse 5s ease-in-out infinite;
     }
     @keyframes ringPulse {
       0%, 100% { transform: scale(1); opacity: 1; }
@@ -221,6 +223,10 @@
     .login-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(212,160,23,0.3); }
     .login-btn:active { transform: scale(0.98); }
     .login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }
 
     .btn-spinner {
       width: 18px; height: 18px;
@@ -687,7 +693,7 @@
    <script type="module">
   import { auth, db } from "./firebase.js";
   import { signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { ref, get, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
   emailjs.init("adbMnb80leKvWnxdc");
 
@@ -714,7 +720,7 @@
 
     // Spawn particles
     particles.innerHTML = '';
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
       const p = document.createElement('div');
       p.className = 'w-particle';
       p.style.left = (20 + Math.random() * 60) + '%';
@@ -744,8 +750,8 @@
         } else {
           window.location.href = "dashboard.html";
         }
-      }, 500);
-    }, 2800);
+      }, 250);
+    }, 1500);
   }
 
   window.togglePassword = function() {
@@ -816,7 +822,8 @@
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
-      const usersSnapshot = await get(ref(db, 'users'));
+      // Request only this account record instead of downloading every user.
+      const usersSnapshot = await get(query(ref(db, 'users'), orderByChild('uid'), equalTo(user.uid)));
       
       if (!usersSnapshot.exists()) {
         result.className = "show error";
