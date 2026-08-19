@@ -600,39 +600,28 @@
     .status-badge.completed { background: rgba(136, 136, 160, 0.12); color: var(--text-muted); border: 1px solid rgba(136, 136, 160, 0.25); }
 
     .action-btn {
-      padding: 12px 22px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 10px;
+      padding: 10px 16px;
+      border: 1px solid transparent;
+      border-radius: 8px;
       cursor: pointer;
-      font-weight: 600;
-      font-size: 13px;
+      font-weight: 700;
+      font-size: 12px;
       font-family: 'Inter', sans-serif;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
+      letter-spacing: 0.25px;
+      transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
       position: relative;
-      overflow: hidden;
       background: rgba(15, 15, 30, 0.8);
       color: white;
     }
-    .action-btn::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
-      transition: left 0.5s ease;
-    }
-    .action-btn:hover::before { left: 100%; }
-    .action-btn:hover { transform: translateY(-2px); }
-    .action-btn:active { transform: scale(0.97); }
+    .action-btn:hover { transform: none; }
+    .action-btn:active { transform: none; }
+    .action-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 
-    .approve-btn { color: var(--green); box-shadow: 0 0 15px rgba(0, 200, 81, 0.15), inset 0 1px 0 rgba(255,255,255,0.05); }
-    .approve-btn:hover { box-shadow: 0 0 25px rgba(0, 200, 81, 0.3), 0 8px 20px rgba(0,0,0,0.2); border-color: rgba(0, 200, 81, 0.4); }
+    .approve-btn { background: #0b9d51; color: #fff; border-color: #0b9d51; box-shadow: none; }
+    .approve-btn:hover { background: #078645; border-color: #078645; box-shadow: 0 4px 12px rgba(0, 200, 81, 0.18); }
 
-    .reject-btn { color: var(--red); box-shadow: 0 0 15px rgba(255, 68, 68, 0.15), inset 0 1px 0 rgba(255,255,255,0.05); }
-    .reject-btn:hover { box-shadow: 0 0 25px rgba(255, 68, 68, 0.3), 0 8px 20px rgba(0,0,0,0.2); border-color: rgba(255, 68, 68, 0.4); }
+    .reject-btn { background: transparent; color: #ff7575; border-color: rgba(255, 117, 117, 0.48); box-shadow: none; }
+    .reject-btn:hover { background: rgba(255, 68, 68, 0.1); color: #fff; border-color: #ff5757; box-shadow: none; }
 
     .view-btn {
       color: var(--blue);
@@ -1487,14 +1476,14 @@ function loadKycReviews() {
       const actionButtons = status === "pending" ? `
         <div class="kyc-review-actions">
           <div class="toggle-row">
-            <button class="action-btn approve-btn" onclick="approveKYC('${u.username}')">✅ Approve KYC</button>
-            <button class="action-btn reject-btn" onclick="showKycRejectForm('${u.username}')">❌ Reject KYC</button>
+            <button class="action-btn approve-btn" onclick="approveKYC('${u.username}')">Approve KYC</button>
+            <button class="action-btn reject-btn" onclick="showKycRejectForm('${u.username}')">Reject KYC</button>
           </div>
           <div class="kyc-reject-box" id="kyc-reject-box-${u.username}">
             <label>Rejection reason (optional)</label>
             <textarea id="kyc-reject-reason-${u.username}" placeholder="Enter reason for rejection..."></textarea>
             <div class="reject-submit-row">
-              <button class="action-btn reject-btn" onclick="submitKycReject('${u.username}')">Confirm Reject</button>
+              <button class="action-btn reject-btn" onclick="submitKycReject('${u.username}')">Confirm rejection</button>
               <button class="action-btn cancel-btn" onclick="hideKycRejectForm('${u.username}')">Cancel</button>
             </div>
           </div>
@@ -1648,8 +1637,8 @@ function loadDeposits() {
         <p><b>📊 Status:</b> <span class="status-badge ${d.status}">${d.status.toUpperCase()}</span></p>
         <p><b>📅 Time:</b> ${new Date(d.time).toLocaleString()}</p>
         ${d.status === "pending" ? `
-          <button class="action-btn approve-btn" onclick="approveDeposit('${d.id}', '${d.user}', ${d.amount})">✅ Approve</button>
-          <button class="action-btn reject-btn" onclick="rejectDeposit('${d.id}')">❌ Reject</button>
+          <button class="action-btn approve-btn" onclick="approveDeposit('${d.id}', '${d.user}', ${d.amount})">Approve</button>
+          <button class="action-btn reject-btn" onclick="rejectDeposit('${d.id}')">Reject</button>
         ` : ""}
       </div>`).join("");
 }
@@ -1697,8 +1686,8 @@ function loadWithdrawals() {
         <p><b>📊 Status:</b> <span class="status-badge ${w.status}">${w.status.toUpperCase()}</span></p>
         <p><b>📅 Time:</b> ${new Date(w.time).toLocaleString()}</p>
         ${w.status === "pending" ? `
-          <button class="action-btn approve-btn" onclick="approveWithdraw('${w.id}', '${w.user}', ${w.amount})">✅ Approve</button>
-          <button class="action-btn reject-btn" onclick="rejectWithdraw('${w.id}', '${w.user}', ${w.amount})">❌ Reject</button>
+          <button class="action-btn approve-btn" onclick="approveWithdraw('${w.id}', '${w.user}', ${w.amount})">Approve</button>
+          <button class="action-btn reject-btn" onclick="rejectWithdraw('${w.id}', '${w.user}', ${w.amount})">Reject</button>
         ` : ""}
       </div>`).join("");
 }
