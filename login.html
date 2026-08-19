@@ -693,7 +693,7 @@
    <script type="module">
   import { auth, db } from "./firebase.js";
   import { signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { ref, get, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
   emailjs.init("adbMnb80leKvWnxdc");
 
@@ -822,8 +822,8 @@
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
-      // Request only this account record instead of downloading every user.
-      const usersSnapshot = await get(query(ref(db, 'users'), orderByChild('uid'), equalTo(user.uid)));
+      // Read the existing user collection without requiring a Firebase index.
+      const usersSnapshot = await get(ref(db, 'users'));
       
       if (!usersSnapshot.exists()) {
         result.className = "show error";
