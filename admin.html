@@ -410,6 +410,81 @@
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
 
+    /* Investment overview */
+    .investment-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .investment-stat {
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(15, 15, 30, 0.55);
+    }
+    .investment-stat-label {
+      display: block;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+    .investment-stat-value {
+      display: block;
+      margin-top: 6px;
+      color: #fff;
+      font-size: 26px;
+      font-weight: 800;
+    }
+    .investment-stat.active .investment-stat-value { color: var(--green); }
+    .investment-stat.completed .investment-stat-value { color: var(--text-muted); }
+    .investment-group { margin-top: 26px; }
+    .investment-group-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0 0 13px;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .investment-group-heading span {
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .investment-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+    .investment-card {
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(15, 15, 30, 0.55);
+      transition: transform 0.25s ease, border-color 0.25s ease;
+    }
+    .investment-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.14); }
+    .investment-card.completed { opacity: 0.72; }
+    .investment-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .investment-card-user { color: #fff; font-size: 16px; font-weight: 700; }
+    .investment-card-plan { margin-top: 4px; color: var(--text-muted); font-size: 12px; }
+    .investment-amount { margin: 18px 0 15px; color: var(--gold); font-size: 25px; font-weight: 800; }
+    .investment-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .investment-meta-item { padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.03); }
+    .investment-meta-item span { display: block; color: var(--text-dim); font-size: 10px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; }
+    .investment-meta-item strong { display: block; margin-top: 4px; color: var(--text); font-size: 13px; }
+    .investment-timer { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+    .investment-timer-label { color: var(--text-muted); font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; }
+    .investment-timer-value { margin-top: 5px; color: var(--green); font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .investment-card.completed .investment-timer-value { color: var(--text-muted); }
+    .investment-progress { height: 5px; margin-top: 11px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,0.07); }
+    .investment-progress-bar { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--green), #42e88a); transition: width 1s linear; }
+    .investment-card.completed .investment-progress-bar { background: var(--text-dim); }
+
     .status-badge {
       display: inline-block;
       padding: 6px 14px;
@@ -423,6 +498,8 @@
     .status-badge.pending { background: rgba(255, 187, 51, 0.12); color: var(--gold); border: 1px solid rgba(255, 187, 51, 0.3); }
     .status-badge.approved { background: rgba(0, 200, 81, 0.12); color: var(--green); border: 1px solid rgba(0, 200, 81, 0.3); }
     .status-badge.rejected { background: rgba(255, 68, 68, 0.12); color: var(--red); border: 1px solid rgba(255, 68, 68, 0.3); }
+    .status-badge.active { background: rgba(0, 200, 81, 0.12); color: var(--green); border: 1px solid rgba(0, 200, 81, 0.3); }
+    .status-badge.completed { background: rgba(136, 136, 160, 0.12); color: var(--text-muted); border: 1px solid rgba(136, 136, 160, 0.25); }
 
     .action-btn {
       padding: 12px 22px;
@@ -748,6 +825,7 @@
       .filter-tab { padding: 8px 14px; font-size: 12px; }
       .toggle-row { gap: 8px; }
       .toggle-btn { padding: 8px 14px; font-size: 12px; }
+      .investment-summary { grid-template-columns: 1fr; }
     }
   </style>
 <base target="_blank">
@@ -938,6 +1016,20 @@
   <!-- INVESTMENTS -->
   <div class="section-card" id="investments">
     <h3>📈 Investments</h3>
+    <div class="investment-summary" id="investmentSummary">
+      <div class="investment-stat active">
+        <span class="investment-stat-label">Active investments</span>
+        <strong class="investment-stat-value">0</strong>
+      </div>
+      <div class="investment-stat completed">
+        <span class="investment-stat-label">Completed</span>
+        <strong class="investment-stat-value">0</strong>
+      </div>
+      <div class="investment-stat">
+        <span class="investment-stat-label">Total invested</span>
+        <strong class="investment-stat-value">$0.00</strong>
+      </div>
+    </div>
     <div id="investList">
       <p class="no-data">Loading investments...</p>
     </div>
@@ -968,6 +1060,7 @@ let users = [];
 let deposits = [];
 let withdrawals = [];
 let investments = [];
+let investmentTimer = null;
 
 let filterStatus = "all";
 let withdrawFilterStatus = "all";
@@ -1540,20 +1633,108 @@ window.rejectWithdraw = async function(withdrawId, username, amount) {
   }
 };
 
+function getInvestmentState(investment, now = Date.now()) {
+  const savedStatus = String(investment.status || 'active').toLowerCase();
+  const startTime = Number(investment.investTime || investment.startTime || investment.createdAt || 0);
+  const durationMs = Number(investment.hours || 0) * 60 * 60 * 1000;
+  const endTime = startTime && durationMs ? startTime + durationMs : 0;
+
+  if (['completed', 'cancelled', 'rejected', 'failed'].includes(savedStatus)) {
+    return { status: savedStatus, startTime, endTime, remainingMs: 0, progress: 100 };
+  }
+
+  if (endTime && now >= endTime) {
+    return { status: 'completed', startTime, endTime, remainingMs: 0, progress: 100 };
+  }
+
+  const remainingMs = endTime ? Math.max(0, endTime - now) : null;
+  const progress = endTime ? Math.min(100, Math.max(0, ((now - startTime) / durationMs) * 100)) : 0;
+  return { status: 'active', startTime, endTime, remainingMs, progress };
+}
+
+function formatTimeLeft(milliseconds) {
+  if (milliseconds === null) return 'Time unavailable';
+  if (milliseconds <= 0) return 'Completed';
+  const totalSeconds = Math.ceil(milliseconds / 1000);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `${days ? days + 'd ' : ''}${hours}h ${minutes}m ${seconds}s`;
+}
+
+function renderInvestmentCard(investment, state) {
+  const amount = Number(investment.amount || 0);
+  const profit = Number(investment.profitPercent || 0) * 100;
+  const isCompleted = state.status === 'completed';
+  const startedAt = state.startTime ? new Date(state.startTime).toLocaleString() : 'N/A';
+  const timerTitle = isCompleted ? 'Investment status' : 'Time remaining';
+  const timerValue = isCompleted ? 'Completed' : formatTimeLeft(state.remainingMs);
+
+  return `
+    <article class="investment-card ${isCompleted ? 'completed' : ''}">
+      <div class="investment-card-top">
+        <div>
+          <div class="investment-card-user">${investment.user || 'Unknown user'}</div>
+          <div class="investment-card-plan">${investment.plan || 'Investment plan'}</div>
+        </div>
+        <span class="status-badge ${state.status}">${state.status}</span>
+      </div>
+      <div class="investment-amount">$${amount.toFixed(2)}</div>
+      <div class="investment-meta">
+        <div class="investment-meta-item"><span>Profit</span><strong>${profit}%</strong></div>
+        <div class="investment-meta-item"><span>Duration</span><strong>${investment.hours || 0} hours</strong></div>
+        <div class="investment-meta-item"><span>Started</span><strong>${startedAt}</strong></div>
+        <div class="investment-meta-item"><span>Ends</span><strong>${state.endTime ? new Date(state.endTime).toLocaleString() : 'N/A'}</strong></div>
+      </div>
+      <div class="investment-timer">
+        <div class="investment-timer-label">${timerTitle}</div>
+        <div class="investment-timer-value">${timerValue}</div>
+        <div class="investment-progress"><div class="investment-progress-bar" style="width:${state.progress}%"></div></div>
+      </div>
+    </article>`;
+}
+
 function loadInvestments() {
-  document.getElementById("investList").innerHTML = 
-    investments.length === 0 ? 
-    '<p class="no-data">No investments yet.</p>' :
-    investments.map(i => `
-      <div class="deposit-card">
-        <p><b>👤 User:</b> ${i.user}</p>
-        <p><b>📊 Plan:</b> ${i.plan}</p>
-        <p><b>💰 Amount:</b> $${i.amount}</p>
-        <p><b>📈 Profit:</b> ${(i.profitPercent * 100)}%</p>
-        <p><b>⏱️ Duration:</b> ${i.hours} hours</p>
-        <p><b>📊 Status:</b> <span class="status-badge ${i.status}">${i.status.toUpperCase()}</span></p>
-        <p><b>📅 Time:</b> ${new Date(i.investTime).toLocaleString()}</p>
-      </div>`).join("");
+  const now = Date.now();
+  const prepared = investments.map(investment => ({ investment, state: getInvestmentState(investment, now) }));
+  const active = prepared
+    .filter(item => item.state.status === 'active')
+    .sort((a, b) => b.state.startTime - a.state.startTime);
+  const completed = prepared
+    .filter(item => item.state.status !== 'active')
+    .sort((a, b) => b.state.endTime - a.state.endTime);
+  const totalInvested = investments.reduce((total, investment) => total + Number(investment.amount || 0), 0);
+
+  const summary = document.getElementById('investmentSummary');
+  if (summary) {
+    summary.innerHTML = `
+      <div class="investment-stat active"><span class="investment-stat-label">Active investments</span><strong class="investment-stat-value">${active.length}</strong></div>
+      <div class="investment-stat completed"><span class="investment-stat-label">Completed</span><strong class="investment-stat-value">${completed.length}</strong></div>
+      <div class="investment-stat"><span class="investment-stat-label">Total invested</span><strong class="investment-stat-value">$${totalInvested.toFixed(2)}</strong></div>`;
+  }
+
+  const list = document.getElementById('investList');
+  if (!list) return;
+  if (!investments.length) {
+    list.innerHTML = '<p class="no-data">No investments yet.</p>';
+    return;
+  }
+
+  list.innerHTML = `
+    <div class="investment-group">
+      <div class="investment-group-heading">Active investments <span>${active.length} currently running</span></div>
+      ${active.length ? `<div class="investment-grid">${active.map(item => renderInvestmentCard(item.investment, item.state)).join('')}</div>` : '<p class="no-data">No active investments right now.</p>'}
+    </div>
+    <div class="investment-group">
+      <div class="investment-group-heading">Completed investments <span>${completed.length} finished</span></div>
+      ${completed.length ? `<div class="investment-grid">${completed.map(item => renderInvestmentCard(item.investment, item.state)).join('')}</div>` : '<p class="no-data">No completed investments yet.</p>'}
+    </div>`;
+}
+
+function startInvestmentTimer() {
+  if (investmentTimer) clearInterval(investmentTimer);
+  investmentTimer = setInterval(loadInvestments, 1000);
 }
 
 function loadNotifications() {
@@ -1659,6 +1840,7 @@ function renderAll() {
   loadKycReviews();
   loadDeposits();
   loadInvestments();
+  startInvestmentTimer();
   loadWithdrawals();
   loadNotifications();
   updateSidebarBadges();
