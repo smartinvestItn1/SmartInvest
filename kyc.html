@@ -224,6 +224,7 @@
       z-index: 200; display: none; flex-direction: column;
       justify-content: center; align-items: center;
       padding: 24px; text-align: center;
+      pointer-events: all;
     }
     .locked-overlay.active { display: flex; }
     .locked-overlay .lock-icon {
@@ -759,45 +760,48 @@ function updateKycUI() {
   const title = document.getElementById('statusTitle');
   const desc = document.getElementById('statusDesc');
   const badge = document.getElementById('statusBadge');
-  const locked = document.getElementById('lockedOverlay');
-  const lockedTitle = document.getElementById('lockedTitle');
-  const lockedDesc = document.getElementById('lockedDesc');
   const submitBtn = document.getElementById('submitBtn');
 
-  card.classList.remove('verified', 'pending', 'rejected');
+  // Clean slate
+  card.classList.remove('status-none', 'verified', 'pending', 'rejected');
 
-  // The admin page saves an accepted review as "approved".
   if (status === 'approved') {
     card.classList.add('verified');
     title.innerText = 'Identity Verified';
     desc.innerText = 'Your account has passed all verification checks';
     badge.innerText = 'Verified';
-    lockedTitle.innerText = 'Already Verified';
-    lockedDesc.innerText = 'Your identity has been successfully verified. No further action needed.';
-    locked.classList.add('active');
     submitBtn.disabled = true;
-  } else if (status === 'pending') {
+    // Redirect to dashboard — already verified, no need to see this page
+    setTimeout(() => window.location.replace('dashboard.html'), 1200);
+    return;
+  }
+
+  if (status === 'pending') {
     card.classList.add('pending');
     title.innerText = 'Under Review';
     desc.innerText = 'Our team is reviewing your submitted documents';
     badge.innerText = 'Pending';
-    lockedTitle.innerText = 'Verification Submitted';
-    lockedDesc.innerText = 'Your documents are under review. You will be notified once the verification is complete.';
-    locked.classList.add('active');
     submitBtn.disabled = true;
     fillExistingData();
-  } else if (status === 'rejected') {
+    // Redirect to dashboard — already submitted, no need to see this page
+    setTimeout(() => window.location.replace('dashboard.html'), 1200);
+    return;
+  }
+
+  if (status === 'rejected') {
     card.classList.add('rejected');
     title.innerText = 'Verification Rejected';
     desc.innerText = userData.kycRejectionReason || 'Please review and resubmit your documents';
     badge.innerText = 'Rejected';
     fillExistingData();
-  } else {
-    card.classList.add('status-none');
-    title.innerText = 'Not Submitted';
-    desc.innerText = 'Complete the form below to verify your identity';
-    badge.innerText = 'None';
+    return;
   }
+
+  // Not submitted — show the form
+  card.classList.add('status-none');
+  title.innerText = 'Not Submitted';
+  desc.innerText = 'Complete the form below to verify your identity';
+  badge.innerText = 'None';
 }
 
 function fillExistingData() {
@@ -865,43 +869,41 @@ window.submitKyc = async function() {
   btn.classList.add('loading');
   btn.disabled = true;
 
-  try {
-    const kycData = {
-      fullName, dob, nationality, address, city, zipCode, country, phone,
-      submittedAt: Date.now(),
-      idFront: kycFiles.front,
-      idBack: kycFiles.back || '',
-      selfie: kycFiles.selfie
-    };
+  const kycData = {
+    fullName, dob, nationality, address, city, zipCode, country, phone,
+    submittedAt: Date.now(),
+    idFront: kycFiles.front,
+    idBack: kycFiles.back || '',
+    selfie: kycFiles.selfie
+  };
 
-    await update(ref(db, 'users/' + currentUsername), {
-      kycStatus: 'pending',
-      kycData: kycData,
-      kycRejectionReason: null
-    });
+  // Fire off the save in the background — don't wait
+  const savePromise = (async () => {
+    try {
+      await update(ref(db, 'users/' + currentUsername), {
+        kycStatus: 'pending',
+        kycData: kycData,
+        kycRejectionReason: null
+      });
 
-    const kycRef = push(ref(db, 'kycRequests'));
-    await update(ref(db), {
-      ['kycRequests/' + kycRef.key]: {
-        user: currentUsername,
-        uid: userData.uid,
-        status: 'pending',
-        submittedAt: Date.now(),
-        kycData: kycData
-      }
-    });
+      const kycRef = push(ref(db, 'kycRequests'));
+      await update(ref(db), {
+        ['kycRequests/' + kycRef.key]: {
+          user: currentUsername,
+          uid: userData.uid,
+          status: 'pending',
+          submittedAt: Date.now(),
+          kycData: kycData
+        }
+      });
+    } catch (err) {
+      console.error('Background KYC save error:', err);
+    }
+  })();
 
-    userData.kycStatus = 'pending';
-    userData.kycData = kycData;
-
-    showToast('KYC submitted successfully!', 'success');
-    setTimeout(() => updateKycUI(), 800);
-  } catch (err) {
-    console.error(err);
-    showToast('Submission failed. Try again.', 'error');
-    btn.classList.remove('loading');
-    btn.disabled = false;
-  }
+  // Redirect to dashboard immediately — don't make user wait for Firebase
+  showToast('KYC submitted! Redirecting...', 'success');
+  setTimeout(() => window.location.replace('dashboard.html'), 900);
 };
 
 function showToast(msg, type) {
@@ -912,7 +914,7 @@ function showToast(msg, type) {
   setTimeout(() => toast.classList.remove('show'), 3500);
 }
 
-window.goBack = () => window.location.href = "profile.html";
+window.goBack = () => window.location.replace('profile.html');
 window.goHome = () => window.location.href = "index.html";
 window.goHistory = () => window.location.href = "history.html";
 window.goSupport = () => window.location.href = "contact.html";
