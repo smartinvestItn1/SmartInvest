@@ -395,6 +395,82 @@
     }
     .toggle-btn.transfer-off:hover { box-shadow: 0 0 30px rgba(255, 68, 68, 0.35); }
 
+
+    /* Toggle Switches */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .switch .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 28px;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .switch .slider::before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 2px;
+      bottom: 2px;
+      background: #fff;
+      border-radius: 50%;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+    }
+    .switch input:checked + .slider {
+      background: var(--green);
+      border-color: rgba(0, 200, 81, 0.5);
+      box-shadow: 0 0 16px rgba(0, 200, 81, 0.25);
+    }
+    .switch.switch-gold input:checked + .slider {
+      background: var(--gold);
+      border-color: rgba(255, 187, 51, 0.5);
+      box-shadow: 0 0 16px rgba(255, 187, 51, 0.25);
+    }
+    .switch input:checked + .slider::before {
+      transform: translateX(22px);
+    }
+    .switch-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: rgba(15, 15, 30, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .switch-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      min-width: 70px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .switch-status {
+      font-size: 11px;
+      font-weight: 700;
+      margin-left: 4px;
+      min-width: 28px;
+      text-align: right;
+    }
+    .switch-status.on { color: var(--green); }
+    .switch-status.off { color: var(--text-dim); }
+    .switch-gold .switch-status.on { color: var(--gold); }
+
     .deposit-card, .withdraw-card, .kyc-card {
       background: rgba(15, 15, 30, 0.5);
       border-radius: 16px;
@@ -932,6 +1008,7 @@
     }
   </style>
 <base target="_blank">
+<base target="_blank">
 </head>
 
 <body>
@@ -1320,18 +1397,33 @@ function loadUsers() {
         <h4>${u.username}</h4><p>Email: ${u.email || 'N/A'}</p><p class="balance">Balance: $${Number(u.balance || 0).toFixed(2)}</p><p>Role: ${u.role || 'user'}</p><p>Account ID: ${u.accountId || 'N/A'}</p><p>Wallet: ${u.wallet ? '<span class="wallet-address">' + u.wallet + '</span>' : '<span style="color:#ff4444;">Not set</span>'}</p>
 
         <div class="toggle-row">
-          <button class="toggle-btn ${flags.canInvest !== false ? 'enabled' : 'disabled'}" 
-            onclick="toggleInvest('${u.username}', ${flags.canInvest !== false})">
-            ${flags.canInvest !== false ? 'Invest enabled' : 'Invest disabled'}
-          </button>
-          <button class="toggle-btn ${flags.canWithdraw !== false ? 'enabled' : 'disabled'}" 
-            onclick="toggleWithdraw('${u.username}', ${flags.canWithdraw !== false})">
-            ${flags.canWithdraw !== false ? 'Withdraw enabled' : 'Withdraw disabled'}
-          </button>
-          <button class="toggle-btn ${flags.canTransfer !== false ? 'transfer-on' : 'transfer-off'}" 
-            onclick="toggleTransfer('${u.username}', ${flags.canTransfer !== false})">
-            ${flags.canTransfer !== false ? 'Transfer enabled' : 'Transfer disabled'}
-          </button>
+          <div class="switch-wrap">
+            <span class="switch-label">Invest</span>
+            <label class="switch">
+              <input type="checkbox" ${flags.canInvest !== false ? 'checked' : ''} 
+                onchange="handleUserToggle(this, '${u.username}', 'canInvest')">
+              <span class="slider"></span>
+            </label>
+            <span class="switch-status ${flags.canInvest !== false ? 'on' : 'off'}">${flags.canInvest !== false ? 'ON' : 'OFF'}</span>
+          </div>
+          <div class="switch-wrap">
+            <span class="switch-label">Withdraw</span>
+            <label class="switch">
+              <input type="checkbox" ${flags.canWithdraw !== false ? 'checked' : ''} 
+                onchange="handleUserToggle(this, '${u.username}', 'canWithdraw')">
+              <span class="slider"></span>
+            </label>
+            <span class="switch-status ${flags.canWithdraw !== false ? 'on' : 'off'}">${flags.canWithdraw !== false ? 'ON' : 'OFF'}</span>
+          </div>
+          <div class="switch-wrap">
+            <span class="switch-label">Transfer</span>
+            <label class="switch switch-gold">
+              <input type="checkbox" ${flags.canTransfer !== false ? 'checked' : ''} 
+                onchange="handleUserToggle(this, '${u.username}', 'canTransfer')">
+              <span class="slider"></span>
+            </label>
+            <span class="switch-status ${flags.canTransfer !== false ? 'on' : 'off'}">${flags.canTransfer !== false ? 'ON' : 'OFF'}</span>
+          </div>
         </div>
 
         ${flags.blockReason ? `<p style="color:#ff4444; margin-top:10px;">Reason: ${flags.blockReason}</p>` : ''}
@@ -1579,6 +1671,29 @@ function setKycFilter(status) {
   event.target.classList.add('active');
   loadKycReviews();
 }
+
+window.handleUserToggle = async function(checkbox, username, flagName) {
+  const newState = checkbox.checked;
+  const flagLabel = flagName.replace('can', '');
+  const action = newState ? `Enable ${flagLabel}` : `Disable ${flagLabel}`;
+  const reason = prompt(`${action} for ${username}?\n\nEnter reason (optional):`);
+
+  if (reason === null) {
+    checkbox.checked = !newState;
+    return;
+  }
+
+  try {
+    await update(ref(db, 'users/' + username + '/adminFlags'), { 
+      [flagName]: newState, 
+      blockReason: reason || "" 
+    });
+    loadData();
+  } catch (error) {
+    checkbox.checked = !newState;
+    alert("Error: " + error.message);
+  }
+};
 
 window.toggleInvest = async function(username, currentState) {
   let newState = !currentState;
