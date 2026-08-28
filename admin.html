@@ -983,6 +983,73 @@
     }
     .img-lightbox .close-lightbox:hover { background: rgba(255,255,255,0.2); }
 
+    
+    /* Impersonation styles */
+    .impersonate-btn {
+      background: rgba(51, 181, 229, 0.15);
+      color: var(--blue);
+      border: 1px solid rgba(51, 181, 229, 0.4);
+      box-shadow: 0 0 20px rgba(51, 181, 229, 0.15);
+    }
+    .impersonate-btn:hover {
+      box-shadow: 0 0 30px rgba(51, 181, 229, 0.35);
+      transform: translateY(-2px);
+    }
+    .impersonation-banner {
+      position: fixed;
+      top: 0;
+      left: var(--sidebar-width);
+      right: 0;
+      height: 52px;
+      background: linear-gradient(90deg, rgba(51,181,229,0.25), rgba(51,181,229,0.1));
+      border-bottom: 1px solid rgba(51, 181, 229, 0.5);
+      backdrop-filter: blur(20px);
+      z-index: 180;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+    }
+    .impersonation-banner.active { display: flex; }
+    .impersonation-banner span {
+      color: var(--blue);
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.3px;
+    }
+    .impersonation-banner span strong {
+      color: #fff;
+      margin-left: 4px;
+    }
+    .impersonation-banner .exit-impersonate {
+      background: rgba(255, 68, 68, 0.15);
+      color: var(--red);
+      border: 1px solid rgba(255, 68, 68, 0.4);
+      padding: 9px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.25s ease;
+    }
+    .impersonation-banner .exit-impersonate:hover {
+      background: rgba(255, 68, 68, 0.28);
+      box-shadow: 0 0 20px rgba(255, 68, 68, 0.2);
+    }
+    @media (max-width: 768px) {
+      .impersonation-banner {
+        left: 0;
+        top: 60px;
+        padding: 0 16px;
+        height: 48px;
+      }
+      .impersonation-banner.active ~ .main-content,
+      .impersonation-banner.active ~ main.main-content {
+        padding-top: 108px !important;
+      }
+    }
+
     @media (max-width: 768px) {
       .kyc-detail-grid { grid-template-columns: 1fr; }
     }
@@ -1009,6 +1076,7 @@
   </style>
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 
 <body>
@@ -1025,6 +1093,13 @@
   <button class="hamburger" onclick="toggleSidebar()">☰</button>
   <h2>Admin</h2>
   <div style="width:40px;"></div>
+</div>
+
+
+<!-- IMPERSONATION BANNER -->
+<div class="impersonation-banner" id="impersonationBanner">
+  <span>🔵 You are impersonating <strong id="impersonatingUser">User</strong></span>
+  <button class="exit-impersonate" onclick="exitImpersonation()">Exit to Admin Panel</button>
 </div>
 
 <!-- SIDEBAR OVERLAY -->
@@ -1228,11 +1303,21 @@ onAuthStateChanged(auth, (user) => {
     return;
   }
   const role = sessionStorage.getItem("role");
+  const isImpersonating = sessionStorage.getItem('_impersonating');
+
+  // If impersonating a user, redirect to dashboard (admins can't use admin panel while in user mode)
+  if (isImpersonating && role !== "admin") {
+    window.location.href = "dashboard.html";
+    return;
+  }
+
   if (role !== "admin") {
     alert("Access denied. Admins only.");
     window.location.href = "dashboard.html";
     return;
   }
+
+  checkImpersonation();
   loadData();
 });
 
@@ -1371,6 +1456,92 @@ function showSendResult(msg, type) {
   setTimeout(() => div.classList.remove('show'), 5000);
 }
 
+/* ========== IMPERSONATION SYSTEM ========== */
+window.impersonateUser = async function(username) {
+  if (!confirm(`Impersonate ${username}?\n\nYou will be redirected to the user dashboard and see everything exactly as this user sees it.\n\n⚠️ Any actions you take will appear as this user.`)) return;
+
+  try {
+    showLoader();
+    const userSnap = await get(ref(db, 'users/' + username));
+    if (!userSnap.exists()) {
+      hideLoader();
+      alert('User not found in database.');
+      return;
+    }
+    const userData = userSnap.val();
+
+    // Save admin session snapshot
+    const adminSession = {
+      loggedInUser: sessionStorage.getItem('loggedInUser'),
+      role: sessionStorage.getItem('role'),
+      email: sessionStorage.getItem('email'),
+      accountId: sessionStorage.getItem('accountId'),
+      wallet: sessionStorage.getItem('wallet'),
+      timestamp: Date.now()
+    };
+    sessionStorage.setItem('_impersonation_admin', JSON.stringify(adminSession));
+
+    // Switch to target user session
+    sessionStorage.setItem('loggedInUser', username);
+    sessionStorage.setItem('role', userData.role || 'user');
+    sessionStorage.setItem('email', userData.email || '');
+    sessionStorage.setItem('accountId', userData.accountId || '');
+    sessionStorage.setItem('wallet', userData.wallet || '');
+    sessionStorage.setItem('_impersonating', username);
+
+    // Redirect to user dashboard
+    window.location.href = 'dashboard.html';
+  } catch (error) {
+    hideLoader();
+    alert('Error starting impersonation: ' + error.message);
+  }
+};
+
+window.exitImpersonation = function() {
+  const adminData = sessionStorage.getItem('_impersonation_admin');
+  if (!adminData) {
+    sessionStorage.removeItem('_impersonating');
+    window.location.href = 'admin.html';
+    return;
+  }
+
+  try {
+    const admin = JSON.parse(adminData);
+    // Restore admin session
+    sessionStorage.setItem('loggedInUser', admin.loggedInUser);
+    sessionStorage.setItem('role', admin.role);
+    sessionStorage.setItem('email', admin.email || '');
+    sessionStorage.setItem('accountId', admin.accountId || '');
+    sessionStorage.setItem('wallet', admin.wallet || '');
+
+    // Clean up impersonation keys
+    sessionStorage.removeItem('_impersonation_admin');
+    sessionStorage.removeItem('_impersonating');
+
+    window.location.href = 'admin.html';
+  } catch (e) {
+    sessionStorage.clear();
+    window.location.href = 'login.html';
+  }
+};
+
+function checkImpersonation() {
+  const impersonating = sessionStorage.getItem('_impersonating');
+  const banner = document.getElementById('impersonationBanner');
+  const userSpan = document.getElementById('impersonatingUser');
+  const mainContent = document.querySelector('.main-content');
+
+  if (impersonating && banner && userSpan) {
+    userSpan.textContent = impersonating;
+    banner.classList.add('active');
+    if (mainContent) mainContent.style.paddingTop = '76px';
+  } else if (banner) {
+    banner.classList.remove('active');
+    if (mainContent) mainContent.style.paddingTop = '';
+  }
+}
+
+
 function loadUsers() {
   let search = document.getElementById("searchUser").value.toLowerCase();
   let filtered = users.filter(u => (u.username || "").toLowerCase().includes(search));
@@ -1435,6 +1606,7 @@ function loadUsers() {
             style="padding:8px 15px; background:#ffbb33; color:black; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">
             Save Reason
           </button>
+          <button class="toggle-btn impersonate-btn" onclick="impersonateUser('${u.username}')">👤 Impersonate User</button>
         </div>
       </div>`;
     }).join("");
@@ -2051,6 +2223,7 @@ window.setWithdrawFilter = setWithdrawFilter;
 window.setUserFilter = setUserFilter;
 window.setKycFilter = setKycFilter;
 window.logout = logout;
+window.exitImpersonation = exitImpersonation;
 
 </script>
 
