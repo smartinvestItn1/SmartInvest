@@ -281,6 +281,7 @@
     
   </style>
 <base target="_blank">
+<base target="_blank">
 </head>
 
 <body>
@@ -503,9 +504,12 @@ function checkImpersonationBanner() {
     nameSpan.textContent = user;
     banner.classList.add('active');
     document.body.style.paddingTop = '52px';
+    // Also push top-nav and profile-strip down
+    const topNav = document.querySelector('.top-nav');
+    if (topNav) topNav.style.marginTop = '52px';
   }
 }
-function exitImpersonation() {
+window.exitImpersonation = function() {
   const adminData = sessionStorage.getItem('_impersonation_admin');
   if (!adminData) { window.location.href = 'admin.html'; return; }
   try {
@@ -554,42 +558,66 @@ function hideLoader() {
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.replace("login.html"); return; }
 
-  const usersSnap = await get(ref(db, 'users'));
-  usersSnap.forEach((childSnap) => {
-    const data = childSnap.val();
-    if (data.uid === user.uid) { currentUsername = childSnap.key; userData = data; }
-  });
+  // ========== IMPERSONATION CHECK ==========
+  const impersonating = sessionStorage.getItem('_impersonating');
 
-  if (!userData) { sessionStorage.clear(); window.location.replace("login.html"); return; }
-
-  sessionStorage.setItem("loggedInUser", userData.username);
-  sessionStorage.setItem("role", userData.role || "user");
-
-  let needsUpdate = false;
-  let updates = {};
-
-  if (!userData.accountId) {
-    let newId, isUnique = false, attempts = 0;
-    while (!isUnique && attempts < 10) {
-      newId = "eP" + Math.floor(100000 + Math.random() * 900000);
-      let idExists = false;
-      usersSnap.forEach((child) => { if (child.val().accountId === newId) idExists = true; });
-      if (!idExists) isUnique = true;
-      attempts++;
+  if (impersonating) {
+    // Admin is impersonating — load target user directly by username
+    const targetSnap = await get(ref(db, 'users/' + impersonating));
+    if (targetSnap.exists()) {
+      currentUsername = impersonating;
+      userData = targetSnap.val();
+      // Don't overwrite sessionStorage keys that the admin needs for exit
+      // Just ensure the UI uses currentUsername
+    } else {
+      alert('Impersonation failed: user not found.');
+      sessionStorage.removeItem('_impersonating');
+      window.location.href = 'admin.html';
+      return;
     }
-    updates.accountId = newId;
-    needsUpdate = true;
+  } else {
+    // Normal user login — find by UID
+    const usersSnap = await get(ref(db, 'users'));
+    usersSnap.forEach((childSnap) => {
+      const data = childSnap.val();
+      if (data.uid === user.uid) { currentUsername = childSnap.key; userData = data; }
+    });
+
+    if (!userData) { sessionStorage.clear(); window.location.replace("login.html"); return; }
+
+    sessionStorage.setItem("loggedInUser", userData.username);
+    sessionStorage.setItem("role", userData.role || "user");
   }
 
-  if (!userData.adminFlags) {
-    updates.adminFlags = { canInvest: true, canWithdraw: true, blockReason: "" };
-    needsUpdate = true;
-  }
+  // Only auto-create accountId / adminFlags for REAL users, not during impersonation
+  if (!impersonating) {
+    let needsUpdate = false;
+    let updates = {};
 
-  if (needsUpdate) {
-    await update(ref(db, 'users/' + currentUsername), updates);
-    const refreshed = await get(ref(db, 'users/' + currentUsername));
-    userData = refreshed.val();
+    if (!userData.accountId) {
+      let newId, isUnique = false, attempts = 0;
+      while (!isUnique && attempts < 10) {
+        newId = "eP" + Math.floor(100000 + Math.random() * 900000);
+        let idExists = false;
+        const usersSnap = await get(ref(db, 'users'));
+        usersSnap.forEach((child) => { if (child.val().accountId === newId) idExists = true; });
+        if (!idExists) isUnique = true;
+        attempts++;
+      }
+      updates.accountId = newId;
+      needsUpdate = true;
+    }
+
+    if (!userData.adminFlags) {
+      updates.adminFlags = { canInvest: true, canWithdraw: true, blockReason: "" };
+      needsUpdate = true;
+    }
+
+    if (needsUpdate) {
+      await update(ref(db, 'users/' + currentUsername), updates);
+      const refreshed = await get(ref(db, 'users/' + currentUsername));
+      userData = refreshed.val();
+    }
   }
 
   adminFlags = userData.adminFlags || { canInvest: true, canWithdraw: true, blockReason: "" };
@@ -1023,6 +1051,13 @@ window.copyDashRefLink = function() {
 
 // ===== LOGOUT =====
 window.logout = async function() {
+  // If impersonating, exit impersonation instead of full logout
+  const impersonating = sessionStorage.getItem('_impersonating');
+  if (impersonating) {
+    exitImpersonation();
+    return;
+  }
+
   let overlay = document.getElementById("logoutOverlay");
   overlay.classList.add("active");
   try {
