@@ -278,6 +278,7 @@
       .whatsapp-float { width: 50px; height: 50px; }
       .whatsapp-float svg { width: 24px; height: 24px; }
     }
+    
   </style>
 <base target="_blank">
 </head>
@@ -465,7 +466,62 @@
 
 <!-- LOGOUT OVERLAY -->
 <div id="logoutOverlay" class="logout-overlay"><div class="loader"></div><p>Logging out...</p></div>
+<!-- IMPERSONATION BANNER — add this to dashboard.html -->
+<style>
+  .impersonation-banner {
+    position: fixed; top: 0; left: 0; right: 0; height: 52px;
+    background: linear-gradient(90deg, rgba(51,181,229,0.25), rgba(51,181,229,0.1));
+    border-bottom: 1px solid rgba(51,181,229,0.5);
+    backdrop-filter: blur(20px); z-index: 9999;
+    display: none; align-items: center; justify-content: space-between;
+    padding: 0 28px; font-family: 'Inter', sans-serif;
+  }
+  .impersonation-banner.active { display: flex; }
+  .impersonation-banner span { color: #33b5e5; font-weight: 700; font-size: 14px; }
+  .impersonation-banner span strong { color: #fff; margin-left: 4px; }
+  .impersonation-banner button {
+    background: rgba(255,68,68,0.15); color: #ff4444;
+    border: 1px solid rgba(255,68,68,0.4); padding: 9px 20px;
+    border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 13px;
+    font-family: 'Inter', sans-serif; transition: all 0.25s ease;
+  }
+  .impersonation-banner button:hover {
+    background: rgba(255,68,68,0.28); box-shadow: 0 0 20px rgba(255,68,68,0.2);
+  }
+</style>
+<div class="impersonation-banner" id="impersonationBanner">
+  <span>🔵 Impersonating <strong id="impersonatingUser">User</strong></span>
+  <button onclick="exitImpersonation()">Exit to Admin Panel</button>
+</div>
 
+<script>
+function checkImpersonationBanner() {
+  const user = sessionStorage.getItem('_impersonating');
+  const banner = document.getElementById('impersonationBanner');
+  const nameSpan = document.getElementById('impersonatingUser');
+  if (user && banner && nameSpan) {
+    nameSpan.textContent = user;
+    banner.classList.add('active');
+    document.body.style.paddingTop = '52px';
+  }
+}
+function exitImpersonation() {
+  const adminData = sessionStorage.getItem('_impersonation_admin');
+  if (!adminData) { window.location.href = 'admin.html'; return; }
+  try {
+    const admin = JSON.parse(adminData);
+    sessionStorage.setItem('loggedInUser', admin.loggedInUser);
+    sessionStorage.setItem('role', admin.role);
+    sessionStorage.setItem('email', admin.email || '');
+    sessionStorage.setItem('accountId', admin.accountId || '');
+    sessionStorage.setItem('wallet', admin.wallet || '');
+    sessionStorage.removeItem('_impersonation_admin');
+    sessionStorage.removeItem('_impersonating');
+    window.location.href = 'admin.html';
+  } catch (e) { sessionStorage.clear(); window.location.href = 'login.html'; }
+}
+checkImpersonationBanner();
+</script>
 <script type="module">
 import { auth, db } from "./firebase.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
