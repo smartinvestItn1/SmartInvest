@@ -835,9 +835,8 @@
     const btn = document.getElementById("loginBtn");
     if (btn.disabled) return false;
     let email = document.getElementById("email").value.trim();
-    let password = document.getElementById("password").value;
+    let password = document.getElementById("password").value.trim();
     let result = document.getElementById("result");
-
     if (!email || !password) {
       result.className = "show error";
       result.innerText = "Please fill all fields!";
