@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,7 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login — SmartInvest</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <link rel="preconnect" href="https://www.gstatic.com">
+  <link rel="preconnect" href="https://identitytoolkit.googleapis.com">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -695,9 +698,11 @@
   import { signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  emailjs.init("adbMnb80leKvWnxdc");
+  if (window.emailjs) emailjs.init("adbMnb80leKvWnxdc");
 
   function notifyAdmin(subject, message) {
+    if (!window.emailjs) return;
+    try { emailjs.init("adbMnb80leKvWnxdc"); } catch(e) {}
     emailjs.send("service_axq48s8", "template_xmmwgim", {
       subject: subject, message: message,
       name: "SmartInvest Login", email: "noreply@smartinvest.com"
@@ -750,8 +755,8 @@
         } else {
           window.location.href = "dashboard.html";
         }
-      }, 250);
-    }, 1500);
+      }, 150);
+    }, 700);
   }
 
   window.togglePassword = function() {
@@ -806,49 +811,51 @@
     let email = document.getElementById("email").value.trim();
     let password = document.getElementById("password").value.trim();
     let result = document.getElementById("result");
-    
+
     if (!email || !password) {
       result.className = "show error";
       result.innerText = "Please fill all fields!";
       return false;
     }
-    
+
     btn.disabled = true;
     btn.classList.add("loading");
     result.className = "show loading";
     result.innerText = "Verifying credentials...";
-    
+
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      
-      // Read the existing user collection without requiring a Firebase index.
-      const usersSnapshot = await get(ref(db, 'users'));
-      
-      if (!usersSnapshot.exists()) {
-        result.className = "show error";
-        result.innerText = "No users found in database.";
-        btn.disabled = false; btn.classList.remove("loading");
-        return false;
-      }
-      
+
+      // Fast path: read only this user's record (users/{uid}).
       let foundUser = null;
-      usersSnapshot.forEach((childSnapshot) => {
-        const userData = childSnapshot.val();
-        if (userData.uid === user.uid) foundUser = userData;
-      });
-      
+      try {
+        const direct = await get(ref(db, 'users/' + user.uid));
+        if (direct.exists()) foundUser = direct.val();
+      } catch (e) { /* fall back below */ }
+
+      // Fallback: scan the users list (only if record is stored under a different key).
+      if (!foundUser) {
+        const usersSnapshot = await get(ref(db, 'users'));
+        if (usersSnapshot.exists()) {
+          usersSnapshot.forEach((childSnapshot) => {
+            const userData = childSnapshot.val();
+            if (userData && userData.uid === user.uid) { foundUser = userData; return true; }
+          });
+        }
+      }
+
       if (!foundUser) {
         result.className = "show error";
         result.innerText = "Account data not found. Please contact support.";
         btn.disabled = false; btn.classList.remove("loading");
         return false;
       }
-      
+
       sessionStorage.setItem("loggedInUser", foundUser.username);
       sessionStorage.setItem("role", foundUser.role || "user");
       sessionStorage.setItem("uid", user.uid);
-      
+
       notifyAdmin(
         "🔐 Login Alert — " + (foundUser.username || "User"),
         "User: " + (foundUser.username || "Unknown") + "\nEmail: " + email +
@@ -856,15 +863,15 @@
         "\nTime: " + new Date().toLocaleString() +
         "\nBalance: $" + (foundUser.balance || 0).toFixed(2)
       );
-      
+
       // Show welcome animation instead of immediate redirect
       showWelcome(foundUser.username, foundUser.role);
-      
+
     } catch (error) {
       btn.disabled = false;
       btn.classList.remove("loading");
       result.className = "show error";
-      
+
       if (error.code === "auth/user-not-found") result.innerText = "No account found. Please sign up.";
       else if (error.code === "auth/wrong-password") result.innerText = "Wrong password.";
       else if (error.code === "auth/invalid-email") result.innerText = "Invalid email.";
@@ -872,7 +879,7 @@
       else if (error.code === "auth/invalid-credential") result.innerText = "Wrong email or password.";
       else result.innerText = "Error: " + error.message;
     }
-    
+
     return false;
   };
 
